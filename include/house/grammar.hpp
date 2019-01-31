@@ -23,6 +23,7 @@ namespace House {
         
         virtual ~Grammar() {}
         virtual Class classOf(const std::string& word) const = 0;
+        virtual bool meansBeing(const std::string& word) const = 0;
         virtual std::string objectiveOf(const std::string& pronoun) const = 0;
         virtual std::string subjectiveOf(const std::string& pronoun) const = 0;
     };
@@ -34,6 +35,7 @@ namespace House {
         virtual ~BasicEnglish() {}
 
         virtual Grammar::Class classOf(const std::string& word) const;
+        virtual bool meansBeing(const std::string& word) const;
         virtual std::string objectiveOf(const std::string& pronoun) const;
         virtual std::string subjectiveOf(const std::string& pronoun) const;
         

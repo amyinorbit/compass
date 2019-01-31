@@ -20,7 +20,7 @@ namespace House {
      
      template <typename T>
      bool contains(const std::set<T>& set, const T& key) {
-         return set.find(key) == set.end();
+         return set.find(key) != set.end();
      }
     
     const std::set<std::string> BasicEnglish::subjectives_ = {
@@ -53,6 +53,11 @@ namespace House {
         if(contains(prepositions_, low)) return Grammar::Preposition;
         if(contains(conjunctions_, low)) return Grammar::Conjunction;
         return Grammar::Neutral;
+    }
+    
+    bool BasicEnglish::meansBeing(const std::string& word) const {
+        const auto low = toLower(word);
+        return low == "is" || low == "are";
     }
     
     std::string BasicEnglish::objectiveOf(const std::string& pronoun) const {
