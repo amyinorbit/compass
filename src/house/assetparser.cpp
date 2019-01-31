@@ -72,11 +72,6 @@ namespace House {
     }
     
     void AssetParser::compile() {
-        // auto tok = nextToken();
-        // while(tok.kind != Token::End) {
-        //     std::cout << "token: [" << names[tok.kind] << "] " << tok.text << "\n";
-        //     tok = nextToken();
-        // }
         nextToken();
         recAssetDesc();
         if(have(Token::Objects)) {

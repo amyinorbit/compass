@@ -1,5 +1,5 @@
 //===--------------------------------------------------------------------------------------------===
-// lexer.cpp - House::AssetParser lexing methods.
+// lexer.cpp - House::Lexer lexing methods.
 // This source is part of the House Engine
 //
 // Created on 2019-01-30 by Amy Parent <amy@amyparent.com>
@@ -13,40 +13,48 @@
 #include <cassert>
 #include <vector>
 #include <string>
-#include <house/parser.hpp>
+#include <house/lexer.hpp>
+
+std::string tokenNames__[] = {
+    "Keyword",
+    "Integer",
+    "Word",
+    "QuotedString",
+    "Dash",
+    "Comma",
+    "Period",
+    "Amp",
+    "Colon",
+    "End",
+};
 
 namespace House {
     
-    static std::string toLower(const std::string& str) {
-        std::string lower = str;
-        std::transform(lower.begin(), lower.end(), lower.begin(), ::tolower);
-        return lower;
+    std::string Token::type() const {
+        return tokenNames__[kind];
+    }
+    
+    Lexer::Lexer(const std::string& source)
+        : source_(source), ptr_(0) {}
+    
+    void Lexer::reset() {
+        ptr_ = 0;
+    }
+    
+    const Token& Lexer::currentToken() {
+        return currentToken_;
     }
 
-    // TODO: in the future, we probably want to load allowable articles from a dev's file?
-    // TODO: replace these with sets
-    static const std::vector<std::string> articles = {
-        "a", "an", "the", "some", "they"
-    };
-
-    static const std::vector<std::string> descriptives = {
-        "this", "that", "it", "they", "them" // TODO: Really, we should have pronounds too
-    };
-
-    static const std::vector<std::string> prepositions = {
-        "to", "from", "on", "above", "at"
-    };
-
-    std::size_t AssetParser::remaining() const {
-        return file_.length() - ptr_;
+    std::size_t Lexer::remaining() const {
+        return source_.length() - ptr_;
     }
 
-    codepoint_t AssetParser::current() const {
-        return utf8_getCodepoint(file_.data() + ptr_, remaining());
+    codepoint_t Lexer::current() const {
+        return utf8_getCodepoint(source_.data() + ptr_, remaining());
     }
 
-    codepoint_t AssetParser::nextChar() {
-        if(ptr_ >= file_.size()) return current_ = '\0';
+    codepoint_t Lexer::nextChar() {
+        if(ptr_ >= source_.size()) return current_ = '\0';
     
         current_ = current();
         auto size = utf8_codepointSize(current_);
@@ -56,92 +64,68 @@ namespace House {
         return current_;
     }
 
-    bool AssetParser::isIdentifier(codepoint_t c) {
+    bool Lexer::isIdentifier(codepoint_t c) {
         return utf8_isIdentifier(c)
             || c == '-'
             || c == '\'';
     }
 
-    void AssetParser::updateTokenStart() {
+    void Lexer::updateTokenStart() {
         start_ = ptr_;
     }
 
-    const Token& AssetParser::lexKeyword() {
+    const Token& Lexer::lexKeyword() {
         while(isIdentifier(current())) {
             nextChar();
         }
     
         const auto length = ptr_ - start_;
-        const auto str = file_.substr(start_, length);
+        const auto str = source_.substr(start_, length);
     
-        if (str == "#objects") {
-            return makeToken(Token::Objects);
-        }
-        if (str == "#links") {
-            return makeToken(Token::Links);
-        }
-        std::cerr << "Invalid section keyword '" << str << "' in '" << key_ << "'\n";
-        abort();
+        return makeToken(Token::Keyword, str);
     }
 
-    const Token& AssetParser::lexString() {
+    const Token& Lexer::lexString() {
     
         while(current() != '"') {
             codepoint_t c = nextChar();
-        
-            //if(c == '"') break;
             if(c == '\0') {
-                std::cerr << "quoted string not finished in '" << key_ << "'\n";
+                std::cerr << "quoted string not finished\n";
                 abort();
             }
         }
         nextChar();
     
         const auto length = (ptr_ - start_)-2;
-        return makeToken(Token::QuotedString, file_.substr(start_+1, length));
+        return makeToken(Token::QuotedString, source_.substr(start_+1, length));
     }
 
-    const Token& AssetParser::lexWord() {
+    const Token& Lexer::lexWord() {
         while(isIdentifier(current())) {
             nextChar();
         }
     
         const auto length = ptr_ - start_;
-        const auto str = file_.substr(start_, length);
-        const auto low = toLower(str);
-    
-        // Check if it's an article!
-        // TODO: we probably need some sort of case-insensitive compare here :/
-        if(std::find(articles.begin(), articles.end(), low) != articles.end())
-            return makeToken(Token::Article, str);
-        if(std::find(descriptives.begin(), descriptives.end(), low) != descriptives.end())
-            return makeToken(Token::Descriptive, str);
-        if(low == "is" || low == "are")
-            return makeToken(Token::Be, str);
-        if(low == "can")
-            return makeToken(Token::Can, str);
-        if(low == "you")
-            return makeToken(Token::You, str);
+        const auto str = source_.substr(start_, length);
         return makeToken(Token::Word, str);
     }
 
-    const Token& AssetParser::lexNumber() {
+    const Token& Lexer::lexNumber() {
         while(current() >= '0' && current() < '9') {
             nextChar();
         }
         const auto length = (ptr_ - start_);
-        return makeToken(Token::Article, file_.substr(start_, length));
+        return makeToken(Token::Integer, source_.substr(start_, length));
     }
 
-    const Token& AssetParser::makeToken(Token::Kind kind, const std::string& str) {
+    const Token& Lexer::makeToken(Token::Kind kind, const std::string& str) {
         currentToken_.kind = kind;
         currentToken_.text = str;
-        //std::cout << "[ " << currentToken_.kind << " ] " << currentToken_.text << "\n";
         return currentToken_;
     }
 
-    const Token& AssetParser::nextToken() {
-        if(ptr_ >= file_.size()) {
+    const Token& Lexer::nextToken() {
+        if(ptr_ >= source_.size()) {
             return makeToken(Token::End);
         }
     
@@ -188,7 +172,7 @@ namespace House {
                     if (utf8_isIdentifierHead(c)) {
                         return lexWord();
                     }
-                    std::cerr << "Invalid character in room file '" << key_ << "': "<< (char)c <<"\n";
+                    std::cerr << "Invalid character: "<< (char)c <<"\n";
                     abort();
             }
         }
