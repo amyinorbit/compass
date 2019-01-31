@@ -46,7 +46,7 @@ namespace House {
     }
     
     bool AssetParser::have(Grammar::Class wordClass) const {
-        return grammar_.classOf(lex_.currentToken().text) == wordClass;
+        return grammar_.is(lex_.currentToken().text, wordClass);
     }
     
     void AssetParser::matchBeing(const std::string& error) {
@@ -78,79 +78,113 @@ namespace House {
         lex_.nextToken();
     }
     
-    void AssetParser::compile() {
+    House::Room AssetParser::compile() {
         eat();
-        recAssetDesc();
+        auto asset = recAssetDesc();
+        
         if(have("objects")) {
-            recObjects();
+            match("objects");
+            match(Token::Colon);
+            while(have(Token::Dash))
+                asset.objects.push_back(recObject());
         }
+        
+        if(have("around")) {
+            match("around");
+            match(Token::Colon);
+            while(have(Token::Dash))
+                asset.links.push_back(recLink());
+        }
+        return asset;
     }
 
-    void AssetParser::recAssetDesc() {
+    House::Room AssetParser::recAssetDesc() {
         match("this", "missing subject in asset description");
         matchBeing();
         
-        std::string article = "";
-        std::string name = "";
+        House::Room room;
 
         if(have(Grammar::Definite) || have(Grammar::Indefinite)) {
-            article = lex_.currentToken().text;
+            room.article = lex_.currentToken().text;
             eat();
         }
 
-        name = recWords();
+        room.name = recWords();
         match(Token::Period, "Asset description must end with a period");
-        std::cout << "This is: " << name << " (" << article << ")\n";
+        std::cout << "This is: " << room.name << "\n";
         
-        // TODO: this is a hack
-        if(have(Grammar::Subjective) || have("it")) {
-            const auto desc = recDetailedDesc();
-            std::cout << " > " << desc << "\n";
+        if(have(Grammar::Subjective)) {
+            room.description = recDetailedDesc();
+            std::cout << " > " << room.description << "\n";
         }
+        
+        return room;
     }
 
-    void AssetParser::recObjects() {
-        match("objects");
-        match(Token::Colon);
+    House::Object AssetParser::recObject() {
+        House::Object obj;
+        
+        match(Token::Dash);
+        obj.article = lex_.currentToken().text;
+        match(Grammar::Indefinite);
+        obj.name = recWords();
+        obj.adjectives = recAdjectives();
+        match(Token::Period);
+        
+        for(const auto& adj: obj.adjectives) {
+            std::cout << adj << " ";
+        }
+        std::cout << obj.name << "\n";
 
-        while(have(Token::Dash)) {
+        if(have("you")) {
+            obj.verbs = recVerbs();
+            std::cout << "you can ";
+            for(const auto& v: obj.verbs) {
+                std::cout << v << " it,";
+                
+            }
+            std::cout << ".\n";
+        }
+
+        if(have(Grammar::Subjective)) {
+            obj.description = recDetailedDesc();
+            std::cout << " > " << obj.description << "\n";
+        }
+        
+        return obj;
+    }
+    
+    House::Link AssetParser::recLink() {
+        House::Link link;
+        
+        match(Token::Dash);
+        
+        if(have(Grammar::Indefinite) || have(Grammar::Definite)) {
+            link.article = lex_.currentToken().text;
             eat();
-            
-            const auto article = lex_.currentToken().text;
-            match(Grammar::Indefinite);
-            auto name = recWords();
-            auto adjectives = recAdjectives();
-            match(Token::Period);
-
-            std::cout << article << " ";
-            for(const auto& adj: adjectives) {
-                std::cout << adj << " ";
-            }
-            std::cout << name << "\n";
-
-            if(have("you")) {
-                const auto verbs = recVerbs();
-                std::cout << "you can ";
-                for(const auto& v: verbs)
-                    std::cout << v << " it, ";
-                std::cout << ".";
-            }
-
-            if(have(Grammar::Subjective) || have("it")) {
-                const auto desc = recDetailedDesc();
-                std::cout << " > " << desc << "\n";
-            }
         }
-    }
-
-    void AssetParser::recLinks() {
+        link.name = recWords("is");
+        matchBeing("other rooms must be situated around this one");
+        link.direction = recDirection();
         
+        std::cout << link.name << " is " << link.direction << "\n";
+        match(Token::Period);
+        
+        if(have(Grammar::Subjective)) {
+            link.description = recDetailedDesc();
+            std::cout << " > " << link.description << "\n";
+        }
+        return link;
     }
-
+    
+    std::string AssetParser::recDirection() {
+        auto dir = lex_.currentToken().text;
+        match(Token::Word);
+        return dir;
+    }
+    
     std::string AssetParser::recDetailedDesc() {
-        // TODO: this is a hack
-        eat();
-        //match(Grammar::Subjective, "detailedDescriptions must start with a subject");
+        match(Grammar::Subjective, "detailedDescriptions must start with a subject");
         matchBeing();
         const auto str = lex_.currentToken().text;
         match(Token::QuotedString);
@@ -160,7 +194,7 @@ namespace House {
 
     std::vector<std::string> AssetParser::recAdjectives() {
         std::vector<std::string> adjectives;
-        while(have(Token::Comma) || have(Token::Amp)) {
+        while(have(Token::Comma) || have(Token::Amp) || have("and")) {
             eat();
             adjectives.push_back(recWords());
         }
@@ -173,7 +207,7 @@ namespace House {
         match("can");
         verbs.push_back(recVerb());
         
-        while(have(Token::Comma) || have(Token::Amp)) {
+        while(have(Token::Comma) || have(Token::Amp) || have("and")) {
             eat();
             verbs.push_back(recVerb());
         }
@@ -194,9 +228,9 @@ namespace House {
     }
 
     // Basic chunks recognisers
-    std::string AssetParser::recWords() {
+    std::string AssetParser::recWords(const std::string& stop) {
         std::string str = "";
-        while(have(Token::Word)) {
+        while(have(Token::Word) && !have(stop)) {
             str += " " + lex_.currentToken().text;
             eat();
         }

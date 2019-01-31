@@ -15,30 +15,24 @@ namespace House {
     using std::string;
     using std::vector;
     
-    enum class Direction {
-        North, Northeast, East, Southeast, South, Southwest,
+    struct Asset {
+        string          article;
+        string          name;
+        string          description;
     };
     
-    struct Object {
-        string          name;
-        string          uniqueID;
-        
+    struct Object: public Asset {
         vector<string>  adjectives;
         vector<string>  verbs;
     };
         
-    struct Link {
-        string          name;
-        string          uniqueID;
-        
-        string          description;
+    struct Link: public Asset {
+        string          linkID;
         string          direction;
     };
     
-    struct Room {
-        string          name;
-        string          description;
-        
+    struct Room: public Asset {
+        string          uniqueID;
         vector<Object>  objects;
         vector<Link>    links;
     };

@@ -10,15 +10,16 @@
 #pragma once
 #include <string>
 #include <set>
-#include <house/lexer.hpp>
+#include <house/asset.hpp>
 #include <house/grammar.hpp>
+#include <house/lexer.hpp>
 
 namespace House {
     
     class AssetParser {
     public:
         AssetParser(const std::string& data, const Grammar& grammar);
-        void compile();
+        House::Room compile();
     
     private:
         void syntaxError(const std::string& message) const;
@@ -38,15 +39,17 @@ namespace House {
         
         void eat();
         
-        void recAssetDesc();
-        void recObjects();
-        void recLinks();
+        House::Room recAssetDesc();
+        // void recObjects();
+        House::Object recObject();
+        House::Link recLink();
+        std::string recDirection();
 
         std::string recDetailedDesc();
         std::vector<std::string> recAdjectives();
         std::vector<std::string> recVerbs();
         std::string recVerb();
-        std::string recWords();
+        std::string recWords(const std::string& stop = "");
         
         Lexer lex_;
         const Grammar& grammar_;

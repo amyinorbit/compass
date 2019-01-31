@@ -36,7 +36,7 @@ namespace House {
     };
     
     const std::set<std::string> BasicEnglish::prepositions_ = {
-        "to", "off", "on", "under", "in"
+        "to", "off", "on", "under", "in", "at"
     };
     
     const std::set<std::string> BasicEnglish::conjunctions_ = {
@@ -61,6 +61,21 @@ namespace House {
     bool BasicEnglish::meansBeing(const std::string& word) const {
         const auto low = toLower(word);
         return low == "is" || low == "are";
+    }
+    
+    bool BasicEnglish::is(const std::string& word, Grammar::Class wordClass) const {
+        const auto low = toLower(word);
+        switch(wordClass) {
+            case Grammar::Definite: return low == "the";
+            case Grammar::Indefinite: return low == "a" || low == "an";
+            case Grammar::Objective: return contains(objectives_, low);
+            case Grammar::Subjective: return contains(subjectives_, low);
+            case Grammar::Demonstrative: return contains(demonstratives_, low);
+            case Grammar::Preposition: return contains(prepositions_, low);
+            case Grammar::Conjunction: return contains(conjunctions_, low);
+            default: return true;
+        }
+        return false;
     }
     
     std::string BasicEnglish::objectiveOf(const std::string& pronoun) const {
