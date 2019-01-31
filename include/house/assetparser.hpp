@@ -11,39 +11,45 @@
 #include <string>
 #include <set>
 #include <house/lexer.hpp>
+#include <house/grammar.hpp>
 
 namespace House {
     
     class AssetParser {
     public:
-        AssetParser(const std::string& key, std::istream& stream);
-        const std::string& key() const;
-    
+        AssetParser(const std::string& data, const Grammar& grammar);
         void compile();
     
     private:
+        void syntaxError(const std::string& message) const;
         
         // PARSING
-        bool have(Token::Kind kind);
-        bool have(const std::set<Token::Kind>& kinds);
+        bool haveBeing() const;
+        bool have(Token::Kind kind) const;
+        bool have(const std::set<Token::Kind>& kinds) const;
+        bool have(const std::string& word) const;
+        bool have(Grammar::Class wordClass) const;
+        
+        void matchBeing(const std::string& error = "invalid token");
         void match(Token::Kind kind, const std::string& error = "invalid token");
         void match(const std::set<Token::Kind>& kinds, const std::string& error = "invalid token");
-        
-        void haveWord(const std::string& word);
-        void matchWord(const std::string& word, const std::string& error = "invalid token")
+        void match(const std::string& word, const std::string& error = "invalid token");
+        void match(Grammar::Class wordClass, const std::string& error = "invalid token");
         
         void eat();
         
         void recAssetDesc();
         void recObjects();
         void recLinks();
-        
+
         std::string recDetailedDesc();
         std::vector<std::string> recAdjectives();
         std::vector<std::string> recVerbs();
-        std::string recWords(const std::set<Token::Kind>& stops);
+        std::string recVerb();
+        std::string recWords();
         
-        Lexer lexer;
+        Lexer lex_;
+        const Grammar& grammar_;
     };
 }
 

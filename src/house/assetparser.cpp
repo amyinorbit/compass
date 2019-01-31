@@ -10,139 +10,149 @@
 #include <iostream>
 #include <vector>
 #include <string>
-#include <house/parser.hpp>
-
-static std::string names[] = {
-    
-    "kw_objects",
-    "kw_you",
-    "kw_links",
-    "en_article",
-    "en_descr",
-    "word",
-    "verb_be",
-    "verb_can",
-    "lit_string",
-    "punc_dash",
-    "punc_comma",
-    "punc_period",
-    "punc_amp",
-    "punc_colon",
-    "file_end"
-};
+#include <house/assetparser.hpp>
 
 namespace House {
-    AssetParser::AssetParser(const std::string& key, std::istream& stream) {
-        key_ = key;
-        file_ = std::string(std::istreambuf_iterator<char>(stream), {});
+    
+    static std::string toLower(const std::string& str) {
+        std::string lower = str;
+        std::transform(lower.begin(), lower.end(), lower.begin(), ::tolower);
+        return lower;
     }
     
-    bool AssetParser::have(Token::Kind kind) {
-        return currentToken_.kind == kind;
+    AssetParser::AssetParser(const std::string& data, const Grammar& grammar)
+        : lex_(data), grammar_(grammar) {}
+
+
+    void AssetParser::syntaxError(const std::string& message) const {
+        std::cerr << "error: " << message << "\n";
+        abort();
+    }
+
+    bool AssetParser::haveBeing() const {
+        return grammar_.meansBeing(lex_.currentToken().text);
     }
     
-    bool AssetParser::have(const std::set<Token::Kind>& kinds) {
-        return kinds.find(currentToken_.kind) != kinds.end();
+    bool AssetParser::have(Token::Kind kind) const {
+        return lex_.currentToken().kind == kind;
+    }
+    
+    bool AssetParser::have(const std::set<Token::Kind>& kinds) const {
+        return kinds.find(lex_.currentToken().kind) != kinds.end();
+    }
+    
+    bool AssetParser::have(const std::string& word) const {
+        return toLower(lex_.currentToken().text) == toLower(word);
+    }
+    
+    bool AssetParser::have(Grammar::Class wordClass) const {
+        return grammar_.classOf(lex_.currentToken().text) == wordClass;
+    }
+    
+    void AssetParser::matchBeing(const std::string& error) {
+        if(!haveBeing()) syntaxError(error);
+        lex_.nextToken();
     }
 
     void AssetParser::match(Token::Kind kind, const std::string& error) {
-        if(have(kind)) {
-            nextToken();
-            return;
-        }
-        std::cerr << "error in file '" << key_ << "': " << error << "\n";
-        std::cerr << "token: [" << names[currentToken_.kind] << "] " << currentToken_.text << "\n";
-        std::cerr << "expected: [" << names[kind] << "]\n";
-        abort();
+        if(!have(kind)) syntaxError(error);
+        lex_.nextToken();
     }
 
     void AssetParser::match(const std::set<Token::Kind>& kinds, const std::string& error) {
-        if(have(kinds)) {
-            nextToken();
-            return;
-        }
-        std::cerr << "error in file '" << key_ << "': " << error << "\n";
-        std::cerr << "token: [" << names[currentToken_.kind] << "] " << currentToken_.text << "\n";
-        std::cerr << "expected: [";
-        for (auto k: kinds) {
-            std::cerr << names[k] << ",";
-        }
-        std::cerr << "]\n";
-        abort();
+        if(!have(kinds)) syntaxError(error);
+        lex_.nextToken();
+    }
+    
+    void AssetParser::match(const std::string& word, const std::string& error) {
+        if(!have(word)) syntaxError(error);
+        lex_.nextToken();
+    }
+    
+    void AssetParser::match(Grammar::Class wordClass, const std::string& error) {
+        if(!have(wordClass)) syntaxError(error);
+        lex_.nextToken();
+    }
+    
+    void AssetParser::eat() {
+        lex_.nextToken();
     }
     
     void AssetParser::compile() {
-        nextToken();
+        eat();
         recAssetDesc();
-        if(have(Token::Objects)) {
+        if(have("objects")) {
             recObjects();
         }
     }
-        
+
     void AssetParser::recAssetDesc() {
-        match(Token::Descriptive, "missing subject in asset description");
-        match(Token::Be, "missing verb in asset description");
+        match("this", "missing subject in asset description");
+        matchBeing();
         
         std::string article = "";
         std::string name = "";
-        
-        if(have(Token::Article)) {
-            article  = currentToken_.text;
-            match(Token::Article, "PROGRAMMER ERROR");
+
+        if(have(Grammar::Definite) || have(Grammar::Indefinite)) {
+            article = lex_.currentToken().text;
+            eat();
         }
-        
-        name = recWords({Token::Period});
+
+        name = recWords();
         match(Token::Period, "Asset description must end with a period");
         std::cout << "This is: " << name << " (" << article << ")\n";
         
-        if(have(Token::Descriptive)) {
+        // TODO: this is a hack
+        if(have(Grammar::Subjective) || have("it")) {
             const auto desc = recDetailedDesc();
             std::cout << " > " << desc << "\n";
         }
     }
-    
+
     void AssetParser::recObjects() {
-        match(Token::Objects);
+        match("objects");
         match(Token::Colon);
-        
+
         while(have(Token::Dash)) {
-            match(Token::Dash);
+            eat();
             
-            const auto article = currentToken_.text;
-            match(Token::Article);
-            auto name = recWords({Token::Comma, Token::Period});
+            const auto article = lex_.currentToken().text;
+            match(Grammar::Indefinite);
+            auto name = recWords();
             auto adjectives = recAdjectives();
             match(Token::Period);
-            
+
             std::cout << article << " ";
             for(const auto& adj: adjectives) {
                 std::cout << adj << " ";
             }
             std::cout << name << "\n";
-            
-            if(have(Token::You)) {
+
+            if(have("you")) {
                 const auto verbs = recVerbs();
                 std::cout << "you can ";
                 for(const auto& v: verbs)
                     std::cout << v << " it, ";
                 std::cout << ".";
             }
-            
-            if(have(Token::Descriptive)) {
+
+            if(have(Grammar::Subjective) || have("it")) {
                 const auto desc = recDetailedDesc();
                 std::cout << " > " << desc << "\n";
             }
         }
     }
-    
+
     void AssetParser::recLinks() {
         
     }
-    
+
     std::string AssetParser::recDetailedDesc() {
-        match(Token::Descriptive, "detailedDescriptions must start with a subject");
-        match(Token::Be);
-        const auto str = currentToken_.text;
+        // TODO: this is a hack
+        eat();
+        //match(Grammar::Subjective, "detailedDescriptions must start with a subject");
+        matchBeing();
+        const auto str = lex_.currentToken().text;
         match(Token::QuotedString);
         match(Token::Period);
         return str;
@@ -150,40 +160,45 @@ namespace House {
 
     std::vector<std::string> AssetParser::recAdjectives() {
         std::vector<std::string> adjectives;
-        while(have({Token::Comma, Token::Amp})) {
-            match({Token::Comma, Token::Amp});
-            adjectives.push_back(recWords({Token::Comma, Token::Period}));
+        while(have(Token::Comma) || have(Token::Amp)) {
+            eat();
+            adjectives.push_back(recWords());
         }
         return adjectives;
     }
-    
+
     std::vector<std::string> AssetParser::recVerbs() {
         std::vector<std::string> verbs;
-        match(Token::You);
-        match(Token::Can);
-        verbs.push_back(currentToken_.text);
-        match(Token::Word);
-        //if(have(Token::Preposition)) match(Token::Preposition); 
-        match(Token::Descriptive);// TODO: pronoun instead
+        match("you");
+        match("can");
+        verbs.push_back(recVerb());
         
-        while(have({Token::Comma, Token::Amp})) {
-            match({Token::Comma, Token::Amp});
-            verbs.push_back(currentToken_.text);
-            match(Token::Word);
-            match(Token::Descriptive);// TODO: pronoun instead
+        while(have(Token::Comma) || have(Token::Amp)) {
+            eat();
+            verbs.push_back(recVerb());
         }
-        
+
         match(Token::Period);
         return verbs;
     }
     
+    std::string AssetParser::recVerb() {
+        auto verb = lex_.currentToken().text;
+        match(Token::Word);
+        if(have(Grammar::Preposition)) {
+            verb += " " + lex_.currentToken().text;
+            eat();
+        }
+        match(Grammar::Objective);
+        return verb;
+    }
+
     // Basic chunks recognisers
-    std::string AssetParser::recWords(const std::set<Token::Kind>& stops) {
-        std::string str = currentToken_.text;
-        match({Token::Word, Token::Be, Token::Article});
-        while(!have(stops)) {
-            str += " " + currentToken_.text;
-            match({Token::Word, Token::Be, Token::Article});
+    std::string AssetParser::recWords() {
+        std::string str = "";
+        while(have(Token::Word)) {
+            str += " " + lex_.currentToken().text;
+            eat();
         }
         return str;
     }

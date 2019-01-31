@@ -1,5 +1,5 @@
 This is the foyer. It is "a medium-sized room. Everything is dusty in here. It evokes some memories that you can't quite place.".
 
-#objects:
+objects:
  - A key, green, round. You can take it, boop it. It is "An old, rusty green key. It fills you with anticipation.".
  - a chest of drawers.

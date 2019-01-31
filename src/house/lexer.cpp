@@ -41,7 +41,7 @@ namespace House {
         ptr_ = 0;
     }
     
-    const Token& Lexer::currentToken() {
+    const Token& Lexer::currentToken() const {
         return currentToken_;
     }
 

@@ -40,7 +40,7 @@ namespace House {
         
         void reset();
         virtual const Token& nextToken();
-        const Token& currentToken();
+        const Token& currentToken() const;
     protected:
         
         

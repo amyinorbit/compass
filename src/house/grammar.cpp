@@ -43,6 +43,9 @@ namespace House {
         "for", "and", "nor", "but", "or", "yet", "so"
     };
     
+    // TODO: some words can be both (for example, 'it' is both an objective and subjective pronoun)
+    // TODO: maybe return a tuple of values? or a std::set?
+    // TODO: might also be better rewritng as is(string, class)->bool
     Grammar::Class BasicEnglish::classOf(const std::string& word) const {
         const auto low = toLower(word);
         if(low == "the") return Grammar::Definite;
