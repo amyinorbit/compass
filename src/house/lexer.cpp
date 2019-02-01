@@ -159,7 +159,7 @@ namespace House {
                 case '-':
                     return makeToken(Token::Dash);
             
-                case '#':
+                case '!':
                     return lexKeyword();
                 
                 case '"':
