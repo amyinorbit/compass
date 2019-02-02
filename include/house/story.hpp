@@ -13,33 +13,33 @@
 #include <map>
 
 namespace House {
-    using std::string;
-    using std::vector;
+    //
+    // class Story;
+    // class Place;
     
-    using std::map;
+    // class Entity {
+    //
+    // protected:
+    //     const std::string& string() const;
+    // private:
+    //     Story* story;
+    // };
+    //
+    // class Link {
+    // };
+    //
+    // class Place: public Entity {
+    // };
+    //
+    // class Thing: public Entity {
+    // };
+    //
+    // class Story {
+    // public:
+    //     const std::string& string() const;
+    // private:
+    //     std::vector<std::string> strings_;
+    //     std::map<std::string, Place> places_;
+    // };
     
-    // struct Entity, Thing, Place;
-    //
-    // struct ThingAction {
-    //     string
-    // };
-    //
-    // struct PlaceAction {
-    // };
-    //
-    // struct Entity {
-    //     string              article;
-    //     string              name;
-    //     string              description;
-    //     std::vector<Thing>  things;
-    // };
-    //
-    // struct Thing: public Entity {
-    //     vector<string>      adjectives;
-    //     map<string,string>  verbs;
-    // };
-    //
-    // struct Place: public Entity {
-    //
-    // };
 }

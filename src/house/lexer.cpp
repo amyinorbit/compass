@@ -123,6 +123,12 @@ namespace House {
         currentToken_.text = str;
         return currentToken_;
     }
+    
+    void Lexer::eatLineComment() {
+        while(current() && (current() != '\n' && current() != '\r')) {
+            nextChar();
+        }
+    }
 
     const Token& Lexer::nextToken() {
         if(ptr_ >= source_.size()) {
@@ -167,6 +173,10 @@ namespace House {
                     
                 case ':':
                     return makeToken(Token::Colon);
+                    
+                case '#':
+                    eatLineComment();
+                    break;
                 
                 default:
                     if (utf8_isIdentifierHead(c)) {

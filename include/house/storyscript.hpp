@@ -22,6 +22,9 @@ namespace House {
         void compile();
     
     private:
+        
+        using Name = std::pair<std::string, std::string>;
+        
         void syntaxError(const std::string& message) const;
         
         // PARSING
@@ -38,9 +41,17 @@ namespace House {
         void match(Grammar::Class wordClass, const std::string& error = "invalid token");
         std::string eat();
         
-        void recRoom();
+        //void recRoom();
         std::string recPosition();
         
+        void recDecl();
+        Name recDeclStart();
+        
+        void recRoomDecl(Name name);
+        void recThingDecl(Name name);
+        
+        
+        std::string recWords(const std::string& stop = "");
         
         std::string text() const { return lex_.currentToken().text; }
         Lexer lex_;

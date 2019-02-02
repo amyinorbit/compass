@@ -1,3 +1,11 @@
-the foyer is a place. "You stand up and look around you. You are in the foyer of an old house. There's a door to the south, what looks like a living room..."
+Harmony node is a room. "This is a big, sterile-looking module. There's the constant humming of fans and probably some computers, somewhere. On the floor – or is it the ceiling, you wonder as you drift in the absence of gravity – there's a bunch of flags and patches. You feel weirdly at home here."
 
-The dining room is a place north of the foyer. "some long description blah blah blah"
+A name tag is in Harmony node, old and frayed.# You can take it. Its description is "An old name tag that reads 'CDR C. HADFIELD - CAN'"
+
+Zvezda is a room aft from Harmony Node. "This feels quite cramped. Walls are painted an old russian military green, and hoses and cables run pretty much everywhere you can see."
+
+The Cupola is a room down from Harmony Node. "The seven windows are clear, giving you a breathtaking view of the planet flying by below you."
+
+A computer is in Zvezda: "A beat up laptop".# you can start it. Its description is "It's dark grey and plastic, looking straight out of the '00s. It's turned off and beat up, but looks like it might still work"
+
+# if you start the computer, say "the laptop chimes" and change the description to "A blue screen of death". # This might actually require some sort of bytecode, jeezo.

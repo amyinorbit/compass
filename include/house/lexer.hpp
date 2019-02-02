@@ -58,6 +58,7 @@ namespace House {
         const Token& lexString();
         const Token& lexWord();
         const Token& lexNumber();
+        void eatLineComment();
         
         std::string source_ = "";
         

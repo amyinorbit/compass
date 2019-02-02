@@ -86,45 +86,92 @@ namespace House {
         eat();
         // TODO: parse by sections, verbs, story.
         while(!have(Token::End)) {
-            recRoom();
+            recDecl();
         }
         match(Token::End);
         
     }
     
-    void StoryParser::recRoom() {
-        std::string article;
-        std::string description;
-        std::string relative;
+    void StoryParser::recDecl() {
+        auto name = recDeclStart();
+        matchBeing("invalid verb after a thing or place");
         
-        if(have(Grammar::Definite)) {
-            article = text();
+        if(have(Grammar::Definite) || have(Grammar::Indefinite)) {
             eat();
+            recRoomDecl(name);
         }
-        
-        std::string name = text();
-        match(Token::Word); // TODO: we need a better way to do things here
-        while(have(Token::Word) && !haveBeing()) {
-            name += " " + eat();
+        else if(have(Grammar::Preposition)) {
+            recThingDecl(name);
         }
+        else {
+            syntaxError("cannot infer what '" + name.second + "' is");
+        }
+    }
+    
+    StoryParser::Name StoryParser::recDeclStart() {
+        std::string article, name;
         
-        matchBeing(name + " must *be* a thing or a place");
-        match("a", name + " must be *a* thing or a place");
-        match("place", name + " must be a *thing or a place*");
+        if(have(Grammar::Definite) || have(Grammar::Indefinite)) article = eat();
+        if(haveBeing()) syntaxError("things and places must have names");
+        
+        name = recWords();
+        return std::make_pair(article, name);
+    }
+    
+    void StoryParser::recRoomDecl(Name name) {
+        if(have("room")) eat();
+        else if(have("place")) eat();
+        else syntaxError("this should be a place, but I can't see 'room' or 'place'");
         
         if(!have(Token::Period)) {
-            relative = recPosition();
+            // TODO: parse relative location
+            // TODO: remove this bad placeholder
+            while(!have(Token::Period)) eat();
         }
+        
         match(Token::Period);
         
-        if(have(Token::QuotedString)) {
-            description = eat();
-        }
-        if(have(Token::Period)) eat();
+        std::string description = text();
+        match(Token::QuotedString);
         
-        std::cout << "* " << name << "(" << article << ")" "\n";
-        std::cout << " > " << relative << "\n";
-        std::cout << " > " << description << "\n\n";
+        std::cout << "---room:\n";
+        std::cout << "   " << name.second << " (" << name.first << ")\n";
+        std::cout << "   " << description << "\n\n";
+    }
+    
+    void StoryParser::recThingDecl(Name name) {
+        Name room = std::make_pair("", "");
+        std::vector<std::string> adjectives;
+        std::string rel = text();
+        std::string description;
+        std::string details;
+        
+        match(Grammar::Preposition, "Things must be placed somehwere");
+        // Parse the location of the object.
+        if(have(Grammar::Definite) || have(Grammar::Indefinite)) room.first = eat();
+        room.second = recWords();
+        
+        // adjectives?
+        while(have(Token::Comma) || have("and")) {
+            eat();
+            adjectives.push_back(recWords("and"));
+        }
+        
+        if(have(Token::Colon)) {
+            eat();
+            description = text();
+            match(Token::QuotedString, "descriptions of short things should be in quotes");
+        }
+        match(Token::Period);
+
+        
+        std::cout << "---thing:\n";
+        std::cout << "   ";
+        for(const auto& adj: adjectives)
+            std::cout << adj << " ";
+        std::cout << "\n";
+        std::cout << "   " << name.second << " (" << name.first << ")\n";
+        std::cout << "   " << description << "/" << details << "\n\n";
     }
     
     std::string StoryParser::recPosition() {
@@ -142,5 +189,12 @@ namespace House {
             name += " " + eat();
         }
         return relative + ", " + name;
+    }
+    
+    std::string StoryParser::recWords(const std::string& stop) {
+        std::string str = text();
+        match(Token::Word);
+        while(have(Token::Word) && !haveBeing() && !have(stop)) str += " " + eat();
+        return str;
     }
 }

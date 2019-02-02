@@ -1,0 +1,19 @@
+story
+|_string[]
+|
+|_room[]
+| |_link[]
+| | |_target_room
+| | |_direction
+| | |_isVisited
+| | |_(lock)
+| |_description
+| |_object[]
+|   |_name
+|   |_adjectives[]
+|   |_action[]
+|     |_verb (parameters) | verb (custom_bytecode[])
+|
+|_verb[]
+  |_name
+  |_(preposition)
