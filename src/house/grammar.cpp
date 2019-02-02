@@ -31,6 +31,10 @@ namespace House {
         "me", "you", "him", "her", "it", "us", "them"
     };
     
+    const std::set<std::string> BasicEnglish::possessives_ = {
+        "my", "your", "his", "her", "its", "ours", "theirs"
+    };
+    
     const std::set<std::string> BasicEnglish::demonstratives_ = {
         "this", "that", "these", "those"
     };
@@ -52,6 +56,7 @@ namespace House {
         if(low == "a" || low == "an") return Grammar::Indefinite;
         if(contains(objectives_, low)) return Grammar::Objective;
         if(contains(subjectives_, low)) return Grammar::Subjective;
+        if(contains(possessives_, low)) return Grammar::Possessive;
         if(contains(demonstratives_, low)) return Grammar::Demonstrative;
         if(contains(prepositions_, low)) return Grammar::Preposition;
         if(contains(conjunctions_, low)) return Grammar::Conjunction;
@@ -70,6 +75,7 @@ namespace House {
             case Grammar::Indefinite: return low == "a" || low == "an";
             case Grammar::Objective: return contains(objectives_, low);
             case Grammar::Subjective: return contains(subjectives_, low);
+            case Grammar::Possessive: return contains(possessives_, low);
             case Grammar::Demonstrative: return contains(demonstratives_, low);
             case Grammar::Preposition: return contains(prepositions_, low);
             case Grammar::Conjunction: return contains(conjunctions_, low);

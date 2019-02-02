@@ -17,7 +17,7 @@ namespace House {
     public:
         enum Class {
             Neutral, Preposition, Conjunction,
-            Objective, Subjective, Demonstrative, // Pronouns
+            Objective, Subjective, Possessive, Demonstrative, // Pronouns
             Definite, Indefinite                    // Articles
         };
         
@@ -25,8 +25,6 @@ namespace House {
         virtual Class classOf(const std::string& word) const = 0;
         virtual bool meansBeing(const std::string& word) const = 0;
         virtual bool is(const std::string& word, Class wordClass) const = 0;
-        virtual std::string objectiveOf(const std::string& pronoun) const = 0;
-        virtual std::string subjectiveOf(const std::string& pronoun) const = 0;
     };
     
     
@@ -38,12 +36,11 @@ namespace House {
         virtual Grammar::Class classOf(const std::string& word) const;
         virtual bool meansBeing(const std::string& word) const;
         virtual bool is(const std::string& word, Class wordClass) const;
-        virtual std::string objectiveOf(const std::string& pronoun) const;
-        virtual std::string subjectiveOf(const std::string& pronoun) const;
         
     private:
         static const std::set<std::string> subjectives_;
         static const std::set<std::string> objectives_;
+        static const std::set<std::string> possessives_;
         static const std::set<std::string> demonstratives_;
         static const std::set<std::string> prepositions_;
         static const std::set<std::string> conjunctions_;
