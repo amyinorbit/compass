@@ -91,9 +91,14 @@ namespace House {
         else syntaxError("this should be a place, but I can't see 'room' or 'place'");
         
         if(!have(Token::Period)) {
-            // TODO: parse relative location
-            // TODO: remove this bad placeholder
-            while(!have(Token::Period)) eat();
+            std::string loc = recWords(Grammar::Preposition);
+            match(Grammar::Preposition);
+            std::string article, room;
+            
+            if(have(Grammar::Definite) || have(Grammar::Indefinite)) article = eat();
+            room = recWords();
+            
+            std::cout << room << " -> " << loc << "\n";
         }
         
         match(Token::Period);

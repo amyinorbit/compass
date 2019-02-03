@@ -40,7 +40,7 @@ namespace House {
     };
     
     const std::set<std::string> BasicEnglish::prepositions_ = {
-        "to", "off", "on", "under", "in", "at", "of"
+        "to", "off", "on", "under", "in", "at", "of", "from"
     };
     
     const std::set<std::string> BasicEnglish::conjunctions_ = {
