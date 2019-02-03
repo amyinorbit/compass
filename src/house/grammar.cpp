@@ -83,18 +83,4 @@ namespace House {
         }
         return false;
     }
-    
-    std::string BasicEnglish::objectiveOf(const std::string& pronoun) const {
-        const auto low = toLower(pronoun);
-        assert(contains(subjectives_, low));
-        // TODO: implementation
-        return "";
-    }
-    
-    std::string BasicEnglish::subjectiveOf(const std::string& pronoun) const {
-        const auto low = toLower(pronoun);
-        assert(contains(subjectives_, low));
-        // TODO: implementation
-        return "";
-    }
 }

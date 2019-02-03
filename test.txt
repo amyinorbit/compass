@@ -1,11 +1,24 @@
+# directions:
+#
+# a place can be port from somewhere, the opposite is starboard.
+# a place can be up from somewhere, the opposite is down.
+# a place can be aft from somewhere, the opposite is forward.
+#
+# verbs:
+#
+# you can say float instead of go.
+# you can take, start, use and look at things.
+#
+# story:
+
 Harmony node is a room. "This is a big, sterile-looking module. There's the constant humming of fans and probably some computers, somewhere. On the floor – or is it the ceiling, you wonder as you drift in the absence of gravity – there's a bunch of flags and patches. You feel weirdly at home here."
 
 A name tag is in Harmony node, old and frayed.# You can take it. Its description is "An old name tag that reads 'CDR C. HADFIELD - CAN'"
 
-Zvezda is a room aft from Harmony Node. "This feels quite cramped. Walls are painted an old russian military green, and hoses and cables run pretty much everywhere you can see."
+Zvezda is a room aft from Harmony Node. "This feels quite cramped. Walls are painted an old russian military green, and hoses and cables run pretty much everywhere you can see." 
 
 The Cupola is a room down from Harmony Node. "The seven windows are clear, giving you a breathtaking view of the planet flying by below you."
 
-A computer is in Zvezda: "A beat up laptop".# you can start it. Its description is "It's dark grey and plastic, looking straight out of the '00s. It's turned off and beat up, but looks like it might still work"
+A laptop is in Zvezda: "A beat up laptop". you can start it. Its description is "It's dark grey and plastic, looking straight out of the '00s. It's turned off and beat up, but looks like it might still work"
 
-# if you start the computer, say "the laptop chimes" and change the description to "A blue screen of death". # This might actually require some sort of bytecode, jeezo.
+# When you start the laptop, say "the laptop chimes" and change the description to "A blue screen of death".

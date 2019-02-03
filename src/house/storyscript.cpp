@@ -74,6 +74,7 @@ namespace House {
     void StoryParser::recThingDecl(Name name) {
         Name room = std::make_pair("", "");
         std::vector<std::string> adjectives;
+        std::vector<std::string> verbs;
         std::string rel = text();
         std::string description;
         std::string details;
@@ -95,6 +96,29 @@ namespace House {
             match(Token::QuotedString, "descriptions of short things should be in quotes");
         }
         match(Token::Period);
+        
+        if(have("you")) {
+            eat();
+            match("can");
+            
+            verbs.push_back(recWords(Grammar::Objective));
+            match(Grammar::Objective);
+            
+            while(have(Token::Comma) || have("and")) {
+                eat();
+                verbs.push_back(recWords(Grammar::Objective));
+                match(Grammar::Objective);
+            }
+            match(Token::Period);
+        }
+        
+        if(have(Grammar::Possessive)) {
+            eat();
+            match("description");
+            matchBeing();
+            details = text();
+            match(Token::QuotedString, "detailed descriptions must be between quotes");
+        }
 
         
         std::cout << "---thing:\n";
@@ -124,6 +148,13 @@ namespace House {
     }
     
     std::string StoryParser::recWords(const std::string& stop) {
+        std::string str = text();
+        match(Token::Word);
+        while(have(Token::Word) && !haveBeing() && !have(stop)) str += " " + eat();
+        return str;
+    }
+    
+    std::string StoryParser::recWords(Grammar::Class stop) {
         std::string str = text();
         match(Token::Word);
         while(have(Token::Word) && !haveBeing() && !have(stop)) str += " " + eat();

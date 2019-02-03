@@ -52,6 +52,7 @@ namespace House {
         
         
         std::string recWords(const std::string& stop = "");
+        std::string recWords(Grammar::Class stop);
         
         std::string text() const { return lex_.currentToken().text; }
         Lexer lex_;
