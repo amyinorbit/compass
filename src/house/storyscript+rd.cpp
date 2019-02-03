@@ -31,7 +31,11 @@ namespace House {
     }
 
     bool StoryParser::haveBeing() const {
-        return grammar_.meansBeing(lex_.currentToken().text);
+        return grammar_.meansBeing(text());
+    }
+    
+    bool StoryParser::haveDirection() const {
+        return directions_.find(text()) != directions_.end();
     }
     
     bool StoryParser::have(Token::Kind kind) const {
@@ -43,15 +47,20 @@ namespace House {
     }
     
     bool StoryParser::have(const std::string& word) const {
-        return toLower(lex_.currentToken().text) == toLower(word);
+        return toLower(text()) == toLower(word);
     }
     
     bool StoryParser::have(Grammar::Class wordClass) const {
-        return grammar_.is(lex_.currentToken().text, wordClass);
+        return grammar_.is(text(), wordClass);
     }
     
     void StoryParser::matchBeing(const std::string& error) {
         if(!haveBeing()) syntaxError(error);
+        lex_.nextToken();
+    }
+    
+    void StoryParser::matchDirection(const std::string& error) {
+        if(!haveDirection()) syntaxError(error);
         lex_.nextToken();
     }
 

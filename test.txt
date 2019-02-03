@@ -1,19 +1,14 @@
-# directions:
-#
-# a place can be port from somewhere, the opposite is starboard.
-# a place can be up from somewhere, the opposite is down.
-# a place can be aft from somewhere, the opposite is forward.
-#
-# verbs:
-#
-# you can say float instead of go.
-# you can take, start, use and look at things.
-#
-# story:
+directions:
+
+port is a direction, the opposite is starboard.
+up is a direction, the opposite is down.
+aft is a direction, the opposite is forward.
+
+story:
 
 Harmony node is a room. "This is a big, sterile-looking module. There's the constant humming of fans and probably some computers, somewhere. On the floor – or is it the ceiling, you wonder as you drift in the absence of gravity – there's a bunch of flags and patches. You feel weirdly at home here."
 
-A name tag is in Harmony node, old and frayed.# You can take it. Its description is "An old name tag that reads 'CDR C. HADFIELD - CAN'"
+A name tag is in Harmony node, old and frayed.You can take it. Its description is "An old name tag that reads 'CDR C. HADFIELD - CAN'"
 
 Zvezda is a room aft from Harmony Node. "This feels quite cramped. Walls are painted an old russian military green, and hoses and cables run pretty much everywhere you can see." 
 

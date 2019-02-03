@@ -10,18 +10,24 @@
 #pragma once
 #include <string>
 #include <set>
+#include <map>
 #include <house/asset.hpp>
 #include <house/grammar.hpp>
 #include <house/lexer.hpp>
 
 namespace House {
-    
     class StoryParser {
     public:
         StoryParser(const std::string& data, const Grammar& grammar);
         void compile();
     
     private:
+    
+        struct Direction {
+            std::string direction;
+            std::string opposite;
+        };
+    
         
         using Name = std::pair<std::string, std::string>;
         
@@ -29,12 +35,15 @@ namespace House {
         
         // PARSING
         bool haveBeing() const;
+        bool haveDirection() const;
         bool have(Token::Kind kind) const;
         bool have(const std::set<Token::Kind>& kinds) const;
         bool have(const std::string& word) const;
         bool have(Grammar::Class wordClass) const;
         
+        
         void matchBeing(const std::string& error = "invalid token");
+        void matchDirection(const std::string& error = "invalid token");
         void match(Token::Kind kind, const std::string& error = "invalid token");
         void match(const std::set<Token::Kind>& kinds, const std::string& error = "invalid token");
         void match(const std::string& word, const std::string& error = "invalid token");
@@ -42,19 +51,24 @@ namespace House {
         std::string eat();
         
         //void recRoom();
-        std::string recPosition();
+        
+        void recDirectionDecl();
         
         void recDecl();
         Name recDeclStart();
         
         void recRoomDecl(Name name);
         void recThingDecl(Name name);
-        
+
+        std::string recPosition();
         
         std::string recWords(const std::string& stop = "");
         std::string recWords(Grammar::Class stop);
         
         std::string text() const { return lex_.currentToken().text; }
+        
+        
+        std::map<std::string, Direction> directions_;
         Lexer lex_;
         const Grammar& grammar_;
     };

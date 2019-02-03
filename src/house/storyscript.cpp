@@ -16,12 +16,47 @@ namespace House {
     
     void StoryParser::compile() {
         eat();
-        // TODO: parse by sections, verbs, story.
+        
+        if(have("directions")) {
+            eat();
+            match(Token::Colon);
+            
+            while(!have("story")) {
+                recDirectionDecl();
+            }
+        }
+        match("story");
+        match(Token::Colon);
+        
         while(!have(Token::End)) {
             recDecl();
         }
         match(Token::End);
         
+    }
+    
+    void StoryParser::recDirectionDecl() {
+        Direction dir;
+        dir.direction = recWords();
+        matchBeing();
+        match(Grammar::Indefinite, "directions must be *a* direction");
+        match("direction", "I expected a direction");
+        
+        if(have(Token::Comma) || have("and")) {
+            eat();
+            match(Grammar::Definite, "expected a 'the' before opposite");
+            match("opposite", "expected 'opposite'");
+            matchBeing();
+            dir.opposite = recWords();
+        }
+        match(Token::Period);
+        
+        directions_[dir.direction] = dir;
+        if(dir.opposite.size()) {
+            Direction opp{dir.opposite, dir.direction};
+            directions_[opp.direction] = opp;
+        }
+        std::cout << dir.direction << " <-> " << dir.opposite << "\n";
     }
     
     void StoryParser::recDecl() {
