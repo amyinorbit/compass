@@ -11,6 +11,7 @@
 #include <vector>
 #include <string>
 #include <house/storyscript.hpp>
+#include <house/story.hpp>
 
 namespace House {
     

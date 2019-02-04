@@ -5,9 +5,10 @@ story
 | |_link[]
 | | |_target_room
 | | |_direction
-| | |_isVisited
-| | |_(lock)
+| |
+| |_isVisited
 | |_description
+| |_(lock)
 | |_object[]
 |   |_name
 |   |_adjectives[]

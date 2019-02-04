@@ -11,7 +11,6 @@
 #include <string>
 #include <set>
 #include <map>
-#include <house/asset.hpp>
 #include <house/grammar.hpp>
 #include <house/lexer.hpp>
 
