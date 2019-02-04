@@ -21,15 +21,15 @@ namespace House {
 
     
     StringID Story::addPlace(Place&& place) {
-        const auto id = makeID(place.article, place.name);
+        const auto id = makeID(place.name);
         place.uniqueID = id.first;
         places_[id.second] = std::move(place);
         return id.first;
     }
     
     StringID Story::addThing(StringID entity, Thing&& thing) {
-        // TODO: we probably need some way of integrating the container 
-        const auto id = makeID(thing.article, thing.name);
+        
+        const auto id = makeID(thing.name);
         thing.uniqueID = id.first;
         thing.location = entity;
         things_[id.second] = std::move(thing);
@@ -105,16 +105,19 @@ namespace House {
         assert(id < strings_.size() && "Invalid string ID");
         return strings_[id];
     }
-
-    StringID Story::uniqueID(StringID article, StringID name) {
-        return makeID(article, name).first;
+    
+    StringID Story::uniqueID(const std::string& name) {
+        return makeID(installString(name)).first;
     }
 
-    std::pair<StringID, std::string> Story::makeID(StringID articleID, StringID nameID) {
-        const auto& article = string(articleID);
+    StringID Story::uniqueID(StringID name) {
+        return makeID(name).first;
+    }
+
+    std::pair<StringID, std::string> Story::makeID(StringID nameID) {
         const auto& name = string(nameID);
         
-        const auto id = toLower(article) + toLower(name);
+        const auto id = toLower(name);
         return std::make_pair(installString(id), id);
     }
 }

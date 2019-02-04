@@ -36,7 +36,7 @@ namespace House {
     };
     
     struct Action {
-        enum Kind { Default, Bytecode };
+        enum Kind { Native, Bytecode };
         
         Kind                    kind;
         StringID                verb;
@@ -70,7 +70,8 @@ namespace House {
     // The story structure binds a whole thing together
     class Story {
     public:
-        StringID uniqueID(StringID article, StringID name);
+        StringID uniqueID(const std::string& name);
+        StringID uniqueID(StringID name);
         StringID addPlace(Place&& place);
         StringID addThing(StringID entity, Thing&& thing);
         
@@ -89,7 +90,7 @@ namespace House {
         const std::string& string(StringID id) const;
         
     private:
-        std::pair<StringID, std::string> makeID(StringID article, StringID name);
+        std::pair<StringID, std::string> makeID(StringID name);
         
         std::vector<std::string>            strings_;
         std::map<std::string, Place>        places_;

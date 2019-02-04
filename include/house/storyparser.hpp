@@ -13,6 +13,7 @@
 #include <map>
 #include <house/grammar.hpp>
 #include <house/lexer.hpp>
+#include <house/story.hpp>
 
 namespace House {
     class StoryParser {
@@ -22,10 +23,10 @@ namespace House {
     
     private:
     
-        struct Direction {
-            std::string direction;
-            std::string opposite;
-        };
+        // struct Direction {
+        //     std::string direction;
+        //     std::string opposite;
+        // };
     
         
         using Name = std::pair<std::string, std::string>;
@@ -34,7 +35,7 @@ namespace House {
         
         // PARSING
         bool haveBeing() const;
-        bool haveDirection() const;
+        //bool haveDirection() const;
         bool have(Token::Kind kind) const;
         bool have(const std::set<Token::Kind>& kinds) const;
         bool have(const std::string& word) const;
@@ -42,7 +43,7 @@ namespace House {
         
         
         void matchBeing(const std::string& error = "invalid token");
-        void matchDirection(const std::string& error = "invalid token");
+        //void matchDirection(const std::string& error = "invalid token");
         void match(Token::Kind kind, const std::string& error = "invalid token");
         void match(const std::set<Token::Kind>& kinds, const std::string& error = "invalid token");
         void match(const std::string& word, const std::string& error = "invalid token");
@@ -51,15 +52,16 @@ namespace House {
         
         //void recRoom();
         
-        void recDirectionDecl();
+        void recDirectionDecl(Story& story);
         
-        void recDecl();
-        Name recDeclStart();
+        void recDecl(Story& story);
+        Name recDeclStart(Story& story);
         
-        void recRoomDecl(Name name);
-        void recThingDecl(Name name);
-
-        std::string recPosition();
+        void recRoomDecl(Story& story, Place& place);
+        void recThingDecl(Story& story, Thing& thing);
+        
+        Action recAction(Story& story);
+        // std::string recPosition();
         
         std::string recWords(const std::string& stop = "");
         std::string recWords(Grammar::Class stop);
@@ -67,7 +69,7 @@ namespace House {
         std::string text() const { return lex_.currentToken().text; }
         
         
-        std::map<std::string, Direction> directions_;
+        //std::map<std::string, Direction> directions_;
         Lexer lex_;
         const Grammar& grammar_;
     };
