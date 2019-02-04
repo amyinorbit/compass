@@ -10,7 +10,7 @@
 #include <iostream>
 #include <vector>
 #include <string>
-#include <house/storyscript.hpp>
+#include <house/storyparser.hpp>
 
 namespace House {
     
