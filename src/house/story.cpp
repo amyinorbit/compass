@@ -9,6 +9,7 @@
 //===--------------------------------------------------------------------------------------------===
 #include <algorithm>
 #include <cassert>
+#include <iostream>
 #include <house/story.hpp>
 
 namespace House {
@@ -20,19 +21,19 @@ namespace House {
     }
 
     
-    StringID Story::addPlace(Place&& place) {
+    StringID Story::addPlace(Place place) {
         const auto id = makeID(place.name);
+        std::cout << "new place: " << string(place.name) << "\n";
         place.uniqueID = id.first;
-        places_[id.second] = std::move(place);
+        places_[id.second] = place;
         return id.first;
     }
     
-    StringID Story::addThing(StringID entity, Thing&& thing) {
-        
+    StringID Story::addThing(StringID entity, Thing thing) {
         const auto id = makeID(thing.name);
         thing.uniqueID = id.first;
         thing.location = entity;
-        things_[id.second] = std::move(thing);
+        things_[id.second] = thing;
         
         const auto& e = string(entity);
         // Then we need to find the entity we're adding this to
@@ -74,23 +75,21 @@ namespace House {
         return it->second;
     }
     
-    // TODO: move to semantics-specific class?
-    void Story::installDirection(Direction dir) {
-        directions_[dir.direction] = dir;
-        if(dir.opposite.size()) {
-            directions_[dir.opposite] = Direction{dir.opposite, dir.direction};
-        }
+    void Story::addDirection(const std::string& dir) {
+        directions_.insert(dir);
     }
     
-    bool Story::directionIsValid(const std::string& dir) {
-        return directions_.find(dir) != directions_.end();
+    void Story::addLink(StringID from, StringID to, const std::string& direction) {
+        const auto& fromKey = string(from);
+        const auto& toKey = string(to);
+        
+        places_[fromKey].links.push_back(Link{to, direction});
+        
+        std::cout << fromKey << " -" << direction << "-> " << toKey << "\n";
     }
     
-    void Story::validateLinks() {
-        // TODO: implement all f that, that's going to be fun
-    }
-    //
     // // MARK: - Strings management
+    
     StringID Story::installString(const std::string& str) {
         const auto it = std::find(strings_.begin(), strings_.end(), str);
         if(it != strings_.end())

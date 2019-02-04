@@ -15,7 +15,7 @@
 
 namespace House {
     
-    void StoryParser::compile() {
+    Story StoryParser::compile() {
         eat();
         
         Story story;
@@ -35,12 +35,13 @@ namespace House {
             recDecl(story);
         }
         match(Token::End);
-        
+        sem_.resolve(story);
+        return story;
     }
     
     void StoryParser::recDirectionDecl(Story& story) {
-        Direction dir;
-        dir.direction = recWords();
+        std::string dir, opp;
+        dir = recWords();
         matchBeing();
         match(Grammar::Indefinite, "directions must be *a* direction");
         match("direction", "I expected a direction");
@@ -50,11 +51,12 @@ namespace House {
             match(Grammar::Definite, "expected a 'the' before opposite");
             match("opposite", "expected 'opposite'");
             matchBeing();
-            dir.opposite = recWords();
+            opp = recWords();
         }
         match(Token::Period);
-        story.installDirection(dir);
-        std::cout << dir.direction << " <-> " << dir.opposite << "\n";
+        sem_.addDirection(dir, opp);
+        sem_.addDirection(opp, dir);
+        std::cout << dir << " <-> " << opp << "\n";
     }
     
     void StoryParser::recDecl(Story& story) {
@@ -95,22 +97,21 @@ namespace House {
         else syntaxError("this should be a place, but I can't see 'room' or 'place'");
         
         if(!have(Token::Period)) {
-            // TODO: handle directions better. Not quite sure how yet.
             std::string dir = recWords(Grammar::Preposition);
-            //if(!story.directionIsValid(dir))
+            sem_.checkDirection(dir);
             match(Grammar::Preposition);
             std::string article, room;
             
             if(have(Grammar::Definite) || have(Grammar::Indefinite)) article = eat();
             room = recWords();
-            
-            std::cout << room << " -> " << dir << "\n";
+            sem_.makeLink(story.installString(room), place.name, dir);
         }
         
         match(Token::Period);
         
         place.description = story.installString(text());
         match(Token::QuotedString);
+        story.addPlace(place);
     }
     
     void StoryParser::recThingDecl(Story& story, Thing& thing) {
@@ -156,6 +157,8 @@ namespace House {
             //details = text();
             match(Token::QuotedString, "detailed descriptions must be between quotes");
         }
+        
+        story.addThing(story.uniqueID(thing.location), thing);
     }
     
     Action StoryParser::recAction(Story& story) {
@@ -165,20 +168,6 @@ namespace House {
         match(Grammar::Objective);
         return action;
     }
-    
-    // std::string StoryParser::recPosition() {
-    //     std::string relative = text();
-    //     match(Token::Word);
-    //     if(have(Grammar::Preposition)) eat();
-    //
-    //     if(have(Grammar::Definite)) eat();
-    //     std::string name = text();
-    //     match(Token::Word);
-    //     while(have(Token::Word)) {
-    //         name += " " + eat();
-    //     }
-    //     return relative + ", " + name;
-    // }
     
     std::string StoryParser::recWords(const std::string& stop) {
         std::string str = text();

@@ -13,13 +13,14 @@
 #include <map>
 #include <house/grammar.hpp>
 #include <house/lexer.hpp>
+#include <house/semantics.hpp>
 #include <house/story.hpp>
 
 namespace House {
     class StoryParser {
     public:
         StoryParser(const std::string& data, const Grammar& grammar);
-        void compile();
+        Story compile();
     
     private:
     
@@ -70,6 +71,7 @@ namespace House {
         
         
         //std::map<std::string, Direction> directions_;
+        Semantics sem_;
         Lexer lex_;
         const Grammar& grammar_;
     };

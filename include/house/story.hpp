@@ -10,6 +10,7 @@
 #pragma once
 #include <cstdint>
 #include <map>
+#include <set>
 #include <string>
 #include <utility>
 #include <vector>
@@ -21,18 +22,13 @@ namespace House {
     class Story;
     class Place;
     class Thing;
-    struct Direction;
+    //struct Direction;
     
     using StringID = std::size_t;
-    
-    struct Direction {
-        std::string             direction;
-        std::string             opposite;
-    };
 
     struct Link {
-        Direction               direction;
-        std::string             target;
+        StringID                target;
+        std::string             direction;
     };
     
     struct Action {
@@ -72,30 +68,29 @@ namespace House {
     public:
         StringID uniqueID(const std::string& name);
         StringID uniqueID(StringID name);
-        StringID addPlace(Place&& place);
-        StringID addThing(StringID entity, Thing&& thing);
+        StringID addPlace(Place place);
+        StringID addThing(StringID entity, Thing thing);
         
         Place& place(StringID uniqueID);
         Place& place(const std::string& uniqueID);
         Thing& thing(StringID uniqueID);
         Thing& thing(const std::string& uniqueID);
         
-        // TODO: move to semantics-specific class?
-        void installDirection(Direction dir);
-        bool directionIsValid(const std::string& dir);
-        void validateLinks();
+        void addDirection(const std::string& dir);
+        void addLink(StringID from, StringID to, const std::string& direction);
         
         // MARK: - Strings management
         StringID installString(const std::string& str);
         const std::string& string(StringID id) const;
         
     private:
+        friend class Semantics;
         std::pair<StringID, std::string> makeID(StringID name);
         
         std::vector<std::string>            strings_;
+        std::set<std::string>               directions_;
         std::map<std::string, Place>        places_;
         std::map<std::string, Thing>        things_;
-        std::map<std::string, Direction>    directions_;
     };
     
 }
