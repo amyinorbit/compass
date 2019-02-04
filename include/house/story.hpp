@@ -83,6 +83,7 @@ namespace House {
         StringID installString(const std::string& str);
         const std::string& string(StringID id) const;
         
+        StringID                            start;
     private:
         friend class Semantics;
         std::pair<StringID, std::string> makeID(StringID name);

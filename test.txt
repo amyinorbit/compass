@@ -12,7 +12,7 @@ A name tag is in Harmony node, old and frayed.You can take it. Its description i
 
 Zvezda is a room aft from Harmony Node. "This feels quite cramped. Walls are painted an old russian military green, and hoses and cables run pretty much everywhere you can see." 
 
-The Cupola is a room port of Harmony Node. "The seven windows are clear, giving you a breathtaking view of the planet flying by below you."
+The Cupola is a room down from Harmony Node. "The seven windows are clear, giving you a breathtaking view of the planet flying by below you."
 
 A laptop is in Zvezda: "A beat up laptop". you can start it. Its description is "It's dark grey and plastic, looking straight out of the '00s. It's turned off and beat up, but looks like it might still work"
 

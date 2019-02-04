@@ -49,7 +49,7 @@ namespace House {
     }
     
     void Semantics::makeLink(StringID from, StringID to, const std::string& direction) {
-        std::cout << "Future link: " <<  direction << "\n";
+        // std::cout << "Future link: " <<  direction << "\n";
         links_.push_back(FutureLink{
             from, to, toLower(direction)
         });
@@ -58,18 +58,6 @@ namespace House {
     void Semantics::resolve(Story& story) {
         
         // Check all the links first
-        std::cout << "compiling link for " << story.places_.size() << " places:\n";
-        for(const auto& pair: story.places_) {
-            std::cout << " - " << story.string(pair.second.name) << " (" << pair.first << ")\n";
-        }
-        
-        // for(const auto& link: links_) {
-        //     const auto from = story.string(story.uniqueID(link.from));
-        //     const auto to = story.string(story.uniqueID(link.to));
-        //     const auto dir = link.direction;
-        //
-        //     std::cout << "~" << dir << "\n";
-        // }
         
         for(const auto& link: links_) {
             const auto& from = story.string(story.uniqueID(link.from));
@@ -83,12 +71,10 @@ namespace House {
             if(toIt == story.places_.end())
                 error("I can't make a link from " + from + " to " + to + " because " + to + " isn't a room");
                 
-            std::cout << "link direction: " << link.direction << "\n";
             story.addLink(link.from, link.to, link.direction);
             
             if(!hasOppositeDirection(link.direction)) continue;
             story.addLink(link.to, link.from, oppositeDirection(link.direction));
-            
         }
         
         // TODO: We should probably check objects too

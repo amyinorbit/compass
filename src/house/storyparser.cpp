@@ -56,12 +56,14 @@ namespace House {
         match(Token::Period);
         sem_.addDirection(dir, opp);
         sem_.addDirection(opp, dir);
-        std::cout << dir << " <-> " << opp << "\n";
+        // std::cout << dir << " <-> " << opp << "\n";
     }
     
     void StoryParser::recDecl(Story& story) {
         const auto name = recDeclStart(story);
         matchBeing("invalid verb after a thing or place");
+        
+        static bool foundFirst = false; // TODO: get rid of this ugly hack
         
         if(have(Grammar::Definite) || have(Grammar::Indefinite)) {
             eat();

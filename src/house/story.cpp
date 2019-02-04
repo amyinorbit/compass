@@ -23,8 +23,9 @@ namespace House {
     
     StringID Story::addPlace(Place place) {
         const auto id = makeID(place.name);
-        std::cout << "new place: " << string(place.name) << "\n";
         place.uniqueID = id.first;
+        if(!places_.size()) start = id.first;
+        
         places_[id.second] = place;
         return id.first;
     }
@@ -80,12 +81,10 @@ namespace House {
     }
     
     void Story::addLink(StringID from, StringID to, const std::string& direction) {
-        const auto& fromKey = string(from);
-        const auto& toKey = string(to);
+        const auto& fromID = uniqueID(from);
+        const auto& toID = uniqueID(to);
         
-        places_[fromKey].links.push_back(Link{to, direction});
-        
-        std::cout << fromKey << " -" << direction << "-> " << toKey << "\n";
+        places_[string(fromID)].links.push_back(Link{toID, direction});
     }
     
     // // MARK: - Strings management
