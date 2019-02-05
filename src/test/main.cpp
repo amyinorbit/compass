@@ -76,4 +76,5 @@ int main(int argc, const char** args) {
         return -1;
     }
     return testCompile(args[1]);
+    // return testCompile("story.txt");
 }

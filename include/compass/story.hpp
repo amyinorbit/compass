@@ -22,7 +22,6 @@ namespace Compass {
     class Story;
     class Place;
     class Thing;
-    //struct Direction;
     
     using StringID = std::size_t;
 

@@ -13,7 +13,7 @@ namespace Compass {
     
     static std::string toLower(const std::string& str) {
         std::string lower = str;
-        std::transform(lower.begin(), lower.end(), lower.begin(), ::tolower);
+        for(auto& c: lower) c = ::tolower(c);
         return lower;
     }
     
