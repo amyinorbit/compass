@@ -1,2 +1,2 @@
-add_executable(test main.cpp)
-target_link_libraries(test Compass)
+add_executable(compassr main.cpp)
+target_link_libraries(compassr Compass)

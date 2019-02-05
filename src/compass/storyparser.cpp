@@ -120,7 +120,7 @@ namespace Compass {
             std::string article, room;
             
             if(have(Grammar::Definite) || have(Grammar::Indefinite)) article = eat();
-            room = recWords();
+            room = recWords("and");
             sem_.makeLink(story.uniqueID(room), story.uniqueID(place.name), dir);
     }
     
