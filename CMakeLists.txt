@@ -10,7 +10,7 @@ include_directories(${PROJECT_SOURCE_DIR}/include)
 add_subdirectory(src)
 
 add_custom_target(run
-    COMMAND test test.txt
-    DEPENDS test
+    COMMAND compassr test.txt
+    DEPENDS compassr
     WORKING_DIRECTORY ${CMAKE_SOURCE_DIR}
 )

@@ -15,6 +15,16 @@
 
 namespace Compass {
     
+    StoryParser::StoryParser(const std::string& data, const Grammar& grammar)
+        : RDParser(data, grammar) {}
+
+
+    void StoryParser::error(const std::string& message) {
+        std::cerr << "error: " << message << "\n";
+        std::cerr << "token: " << text() << "(" << lexer.currentToken().type() << ")\n";
+        abort();
+    }
+    
     Story StoryParser::compile() {
         eat();
         
@@ -79,7 +89,7 @@ namespace Compass {
             recThingDecl(story, thing);
         }
         else {
-            syntaxError("cannot infer what '" + name.second + "' is");
+            error("cannot infer what '" + name.second + "' is");
         }
     }
     
@@ -87,7 +97,7 @@ namespace Compass {
         std::string article, name;
         
         if(have(Grammar::Definite) || have(Grammar::Indefinite)) article = eat();
-        if(haveBeing()) syntaxError("things and places must have names");
+        if(haveBeing()) error("things and places must have names");
         
         name = recWords();
         return std::make_pair(article, name);
@@ -96,7 +106,7 @@ namespace Compass {
     void StoryParser::recRoomDecl(Story& story, Place& place) {
         if(have("room")) eat();
         else if(have("place")) eat();
-        else syntaxError("this should be a place, but I can't see 'room' or 'place'");
+        else error("this should be a place, but I can't see 'room' or 'place'");
         
         if(!have(Token::Period)) {
             recDirection(story, place);
