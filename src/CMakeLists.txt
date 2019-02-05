@@ -1,2 +1,2 @@
-add_subdirectory(house)
-add_subdirectory(house_test)
+add_subdirectory(compass)
+add_subdirectory(test)

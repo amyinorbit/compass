@@ -1,5 +1,5 @@
 cmake_minimum_required(VERSION 3.2)
-project(house VERSION 3.0 LANGUAGES CXX C)
+project(Compass VERSION 3.0 LANGUAGES CXX C)
 
 set(CMAKE_CXX_STANDARD 17)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
@@ -10,7 +10,7 @@ include_directories(${PROJECT_SOURCE_DIR}/include)
 add_subdirectory(src)
 
 add_custom_target(run
-    COMMAND house_test test.txt
-    DEPENDS house_test
+    COMMAND test test.txt
+    DEPENDS test
     WORKING_DIRECTORY ${CMAKE_SOURCE_DIR}
 )
