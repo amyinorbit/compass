@@ -1,6 +1,6 @@
 //===--------------------------------------------------------------------------------------------===
-// grammar.cpp - Implementation of the House Engine's BasicEnglsih grammar support class.
-// This source is part of the House Engine
+// grammar.cpp - Implementation of the Compass Engine's BasicEnglsih grammar support class.
+// This source is part of the Compass Engine
 //
 // Created on 2019-01-31 by Amy Parent <amy@amyparent.com>
 // Copyright (c) 2019 Amy Parent
@@ -10,7 +10,7 @@
 #include <cassert>
 #include <house/grammar.hpp>
 
-namespace House {
+namespace Compass {
     
      static std::string toLower(const std::string& str) {
          std::string lower = str;

@@ -1,6 +1,6 @@
 //===--------------------------------------------------------------------------------------------===
 // basiclexer.hpp - Basic (incomplete) lexer implementation re-used in the house engine
-// This source is part of the House Engine
+// This source is part of the Compass Engine
 //
 // Created on 2019-01-30 by Amy Parent <amy@amyparent.com>
 // Copyright (c) 2019 Amy Parent
@@ -11,7 +11,7 @@
 #include <string>
 #include <house/utf8.h>
 
-namespace House {
+namespace Compass {
     
     struct Token {
         enum Kind {

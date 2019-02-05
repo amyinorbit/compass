@@ -1,14 +1,14 @@
-#include <house/storyparser.hpp>
-#include <house/story.hpp>
-#include <house/lexer.hpp>
-#include <house/grammar.hpp>
+#include <compass/storyparser.hpp>
+#include <compass/story.hpp>
+#include <compass/lexer.hpp>
+#include <compass/grammar.hpp>
 #include <algorithm>
 #include <set>
 #include <string>
 #include <fstream>
 #include <iostream>
 
-void display(House::Story& story, const House::Place& place) {
+void display(Compass::Story& story, const Compass::Place& place) {
     std::cout << "\n* " << story.string(place.name) << "\n";
     std::cout << story.string(place.description) << "\n\n";
     for(auto id: place.things) {
@@ -25,11 +25,11 @@ int testCompile(const std::string& path) {
     }
     std::string source(std::istreambuf_iterator<char>(in), {});
     
-    House::BasicEnglish grammar;
-    House::StoryParser parser(source, grammar);
+    Compass::BasicEnglish grammar;
+    Compass::StoryParser parser(source, grammar);
     auto story = parser.compile();
     
-    House::Place* current = &story.place(story.start);
+    Compass::Place* current = &story.place(story.start);
     
     display(story, *current);
     
@@ -39,7 +39,7 @@ int testCompile(const std::string& path) {
         std::getline(std::cin, cmd);
         //std::cin >> cmd;
         
-        const auto it = std::find_if(current->links.begin(), current->links.end(), [&](const House::Link& link) {
+        const auto it = std::find_if(current->links.begin(), current->links.end(), [&](const Compass::Link& link) {
             return cmd == link.direction;
         });
         if(it == current->links.end()) {

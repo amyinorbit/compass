@@ -1,6 +1,6 @@
 //===--------------------------------------------------------------------------------------------===
-// storyscriot.cpp - Implementation of the House Engine's story script file parser
-// This source is part of the House Engine
+// storyscriot.cpp - Implementation of the Compass Engine's story script file parser
+// This source is part of the Compass Engine
 //
 // Created on 2019-01-30 by Amy Parent <amy@amyparent.com>
 // Copyright (c) 2019 Amy Parent
@@ -13,7 +13,7 @@
 #include <house/storyparser.hpp>
 #include <house/story.hpp>
 
-namespace House {
+namespace Compass {
     
     Story StoryParser::compile() {
         eat();

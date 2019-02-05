@@ -8,7 +8,7 @@
 // =^•.•^=
 //===--------------------------------------------------------------------------------------------===
 #include <ctype.h>
-#include <house/utf8.h>
+#include <compass/utf8.h>
 
 #define IN_RANGE(val, lower, upper) ((val) >= (lower) && (val) <= (upper))
 

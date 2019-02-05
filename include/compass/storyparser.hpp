@@ -1,6 +1,6 @@
 //===--------------------------------------------------------------------------------------------===
-// parser.hpp - House adventure asset parser
-// This source is part of the House Engine
+// parser.hpp - Compass adventure asset parser
+// This source is part of the Compass Engine
 //
 // Created on 2019-01-30 by Amy Parent <amy@amyparent.com>
 // Copyright (c) 2019 Amy Parent
@@ -16,7 +16,7 @@
 #include <house/semantics.hpp>
 #include <house/story.hpp>
 
-namespace House {
+namespace Compass {
     class StoryParser {
     public:
         StoryParser(const std::string& data, const Grammar& grammar);

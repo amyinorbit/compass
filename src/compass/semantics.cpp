@@ -1,6 +1,6 @@
 //===--------------------------------------------------------------------------------------------===
 // semantics.cpp - Implementation of the parser semantics checker
-// This source is part of the House Engine
+// This source is part of the Compass Engine
 //
 // Created on 2019-02-04 by Amy Parent <amy@amyparent.com>
 // Copyright (c) 2019 Amy Parent
@@ -10,7 +10,7 @@
 #include <iostream>
 #include <house/semantics.hpp>
 
-namespace House {
+namespace Compass {
     
     static std::string toLower(const std::string& str) {
         std::string lower = str;

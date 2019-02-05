@@ -1,6 +1,6 @@
 //===--------------------------------------------------------------------------------------------===
 // story.hpp - Data structure representing a parsed story.
-// This source is part of the House Engine
+// This source is part of the Compass Engine
 //
 // Created on 2019-02-01 by Amy Parent <amy@amyparent.com>
 // Copyright (c) 2019 Amy Parent
@@ -17,7 +17,7 @@
 
 #define BYTECODE_MAX (128)
 
-namespace House {
+namespace Compass {
 
     class Story;
     class Place;

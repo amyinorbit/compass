@@ -1,6 +1,6 @@
 //===--------------------------------------------------------------------------------------------===
-// lexer.cpp - House::Lexer lexing methods.
-// This source is part of the House Engine
+// lexer.cpp - Compass::Lexer lexing methods.
+// This source is part of the Compass Engine
 //
 // Created on 2019-01-30 by Amy Parent <amy@amyparent.com>
 // Copyright (c) 2019 Amy Parent
@@ -28,7 +28,7 @@ std::string tokenNames__[] = {
     "End",
 };
 
-namespace House {
+namespace Compass {
     
     std::string Token::type() const {
         return tokenNames__[kind];

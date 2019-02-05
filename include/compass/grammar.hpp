@@ -1,6 +1,6 @@
 //===--------------------------------------------------------------------------------------------===
-// grammar.hpp - Basic grammar system for the House Engine.
-// This source is part of the House Engine
+// grammar.hpp - Basic grammar system for the Compass Engine.
+// This source is part of the Compass Engine
 //
 // Created on 2019-01-31 by Amy Parent <amy@amyparent.com>
 // Copyright (c) 2019 Amy Parent
@@ -11,7 +11,7 @@
 #include <string>
 #include <set>
 
-namespace House {
+namespace Compass {
     
     class Grammar {
     public:

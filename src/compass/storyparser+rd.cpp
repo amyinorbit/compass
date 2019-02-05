@@ -1,6 +1,6 @@
 //===--------------------------------------------------------------------------------------------===
-// storyscript+rd.cpp - Implementation of the House Engine's story script file parser's RD utilities
-// This source is part of the House Engine
+// storyscript+rd.cpp - Implementation of the Compass Engine's story script file parser's RD utilities
+// This source is part of the Compass Engine
 //
 // Created on 2019-01-30 by Amy Parent <amy@amyparent.com>
 // Copyright (c) 2019 Amy Parent
@@ -12,7 +12,7 @@
 #include <string>
 #include <house/storyparser.hpp>
 
-namespace House {
+namespace Compass {
     
     static std::string toLower(const std::string& str) {
         std::string lower = str;

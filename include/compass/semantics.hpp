@@ -1,6 +1,6 @@
 //===--------------------------------------------------------------------------------------------===
 // semantics.hpp - Semantics checker and link resolver for the house engine
-// This source is part of the House Engine
+// This source is part of the Compass Engine
 //
 // Created on 2019-02-04 by Amy Parent <amy@amyparent.com>
 // Copyright (c) 2019 Amy Parent
@@ -13,7 +13,7 @@
 #include <vector>
 #include <house/story.hpp>
 
-namespace House {
+namespace Compass {
     class Semantics {
     public:
         void addDirection(const std::string& fw, const std::string& bw);
