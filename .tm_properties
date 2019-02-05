@@ -1,6 +1,6 @@
 projectDirectory        = $CWD
 
 #PROJECT_AUTHOR          = 'IDSMLM Games'
-PROJECT_NAME            = 'the House Engine'
+PROJECT_NAME            = 'the Compass Engine'
 PROJECT_CPYEAR          = '2019'
 PROJECT_LICENSE         = 'MIT'

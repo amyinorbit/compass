@@ -68,14 +68,14 @@ namespace Compass {
         if(have(Grammar::Definite) || have(Grammar::Indefinite)) {
             eat();
             Place place;
-            place.article = story.installString(name.first);
-            place.name = story.installString(name.second);
+            place.article = story.stringID(name.first);
+            place.name = story.stringID(name.second);
             recRoomDecl(story, place);
         }
         else if(have(Grammar::Preposition)) {
             Thing thing;
-            thing.article = story.installString(name.first);
-            thing.name = story.installString(name.second);
+            thing.article = story.stringID(name.first);
+            thing.name = story.stringID(name.second);
             recThingDecl(story, thing);
         }
         else {
@@ -108,7 +108,7 @@ namespace Compass {
         
         match(Token::Period);
         
-        place.description = story.installString(text());
+        place.description = story.stringID(text());
         match(Token::QuotedString);
         story.addPlace(place);
     }
@@ -127,7 +127,7 @@ namespace Compass {
     void StoryParser::recThingDecl(Story& story, Thing& thing) {
         std::vector<std::string> verbs;
         
-        thing.preposition = story.installString(text());
+        thing.preposition = story.stringID(text());
         match(Grammar::Preposition, "Things must be placed somehwere");
         // Parse the location of the object.
         if(have(Grammar::Definite) || have(Grammar::Indefinite)) eat();
@@ -137,12 +137,12 @@ namespace Compass {
         // adjectives?
         while(have(Token::Comma) || have("and")) {
             eat();
-            thing.adjectives.push_back(story.installString(recWords("and")));
+            thing.adjectives.push_back(story.stringID(recWords("and")));
         }
         
         if(have(Token::Colon)) {
             eat();
-            thing.description = story.installString(text());
+            thing.description = story.stringID(text());
             match(Token::QuotedString, "descriptions of short things should be in quotes");
         }
         match(Token::Period);
@@ -174,7 +174,7 @@ namespace Compass {
     Action StoryParser::recAction(Story& story) {
         Action action;
         action.kind = Action::Native;
-        action.verb = story.installString(recWords(Grammar::Objective));
+        action.verb = story.stringID(recWords(Grammar::Objective));
         match(Grammar::Objective);
         return action;
     }

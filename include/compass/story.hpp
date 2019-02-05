@@ -66,32 +66,35 @@ namespace Compass {
     // The story structure binds a whole thing together
     class Story {
     public:
-        StringID uniqueID(const std::string& name);
-        StringID uniqueID(StringID name);
+        StringID uniqueID(const std::string& name) const;
+        StringID uniqueID(StringID name) const;
+        
         StringID addPlace(Place place);
         StringID addThing(StringID entity, Thing thing);
         
+        const Place& place(StringID uniqueID) const;
         Place& place(StringID uniqueID);
-        Place& place(const std::string& uniqueID);
+        
+        const Thing& thing(StringID uniqueID) const;
         Thing& thing(StringID uniqueID);
-        Thing& thing(const std::string& uniqueID);
         
         void addDirection(const std::string& dir);
         void addLink(StringID from, StringID to, const std::string& direction);
         
         // MARK: - Strings management
-        StringID installString(const std::string& str);
+        StringID stringID(const std::string& str) const;
         const std::string& string(StringID id) const;
         
         StringID                            start;
     private:
         friend class Semantics;
-        std::pair<StringID, std::string> makeID(StringID name);
+        std::pair<StringID, std::string> makeID(StringID name) const;
         
-        std::vector<std::string>            strings_;
+        // The string pool is mutable to allow const-qualified stringID
+        mutable std::vector<std::string>    strings_;
         std::set<std::string>               directions_;
-        std::map<std::string, Place>        places_;
-        std::map<std::string, Thing>        things_;
+        std::map<StringID, Place>           places_;
+        std::map<StringID, Thing>           things_;
     };
     
 }

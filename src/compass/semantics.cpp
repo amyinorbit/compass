@@ -60,17 +60,28 @@ namespace Compass {
         // Check all the links first
         
         for(const auto& link: links_) {
-            const auto& from = story.string(story.uniqueID(link.from));
-            const auto& to = story.string(story.uniqueID(link.to));
+            const auto& from = story.uniqueID(link.from);
+            const auto& to = story.uniqueID(link.to);
 
             const auto fromIt = story.places_.find(from);
             const auto toIt = story.places_.find(to);
 
-            if(fromIt == story.places_.end())
-                error("I can't make a link from " + from + " to " + to + " because " + from + " isn't a room");
-            if(toIt == story.places_.end())
-                error("I can't make a link from " + from + " to " + to + " because " + to + " isn't a room");
-                
+            if(fromIt == story.places_.end()) {
+                error(
+                    "I can't make a link from " + story.string(from)
+                    + " to " + story.string(to) + " because "
+                    + story.string(from) + " isn't a room"
+                );
+            }
+            
+            if(toIt == story.places_.end()) {
+                error(
+                    "I can't make a link from " + story.string(from)
+                    + " to " + story.string(to) + " because "
+                    + story.string(to) + " isn't a room"
+                );
+            }
+             
             story.addLink(link.from, link.to, link.direction);
             
             if(!hasOppositeDirection(link.direction)) continue;
