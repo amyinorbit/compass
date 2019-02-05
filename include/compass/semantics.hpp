@@ -21,7 +21,10 @@ namespace Compass {
         std::string oppositeDirection(const std::string& direction);
         bool hasOppositeDirection(const std::string& direction);
         
-        void makeLink(StringID from, StringID to, const std::string& direction);
+        void addPlace(const Place& place);
+        void addThing(const Thing& thing);
+        
+        void markLink(StringID from, StringID to, const std::string& direction);
         void resolve(Story& story);
         
     private:
@@ -38,8 +41,11 @@ namespace Compass {
         
         void error(const std::string& message);
         
-        std::map<std::string, Direction> directions_;
-        std::vector<FutureLink> links_;
+        StringID                            start_;
+        std::map<std::string, Direction>    directions_;
+        std::vector<FutureLink>             links_;
+        std::map<StringID, Place>           places_;
+        std::map<StringID, Thing>           things_;
         
     };
 }

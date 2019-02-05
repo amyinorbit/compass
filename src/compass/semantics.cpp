@@ -49,25 +49,44 @@ namespace Compass {
         return it->second.opposite;
     }
     
-    void Semantics::makeLink(StringID from, StringID to, const std::string& direction) {
-        // std::cout << "Future link: " <<  direction << "\n";
-        links_.push_back(FutureLink{
-            from, to, toLower(direction)
-        });
+    void Semantics::addPlace(const Place& place) {
+        if(!places_.size()) start_ = place.id;
+        places_[place.id] = place;
+    }
+
+    void Semantics::addThing(const Thing& thing) {
+        things_[thing.id] = thing;
+
+        // Then we need to find the entity we're adding this to
+        auto placesIt = places_.find(thing.location);
+        if(placesIt != places_.end()) {
+            placesIt->second.things.push_back(thing.id);
+            return;
+        }
+
+        auto thingsIt = things_.find(thing.id);
+        if(thingsIt != things_.end()) {
+            thingsIt->second.things.push_back(thing.id);
+            return;
+        }
+        error("I can't add this thing to an unknown place or container");
+    }
+    
+    void Semantics::markLink(StringID from, StringID to, const std::string& direction) {
+        links_.push_back(FutureLink{ from, to, toLower(direction) });
     }
     
     void Semantics::resolve(Story& story) {
         
         // Check all the links first
-        
         for(const auto& link: links_) {
             const auto& from = story.uniqueID(link.from);
             const auto& to = story.uniqueID(link.to);
+            
+            const auto fromIt = places_.find(from);
+            const auto toIt = places_.find(to);
 
-            const auto fromIt = story.places_.find(from);
-            const auto toIt = story.places_.find(to);
-
-            if(fromIt == story.places_.end()) {
+            if(fromIt == places_.end()) {
                 error(
                     "I can't make a link from " + story.string(from)
                     + " to " + story.string(to) + " because "
@@ -75,22 +94,20 @@ namespace Compass {
                 );
             }
             
-            if(toIt == story.places_.end()) {
+            if(toIt == places_.end()) {
                 error(
                     "I can't make a link from " + story.string(from)
                     + " to " + story.string(to) + " because "
                     + story.string(to) + " isn't a room"
                 );
             }
-             
-            story.addLink(link.from, link.to, link.direction);
             
+            places_.at(link.from).links.push_back(Link{link.to, link.direction});
             if(!hasOppositeDirection(link.direction)) continue;
-            story.addLink(link.to, link.from, oppositeDirection(link.direction));
+            places_.at(link.to).links.push_back(Link{link.from, oppositeDirection(link.direction)});
         }
-        
-        // TODO: We should probably check objects too
-        
-        
+        story.prototype.start_ = start_;
+        story.prototype.places_ = places_;
+        story.prototype.things_ = things_;
     }
 }

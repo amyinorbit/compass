@@ -9,11 +9,11 @@
 #include <fstream>
 #include <iostream>
 
-void display(Compass::Story& story, const Compass::Place& place) {
+void display(Compass::Story& story, const Compass::Context& ctx, const Compass::Place& place) {
     std::cout << "\n* " << story.string(place.name) << "\n";
     std::cout << story.string(place.description) << "\n\n";
     for(auto id: place.things) {
-        const auto& thing = story.thing(id);
+        const auto& thing = ctx.thing(id);
         std::cout << "There is " << story.string(thing.article) << " " << story.string(thing.name) << "\n";
     }
 }
@@ -30,9 +30,10 @@ int testCompile(const std::string& path) {
     Compass::StoryParser parser(source, grammar);
     auto story = parser.compile();
     
-    Compass::Place* current = &story.place(story.start);
+    Compass::Context ctx = story.prototype;
     
-    display(story, *current);
+    Compass::Place* current = &ctx.start();
+    display(story, ctx, *current);
     
     for(;;) {
         std::cout << "> ";
@@ -61,9 +62,9 @@ int testCompile(const std::string& path) {
             std::cout << "you can't go that way\n";
         }
         else {
-            current = &story.place(it->target);
+            current = &ctx.place(it->target);
             
-            display(story, *current);
+            display(story, ctx, *current);
         } 
     }
     

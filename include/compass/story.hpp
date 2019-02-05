@@ -43,7 +43,7 @@ namespace Compass {
     struct Entity {
         std::vector<StringID>   things;
         
-        StringID                uniqueID;
+        StringID                id;
         StringID                article;
         StringID                name;
         StringID                description;
@@ -62,14 +62,8 @@ namespace Compass {
         std::vector<Action>     actions;
     };
     
-    // The story structure binds a whole thing together
-    class Story {
+    class Context {
     public:
-        StringID uniqueID(const std::string& name) const;
-        StringID uniqueID(StringID name) const;
-        
-        StringID addPlace(Place place);
-        StringID addThing(StringID entity, Thing thing);
         
         const Place& place(StringID uniqueID) const;
         Place& place(StringID uniqueID);
@@ -77,23 +71,37 @@ namespace Compass {
         const Thing& thing(StringID uniqueID) const;
         Thing& thing(StringID uniqueID);
         
+        Place& start() { return places_[start_]; }
+        const Place& start() const { return places_.at(start_); }
+        
+    private:
+        friend class Semantics;
+        
+        StringID                            start_;
+        std::map<StringID, Place>           places_;
+        std::map<StringID, Thing>           things_;
+    };
+    
+    // The story structure binds a whole thing together
+    class Story {
+    public:
+        StringID uniqueID(const std::string& name) const;
+        StringID uniqueID(StringID name) const;
+        
         void addDirection(const std::string& dir);
-        void addLink(StringID from, StringID to, const std::string& direction);
         
         // MARK: - Strings management
         StringID stringID(const std::string& str) const;
         const std::string& string(StringID id) const;
         
-        StringID                            start;
+
+        Context                             prototype;
     private:
         friend class Semantics;
-        std::pair<StringID, std::string> makeID(StringID name) const;
         
         // The string pool is mutable to allow const-qualified stringID
         mutable std::vector<std::string>    strings_;
         std::set<std::string>               directions_;
-        std::map<StringID, Place>           places_;
-        std::map<StringID, Thing>           things_;
     };
     
 }

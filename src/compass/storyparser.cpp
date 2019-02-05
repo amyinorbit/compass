@@ -80,12 +80,14 @@ namespace Compass {
             Place place;
             place.article = story.stringID(name.first);
             place.name = story.stringID(name.second);
+            place.id = story.uniqueID(name.second);
             recRoomDecl(story, place);
         }
         else if(have(Grammar::Preposition)) {
             Thing thing;
             thing.article = story.stringID(name.first);
             thing.name = story.stringID(name.second);
+            thing.id = story.uniqueID(name.second);
             recThingDecl(story, thing);
         }
         else {
@@ -120,7 +122,7 @@ namespace Compass {
         
         place.description = story.stringID(text());
         match(Token::QuotedString);
-        story.addPlace(place);
+        sem_.addPlace(place);
     }
     
     void StoryParser::recDirection(Story& story, Place& place) {
@@ -131,7 +133,7 @@ namespace Compass {
             
             if(have(Grammar::Definite) || have(Grammar::Indefinite)) article = eat();
             room = recWords("and");
-            sem_.makeLink(story.uniqueID(room), story.uniqueID(place.name), dir);
+            sem_.markLink(story.uniqueID(room), story.uniqueID(place.name), dir);
     }
     
     void StoryParser::recThingDecl(Story& story, Thing& thing) {
@@ -178,7 +180,7 @@ namespace Compass {
             match(Token::QuotedString, "detailed descriptions must be between quotes");
         }
         
-        story.addThing(story.uniqueID(thing.location), thing);
+        sem_.addThing(thing);
     }
     
     Action StoryParser::recAction(Story& story) {
