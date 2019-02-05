@@ -2,6 +2,7 @@
 #include <compass/story.hpp>
 #include <compass/lexer.hpp>
 #include <compass/grammar.hpp>
+#include <compass/sentence.hpp>
 #include <algorithm>
 #include <set>
 #include <string>
@@ -35,18 +36,31 @@ int testCompile(const std::string& path) {
     
     for(;;) {
         std::cout << "> ";
-        std::string cmd;
-        std::getline(std::cin, cmd);
-        //std::cin >> cmd;
+        std::string phrase;
+        std::getline(std::cin, phrase);
+        
+        Compass::Sentence sentence(story, phrase, grammar);
+        bool success;
+        Compass::Sentence::Command cmd;
+        std::tie(success, cmd) = sentence.parse();
+        
+        if(!success) {
+            std::cout << "I can't understand that\n";
+            continue;
+        }
+        
+        if(cmd.verb != "go" && cmd.verb != "Go") {
+            std::cout << "I don't quite understand that verb\n";
+            continue;
+        }
         
         const auto it = std::find_if(current->links.begin(), current->links.end(), [&](const Compass::Link& link) {
-            return cmd == link.direction;
+            return cmd.object == link.direction;
         });
         if(it == current->links.end()) {
             std::cout << "you can't go that way\n";
         }
         else {
-            std::cout << "going to " << story.string(it->target) << "\n";
             current = &story.place(it->target);
             
             display(story, *current);

@@ -27,10 +27,6 @@ namespace Compass {
         if(have(Token::Word)) {
             cmd.object = recWords();
         }
-
-        std::cout << "verb:        " << cmd.verb << "\n";
-        std::cout << "preposition: " << cmd.preposition << "\n";
-        std::cout << "object:      " << cmd.object << "\n";
         return std::make_pair(!isFailed(), cmd);
     }
     
