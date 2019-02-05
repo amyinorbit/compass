@@ -49,7 +49,6 @@ namespace House {
             thingsIt->second.things.push_back(id.first);
             return id.first;
         }
-        
         // TODO: crash with semantic error here.
         return id.first;
     }
@@ -81,10 +80,7 @@ namespace House {
     }
     
     void Story::addLink(StringID from, StringID to, const std::string& direction) {
-        const auto& fromID = uniqueID(from);
-        const auto& toID = uniqueID(to);
-        
-        places_[string(fromID)].links.push_back(Link{toID, direction});
+        places_[string(from)].links.push_back(Link{to, direction});
     }
     
     // // MARK: - Strings management

@@ -99,14 +99,11 @@ namespace House {
         else syntaxError("this should be a place, but I can't see 'room' or 'place'");
         
         if(!have(Token::Period)) {
-            std::string dir = recWords(Grammar::Preposition);
-            sem_.checkDirection(dir);
-            match(Grammar::Preposition);
-            std::string article, room;
-            
-            if(have(Grammar::Definite) || have(Grammar::Indefinite)) article = eat();
-            room = recWords();
-            sem_.makeLink(story.installString(room), place.name, dir);
+            recDirection(story, place);
+            while(have(Token::Comma) || have("and")) {
+                eat();
+                recDirection(story, place);
+            }
         }
         
         match(Token::Period);
@@ -114,6 +111,17 @@ namespace House {
         place.description = story.installString(text());
         match(Token::QuotedString);
         story.addPlace(place);
+    }
+    
+    void StoryParser::recDirection(Story& story, Place& place) {
+            std::string dir = recWords(Grammar::Preposition);
+            sem_.checkDirection(dir);
+            match(Grammar::Preposition);
+            std::string article, room;
+            
+            if(have(Grammar::Definite) || have(Grammar::Indefinite)) article = eat();
+            room = recWords();
+            sem_.makeLink(story.uniqueID(room), story.uniqueID(place.name), dir);
     }
     
     void StoryParser::recThingDecl(Story& story, Thing& thing) {

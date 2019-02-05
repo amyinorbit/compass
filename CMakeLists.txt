@@ -10,7 +10,7 @@ include_directories(${PROJECT_SOURCE_DIR}/include)
 add_subdirectory(src)
 
 add_custom_target(run
-    COMMAND house_test
+    COMMAND house_test test.txt
     DEPENDS house_test
     WORKING_DIRECTORY ${CMAKE_SOURCE_DIR}
 )

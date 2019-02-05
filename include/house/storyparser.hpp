@@ -61,6 +61,8 @@ namespace House {
         void recRoomDecl(Story& story, Place& place);
         void recThingDecl(Story& story, Thing& thing);
         
+        void recDirection(Story& story, Place& place);
+        
         Action recAction(Story& story);
         // std::string recPosition();
         
