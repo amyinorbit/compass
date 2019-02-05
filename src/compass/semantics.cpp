@@ -56,20 +56,6 @@ namespace Compass {
 
     void Semantics::addThing(const Thing& thing) {
         things_[thing.id] = thing;
-
-        // Then we need to find the entity we're adding this to
-        auto placesIt = places_.find(thing.location);
-        if(placesIt != places_.end()) {
-            placesIt->second.things.push_back(thing.id);
-            return;
-        }
-
-        auto thingsIt = things_.find(thing.id);
-        if(thingsIt != things_.end()) {
-            thingsIt->second.things.push_back(thing.id);
-            return;
-        }
-        error("I can't add this thing to an unknown place or container");
     }
     
     void Semantics::markLink(StringID from, StringID to, const std::string& direction) {
@@ -106,6 +92,24 @@ namespace Compass {
             if(!hasOppositeDirection(link.direction)) continue;
             places_.at(link.to).links.push_back(Link{link.from, oppositeDirection(link.direction)});
         }
+        
+        for(const auto& pair: things_) {
+            auto thing = pair.second;
+            auto placesIt = places_.find(thing.location);
+            if(placesIt != places_.end()) {
+                placesIt->second.things.push_back(thing.id);
+                continue;
+            }
+
+            auto thingsIt = things_.find(thing.id);
+            if(thingsIt != things_.end()) {
+                thingsIt->second.things.push_back(thing.id);
+                continue;
+            }
+            error("I can't add "+story.string(thing.name)+" to an unknown place or container");
+        }
+        
+        
         story.prototype.start_ = start_;
         story.prototype.places_ = places_;
         story.prototype.things_ = things_;
