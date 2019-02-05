@@ -37,22 +37,25 @@ namespace Compass {
     }
     
     void RDParser::matchBeing(const std::string& message) {
+        if(failed_) skipUntil(Token::End);
         if(!haveBeing()) error(message);
         lexer.nextToken();
     }
 
     void RDParser::match(Token::Kind kind, const std::string& message) {
+        if(failed_) skipUntil(kind);
         if(!have(kind)) error(message);
         lexer.nextToken();
     }
     
     void RDParser::match(const std::string& word, const std::string& message) {
-        if(failed_) return;
+        if(failed_) skipUntil(Token::End);
         if(!have(word)) error(message);
         lexer.nextToken();
     }
     
     void RDParser::match(Grammar::Class wordClass, const std::string& message) {
+        if(failed_) skipUntil(Token::End);
         if(!have(wordClass)) error(message);
         lexer.nextToken();
     }
@@ -61,5 +64,27 @@ namespace Compass {
         std::string text = lexer.currentToken().text;
         lexer.nextToken();
         return text;
+    }
+    
+    void RDParser::skipUntil(Token::Kind kind) {
+        while(lexer.currentToken().kind != kind) {
+            lexer.nextToken();
+        }
+        lexer.nextToken();
+    }
+
+    
+    std::string RDParser::recWords(const std::string& stop) {
+        std::string str = text();
+        match(Token::Word);
+        while(have(Token::Word) && !haveBeing() && !have(stop)) str += " " + eat();
+        return str;
+    }
+    
+    std::string RDParser::recWords(Grammar::Class stop) {
+        std::string str = text();
+        match(Token::Word);
+        while(have(Token::Word) && !haveBeing() && !have(stop)) str += " " + eat();
+        return str;
     }
 }

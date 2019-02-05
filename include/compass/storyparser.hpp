@@ -36,16 +36,9 @@ namespace Compass {
         void recThingDecl(Story& story, Thing& thing);
         
         void recDirection(Story& story, Place& place);
-        
         Action recAction(Story& story);
         
-        std::string recWords(const std::string& stop = "");
-        std::string recWords(Grammar::Class stop);
-        
-        
         Semantics sem_;
-        // Lexer lex_;
-        // const Grammar& grammar_;
     };
 }
 

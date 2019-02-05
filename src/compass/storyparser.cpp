@@ -188,18 +188,4 @@ namespace Compass {
         match(Grammar::Objective);
         return action;
     }
-    
-    std::string StoryParser::recWords(const std::string& stop) {
-        std::string str = text();
-        match(Token::Word);
-        while(have(Token::Word) && !haveBeing() && !have(stop)) str += " " + eat();
-        return str;
-    }
-    
-    std::string StoryParser::recWords(Grammar::Class stop) {
-        std::string str = text();
-        match(Token::Word);
-        while(have(Token::Word) && !haveBeing() && !have(stop)) str += " " + eat();
-        return str;
-    }
 }

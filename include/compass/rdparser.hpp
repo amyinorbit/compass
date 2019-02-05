@@ -7,7 +7,7 @@
 // Licensed under the MIT License
 // =^•.•^=
 //===--------------------------------------------------------------------------------------------===
-#pragma mark
+#pragma once
 #include <string>
 #include <compass/grammar.hpp>
 #include <compass/lexer.hpp>
@@ -20,7 +20,9 @@ namespace Compass {
         virtual ~RDParser() {}
     protected:
         virtual void error(const std::string& message) = 0;
+        
         void fail() { failed_ = true; }
+        bool isFailed() const { return failed_; }
         
         bool haveBeing() const;
         bool have(Token::Kind kind) const;
@@ -32,6 +34,9 @@ namespace Compass {
         void match(const std::string& word, const std::string& error = "invalid token");
         void match(Grammar::Class wordClass, const std::string& error = "invalid token");
         
+        std::string recWords(const std::string& stop = "");
+        std::string recWords(Grammar::Class stop);
+        
         std::string eat();
         std::string text() const { return lexer.currentToken().text; }
 
@@ -39,6 +44,7 @@ namespace Compass {
         const Grammar& grammar;
         
     private:
+        void skipUntil(Token::Kind kind);
         bool failed_;
     };
 }
