@@ -10,7 +10,7 @@
 #include <algorithm>
 #include <cassert>
 #include <iostream>
-#include <house/story.hpp>
+#include <compass/story.hpp>
 
 namespace Compass {
     

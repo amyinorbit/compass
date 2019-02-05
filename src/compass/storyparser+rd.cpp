@@ -10,7 +10,7 @@
 #include <iostream>
 #include <vector>
 #include <string>
-#include <house/storyparser.hpp>
+#include <compass/storyparser.hpp>
 
 namespace Compass {
     

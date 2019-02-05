@@ -11,7 +11,7 @@
 #include <map>
 #include <string>
 #include <vector>
-#include <house/story.hpp>
+#include <compass/story.hpp>
 
 namespace Compass {
     class Semantics {

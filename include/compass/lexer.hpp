@@ -9,7 +9,7 @@
 //===--------------------------------------------------------------------------------------------===
 #pragma once
 #include <string>
-#include <house/utf8.h>
+#include <compass/utf8.h>
 
 namespace Compass {
     

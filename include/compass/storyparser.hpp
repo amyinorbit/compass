@@ -11,10 +11,10 @@
 #include <string>
 #include <set>
 #include <map>
-#include <house/grammar.hpp>
-#include <house/lexer.hpp>
-#include <house/semantics.hpp>
-#include <house/story.hpp>
+#include <compass/grammar.hpp>
+#include <compass/lexer.hpp>
+#include <compass/semantics.hpp>
+#include <compass/story.hpp>
 
 namespace Compass {
     class StoryParser {

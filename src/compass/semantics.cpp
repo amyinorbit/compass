@@ -8,7 +8,7 @@
 // =^•.•^=
 //===--------------------------------------------------------------------------------------------===
 #include <iostream>
-#include <house/semantics.hpp>
+#include <compass/semantics.hpp>
 
 namespace Compass {
     

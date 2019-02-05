@@ -13,7 +13,7 @@
 #include <cassert>
 #include <vector>
 #include <string>
-#include <house/lexer.hpp>
+#include <compass/lexer.hpp>
 
 std::string tokenNames__[] = {
     "Keyword",

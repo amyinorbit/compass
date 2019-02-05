@@ -8,7 +8,7 @@
 // =^•.•^=
 //===--------------------------------------------------------------------------------------------===
 #include <cassert>
-#include <house/grammar.hpp>
+#include <compass/grammar.hpp>
 
 namespace Compass {
     
