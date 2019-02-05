@@ -110,8 +110,8 @@ namespace Compass {
         }
         
         
-        story.prototype.start_ = start_;
-        story.prototype.places_ = places_;
-        story.prototype.things_ = things_;
+        story.prototype.startID = start_;
+        story.prototype.places = places_;
+        story.prototype.things = things_;
     }
 }
