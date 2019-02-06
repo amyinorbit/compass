@@ -29,10 +29,11 @@ namespace Compass {
         
         const auto id = strings_.size();
         strings_.push_back(str);
-        return id;
+        return id + 1; // We offset by to allow 0 to represent an invalid string
     }
     
     const std::string& Story::string(StringID id) const {
+        id -= 1;
         assert(id < strings_.size() && "Invalid string ID");
         return strings_[id];
     }
