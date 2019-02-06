@@ -20,30 +20,6 @@ namespace Compass {
         return lower;
     }
     
-    const Place& Context::place(StringID uniqueID) const {
-        const auto it = places.find(uniqueID);
-        assert(it != places.end() && "invalid place ID");
-        return it->second;
-    }
-    
-    Place& Context::place(StringID uniqueID) {
-        const auto it = places.find(uniqueID);
-        assert(it != places.end() && "invalid place ID");
-        return it->second;
-    }
-    
-    const Thing& Context::thing(StringID uniqueID) const {
-        const auto it = things.find(uniqueID);
-        assert(it != things.end() && "invalid thing ID");
-        return it->second;
-    }
-    
-    Thing& Context::thing(StringID uniqueID) {
-        const auto it = things.find(uniqueID);
-        assert(it != things.end() && "invalid thing ID");
-        return it->second;
-    }
-    
     // MARK: - Strings management
     
     StringID Story::stringID(const std::string& str) const {

@@ -63,18 +63,8 @@ namespace Compass {
     };
     
     struct Context {
-        
-        const Place& place(StringID uniqueID) const;
-        Place& place(StringID uniqueID);
-        
-        const Thing& thing(StringID uniqueID) const;
-        Thing& thing(StringID uniqueID);
-        
-        Place& start() { return places[startID]; }
-        const Place& start() const { return places.at(startID); }
 
         StringID                            startID;
-        std::set<StringID>                  inventory;
         std::map<StringID, Place>           places;
         std::map<StringID, Thing>           things;
     };

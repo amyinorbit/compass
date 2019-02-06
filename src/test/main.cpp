@@ -3,18 +3,20 @@
 #include <compass/lexer.hpp>
 #include <compass/grammar.hpp>
 #include <compass/sentence.hpp>
+#include <compass/run.hpp>
 #include <algorithm>
 #include <set>
 #include <string>
 #include <fstream>
 #include <iostream>
 
-void display(Compass::Story& story, const Compass::Context& ctx, const Compass::Place& place) {
-    std::cout << "\n* " << story.string(place.name) << "\n";
-    std::cout << story.string(place.description) << "\n\n";
+void display(const Compass::Run& run) {
+    const auto& place = run.current();
+    std::cout << "\n* " << run.string(place.name) << "\n";
+    std::cout << run.string(place.description) << "\n\n";
     for(auto id: place.things) {
-        const auto& thing = ctx.thing(id);
-        std::cout << "There is " << story.string(thing.article) << " " << story.string(thing.name) << "\n";
+        const auto& thing = run.thing(id);
+        std::cout << "There is " << run.string(thing.article) << " " << run.string(thing.name) << "\n";
     }
 }
 
@@ -30,10 +32,8 @@ int testCompile(const std::string& path) {
     Compass::StoryParser parser(source, grammar);
     auto story = parser.compile();
     
-    Compass::Context ctx = story.prototype;
-    
-    Compass::Place* current = &ctx.start();
-    display(story, ctx, *current);
+    Compass::Run run(story);
+    display(run);
     
     for(;;) {
         std::cout << "> ";
@@ -54,17 +54,16 @@ int testCompile(const std::string& path) {
             std::cout << "I don't quite understand that verb\n";
             continue;
         }
-        
-        const auto it = std::find_if(current->links.begin(), current->links.end(), [&](const Compass::Link& link) {
+        const auto& current = run.current();
+        const auto it = std::find_if(current.links.begin(), current.links.end(), [&](const Compass::Link& link) {
             return cmd.object == link.direction;
         });
-        if(it == current->links.end()) {
+        if(it == current.links.end()) {
             std::cout << "you can't go that way\n";
         }
         else {
-            current = &ctx.place(it->target);
-            
-            display(story, ctx, *current);
+            run.go(it->target);
+            display(run);
         } 
     }
     
