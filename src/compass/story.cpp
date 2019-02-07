@@ -38,6 +38,25 @@ namespace Compass {
         return strings_[id];
     }
     
+    void Story::addDirection(const std::string& dir) {
+        directions_.insert(dir);
+    }
+    
+    void Story::addVerb(Verb::Kind kind, StringID verb, StringID preposition) {
+        // TODO: probably do some sort of uniqueness check here
+        verbs_[string(verb)] = Verb{kind, verb, preposition};
+    }
+    
+    bool Story::isVerb(const std::string& verb) {
+        return verbs_.find(verb) != verbs_.end();
+    }
+    
+    const Verb& Story::getVerb(const std::string& verb) const {
+        const auto it = verbs_.find(verb);
+        assert(it != verbs_.end() && "This is not a verb");
+        return it->second;
+    }
+    
     StringID Story::uniqueID(const std::string& name) const {
         const auto id = toLower(name);
         return stringID(id);

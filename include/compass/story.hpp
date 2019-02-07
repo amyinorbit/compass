@@ -68,6 +68,19 @@ namespace Compass {
         std::map<StringID, Thing>           things;
     };
     
+    struct Verb {
+        enum Kind {
+            // Those are basic actions that any game gets by default. Dealt with by the engine.
+            Go, Look, Take, Drop,
+            // These are custom actions, defined by the story and compiled to bytecode
+            StoryCode, CustomCode,
+        };
+        
+        Kind        kind;
+        StringID    verb;
+        StringID    preposition;
+    };
+    
     // The story structure binds a whole thing together
     class Story {
     public:
@@ -75,11 +88,14 @@ namespace Compass {
         StringID uniqueID(StringID name) const;
         
         void addDirection(const std::string& dir);
+        void addVerb(Verb::Kind kind, StringID verb, StringID preposition = 0);
+        bool isVerb(const std::string& verb);
+        const Verb& getVerb(const std::string& verb) const;
         
         // MARK: - Strings management
         StringID stringID(const std::string& str) const;
         const std::string& string(StringID id) const;
-
+        
         Context                             prototype;
     private:
         friend class Semantics;
@@ -87,6 +103,7 @@ namespace Compass {
         // The string pool is mutable to allow const-qualified stringID
         mutable std::vector<std::string>    strings_;
         std::set<std::string>               directions_;
+        std::map<std::string, Verb>         verbs_;
     };
     
 }
