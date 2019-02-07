@@ -18,13 +18,13 @@
 #define BYTECODE_MAX (128)
 
 namespace Compass {
-
+    
     class Story;
     class Place;
     class Thing;
     
     using StringID = std::size_t;
-
+    
     struct Link {
         StringID                target;
         std::string             direction;
@@ -39,7 +39,7 @@ namespace Compass {
     };
     
     // MARK: - Entities
-
+    
     struct Entity {
         std::vector<StringID>   things;
         
@@ -63,7 +63,6 @@ namespace Compass {
     };
     
     struct Context {
-
         StringID                            startID;
         std::map<StringID, Place>           places;
         std::map<StringID, Thing>           things;
@@ -80,7 +79,6 @@ namespace Compass {
         // MARK: - Strings management
         StringID stringID(const std::string& str) const;
         const std::string& string(StringID id) const;
-        
 
         Context                             prototype;
     private:

@@ -7,6 +7,8 @@
 // Licensed under the MIT License
 // =^•.•^=
 //===--------------------------------------------------------------------------------------------===
+#include <algorithm>
+#include <cassert>
 #include <compass/run.hpp>
 
 namespace Compass {
@@ -41,7 +43,10 @@ namespace Compass {
     }
     
     void Run::go(StringID placeID) {
-        assert(ctx_.places.find(placeID) != ctx_.places.end() && "you can't go to non-place");
+        // TODO: handle locked places
+        const auto it = ctx_.places.find(placeID);
+        assert(it != ctx_.places.end() && "you can't go to non-place");
+        it->second.isVisited = true;
         current_ = placeID;
     }
     
@@ -57,15 +62,39 @@ namespace Compass {
         return it->second;
     }
     
-    void Run::take(StringID thing) {
-        // TODO: implement taking, remove from room, all that
+    void Run::take(StringID uniqueID) {
+        const auto it = ctx_.things.find(uniqueID);
+        assert(it != ctx_.things.end() && "invalid thing ID");
+        inventory_.insert(uniqueID);
+        
+        auto& things = anything(it->second.location).things;
+        things.erase(std::remove(things.begin(), things.end(), uniqueID), things.end());
+        it->second.location = 0;
     }
     
-    bool Run::has(StringID thing) const {
-        return inventory_.find(thing) != inventory_.end();
+    bool Run::has(StringID uniqueID) const {
+        return inventory_.find(uniqueID) != inventory_.end();
     }
     
-    void Run::drop(StringID thing) {
-        // TODO: implement taking, maybe add to current room?
+    void Run::drop(StringID uniqueID) {
+        inventory_.erase(uniqueID);
+        // TODO:    There should be a way to drop something "on something"?
+        //          if nothing is given by default, should probably drop to the current room.
+    }
+    
+    Entity& Run::anything(StringID uniqueID) {
+        auto placesIt = ctx_.places.find(uniqueID);
+        if(placesIt != ctx_.places.end()) return placesIt->second;
+        auto thingsIt = ctx_.things.find(uniqueID);
+        if(thingsIt != ctx_.things.end()) return thingsIt->second;
+        assert(false && "you should never reach here");
+    }
+    
+    const Entity& Run::anything(StringID uniqueID) const {
+        auto placesIt = ctx_.places.find(uniqueID);
+        if(placesIt != ctx_.places.end()) return placesIt->second;
+        auto thingsIt = ctx_.things.find(uniqueID);
+        if(thingsIt != ctx_.things.end()) return thingsIt->second;
+        assert(false && "you should never reach here");
     }
 }

@@ -35,6 +35,9 @@ namespace Compass {
         }
     private:
         
+        Entity& anything(StringID uniqueID);
+        const Entity& anything(StringID uniqueID) const;
+        
         const Story&        story_;
         std::set<StringID>  inventory_;
         StringID            current_;

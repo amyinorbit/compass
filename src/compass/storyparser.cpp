@@ -139,6 +139,7 @@ namespace Compass {
     void StoryParser::recThingDecl(Story& story, Thing& thing) {
         std::vector<std::string> verbs;
         
+        // TODO: handle "compound" prepositions like "inside of"
         thing.preposition = story.stringID(text());
         match(Grammar::Preposition, "Things must be placed somehwere");
         // Parse the location of the object.
