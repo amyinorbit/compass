@@ -75,8 +75,12 @@ public:
         return error_;
     }
     
-    void map(std::function<void(T)> transform) const {
-        if(engaged_) transform(value_);
+    Result map(std::function<void(T)> transform) const {
+        if(engaged_) {
+            transform(value_);
+            return value_;
+        }
+        return error_;
     }
     
     template <typename U>
@@ -91,7 +95,8 @@ public:
     }
     
     Result mapError(std::function<void(E)> fn) const {
-        if(!engaged_) fn(error_);
+        if(engaged_) return value_;
+        fn(error_);
         return error_;
     }
     

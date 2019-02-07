@@ -8,8 +8,10 @@
 // =^•.•^=
 //===--------------------------------------------------------------------------------------------===
 #pragma once
+#include <compass/utils/result.hpp>
 #include <compass/utils/maybe.hpp>
 #include <compass/iomanaging.hpp>
+#include <compass/sentence.hpp>
 #include <compass/story.hpp>
 #include <compass/run.hpp>
 
@@ -23,7 +25,21 @@ namespace Compass {
         void update();
         
     private:
-        const std::string& string(StringID id) const;
+        struct PlayerAction {
+            Verb verb;
+            std::string object;
+        };
+        
+        Result<StringID> handleGo(const std::string& object);
+        Result<StringID> handleLook(const std::string& object);
+        Result<StringID> handleTake(const std::string& object);
+        Result<StringID> handleDrop(const std::string& object);
+        
+        Result<PlayerAction> check(Sentence::Command cmd);
+        Result<StringID> execute(PlayerAction action);
+        void displayResult(StringID room);
+        void displayCurrent();
+        void displayError(Error error);
         
         Maybe<Run>      run_;
         const Story&    story_;

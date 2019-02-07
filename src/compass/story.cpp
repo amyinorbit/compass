@@ -22,6 +22,15 @@ namespace Compass {
     
     // MARK: - Strings management
     
+    Story::Story() {
+        addVerb(Verb::Go, stringID("go"), stringID("to"));
+        addVerb(Verb::Go, stringID("walk"), stringID("to"));
+        addVerb(Verb::Look, stringID("look"), stringID("at"));
+
+        addVerb(Verb::Take, stringID("take"));
+        addVerb(Verb::Drop, stringID("drop"));
+    }
+    
     StringID Story::stringID(const std::string& str) const {
         const auto it = std::find(strings_.begin(), strings_.end(), str);
         if(it != strings_.end())
@@ -33,11 +42,7 @@ namespace Compass {
     }
     
     const std::string& Story::string(StringID id) const {
-        // std::cout << "getting " << id << "/" << strings_.size() << "\n";
-        // std::cout << strings_.back() << std::endl;
-        //if(id == 0) return "";
         id -= 1;
-        //std::cout << "getting string " << id << "\n";
         assert(id < strings_.size() && "Invalid string ID");
         return strings_[id];
     }
@@ -51,7 +56,7 @@ namespace Compass {
         verbs_[string(verb)] = Verb{kind, verb, preposition};
     }
     
-    bool Story::isVerb(const std::string& verb) {
+    bool Story::isVerb(const std::string& verb) const {
         return verbs_.find(verb) != verbs_.end();
     }
     

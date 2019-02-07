@@ -42,6 +42,7 @@ public:
     operator bool() { return engaged_; }
     operator T() { return *reinterpret_cast<const T*>(&storage_); }
     const T& get() const { return *reinterpret_cast<const T*>(&storage_); }
+    T& get() { return *reinterpret_cast<T*>(&storage_); }
     
     template <typename U>
     Maybe flatMap(std::function<Maybe<U>(T)> transform) {

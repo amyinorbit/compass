@@ -94,12 +94,14 @@ namespace Compass {
     // The story structure binds a whole thing together
     class Story {
     public:
+        Story();
+        
         StringID uniqueID(const std::string& name) const;
         StringID uniqueID(StringID name) const;
         
         void addDirection(const std::string& dir);
         void addVerb(Verb::Kind kind, StringID verb, StringID preposition = 0);
-        bool isVerb(const std::string& verb);
+        bool isVerb(const std::string& verb) const;
         const Verb& getVerb(const std::string& verb) const;
         
         // MARK: - Strings management

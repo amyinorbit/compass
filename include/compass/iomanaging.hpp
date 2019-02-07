@@ -23,7 +23,7 @@ namespace Compass {
     };
     
     class StreamIO: public IOManaging {
-        
+    public:
         virtual ~StreamIO() {}
         
         virtual void print(const std::string& str, char terminator = '\n') {
