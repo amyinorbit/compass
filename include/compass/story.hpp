@@ -25,6 +25,16 @@ namespace Compass {
     
     using StringID = std::size_t;
     
+    // struct StringID {
+    //     StringID() : id(0) {}
+    //     StringID(std::size_t id) : id(id+1) {}
+    //     operator bool() { return id == 0; }
+    //     operator std::size_t() { return id-1; }
+    //     std::size_t get() const { return id-1; }
+    // private:
+    //     std::size_t id;
+    // };
+    
     struct Link {
         StringID                target;
         std::string             direction;
@@ -34,7 +44,7 @@ namespace Compass {
         enum Kind { Native, Bytecode };
         
         Kind                    kind;
-        StringID                verb;
+        StringID                verb = 0;
         std::uint32_t           bytecode[BYTECODE_MAX];
     };
     
@@ -43,10 +53,10 @@ namespace Compass {
     struct Entity {
         std::vector<StringID>   things;
         
-        StringID                id;
-        StringID                article;
-        StringID                name;
-        StringID                description;
+        StringID                id = 0;
+        StringID                article = 0;
+        StringID                name = 0;
+        StringID                description = 0;
     };
     
     struct Place: public Entity {
@@ -55,15 +65,15 @@ namespace Compass {
     };
     
     struct Thing: public Entity {
-        StringID                preposition;
-        StringID                location;
+        StringID                preposition= 0;
+        StringID                location= 0;
         
         std::vector<StringID>   adjectives;
         std::vector<Action>     actions;
     };
     
     struct Context {
-        StringID                            startID;
+        StringID                            startID = 0;
         std::map<StringID, Place>           places;
         std::map<StringID, Thing>           things;
     };
@@ -105,5 +115,4 @@ namespace Compass {
         std::set<std::string>               directions_;
         std::map<std::string, Verb>         verbs_;
     };
-    
 }

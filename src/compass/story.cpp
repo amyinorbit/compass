@@ -25,15 +25,19 @@ namespace Compass {
     StringID Story::stringID(const std::string& str) const {
         const auto it = std::find(strings_.begin(), strings_.end(), str);
         if(it != strings_.end())
-            return it - strings_.begin();
+            return StringID((it - strings_.begin()) + 1);
         
         const auto id = strings_.size();
         strings_.push_back(str);
-        return id + 1; // We offset by to allow 0 to represent an invalid string
+        return StringID(id+1); // We offset by to allow 0 to represent an invalid string
     }
     
     const std::string& Story::string(StringID id) const {
+        // std::cout << "getting " << id << "/" << strings_.size() << "\n";
+        // std::cout << strings_.back() << std::endl;
+        //if(id == 0) return "";
         id -= 1;
+        //std::cout << "getting string " << id << "\n";
         assert(id < strings_.size() && "Invalid string ID");
         return strings_[id];
     }
