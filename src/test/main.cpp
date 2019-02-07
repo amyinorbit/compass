@@ -10,6 +10,8 @@
 #include <fstream>
 #include <iostream>
 
+using namespace Compass;
+
 void display(const Compass::Run& run) {
     const auto& place = run.current();
     std::cout << "\n* " << run.string(place.name) << "\n";
@@ -43,28 +45,23 @@ int testCompile(const std::string& path) {
         Compass::Sentence sentence(story, phrase, grammar);
         bool success;
         Compass::Sentence::Command cmd;
-        std::tie(success, cmd) = sentence.parse();
+        //std::tie(success, cmd) = sentence.parse();
         
-        if(!success) {
-            std::cout << "I can't understand that\n";
-            continue;
-        }
-        
-        if(cmd.verb != "go" && cmd.verb != "Go") {
-            std::cout << "I don't quite understand that verb\n";
-            continue;
-        }
-        const auto& current = run.current();
-        const auto it = std::find_if(current.links.begin(), current.links.end(), [&](const Compass::Link& link) {
-            return cmd.object == link.direction;
-        });
-        if(it == current.links.end()) {
-            std::cout << "you can't go that way\n";
-        }
-        else {
+        sentence.parse().flatMap([&](auto cmd) -> Result<Sentence::Command> {
+            if(cmd.verb != "go" && cmd.verb != "Go") return Error("I don't understand that verb");
+            return cmd;
+        }).flatMap([&](auto cmd) -> Result<Sentence::Command> {
+            const auto& current = run.current();
+            const auto it = std::find_if(current.links.begin(), current.links.end(), [&](const Compass::Link& link) {
+                return cmd.object == link.direction;
+            });
+            if(it == current.links.end()) return Error("You can't go that way");
             run.go(it->target);
             display(run);
-        } 
+            return cmd;
+        }).mapError([=](auto error){
+            std::cout << error.description << "\n";
+        });
     }
     
     return 0;

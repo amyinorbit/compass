@@ -10,6 +10,8 @@
 #pragma once
 #include <string>
 #include <utility>
+#include <compass/utils/result.hpp>
+#include <compass/utils/maybe.hpp>
 #include <compass/grammar.hpp>
 #include <compass/lexer.hpp>
 #include <compass/rdparser.hpp>
@@ -18,6 +20,7 @@
 namespace Compass {
     class Sentence: public RDParser {
     public:
+        
         struct Command {
             std::string verb;
             std::string preposition;
@@ -25,10 +28,11 @@ namespace Compass {
         };
         
         Sentence(const Story& story, const std::string& data, const Grammar& grammar);
-        std::pair<bool, Command> parse();
+        Result<Command> parse();
         
     private:
         virtual void error(const std::string& message);
         const Story& story_;
+        Maybe<Error> error_;
     };
 }

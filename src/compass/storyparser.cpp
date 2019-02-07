@@ -141,7 +141,7 @@ namespace Compass {
         
         // TODO: handle "compound" prepositions like "inside of"
         thing.preposition = story.stringID(text());
-        match(Grammar::Preposition, "Things must be placed somehwere");
+        match(Grammar::Preposition, "Things must be placed somewhere");
         // Parse the location of the object.
         if(have(Grammar::Definite) || have(Grammar::Indefinite)) eat();
         thing.location = story.uniqueID(recWords());

@@ -66,25 +66,23 @@ namespace Compass {
         
         // Check all the links first
         for(const auto& link: links_) {
-            const auto& from = story.uniqueID(link.from);
-            const auto& to = story.uniqueID(link.to);
             
-            const auto fromIt = places_.find(from);
-            const auto toIt = places_.find(to);
+            const auto fromIt = places_.find(link.from);
+            const auto toIt = places_.find(link.to);
 
             if(fromIt == places_.end()) {
                 error(
-                    "I can't make a link from " + story.string(from)
-                    + " to " + story.string(to) + " because "
-                    + story.string(from) + " isn't a room"
+                    "I can't make a link from " + story.string(link.from)
+                    + " to " + story.string(link.to) + " because "
+                    + story.string(link.from) + " isn't a room"
                 );
             }
             
             if(toIt == places_.end()) {
                 error(
-                    "I can't make a link from " + story.string(from)
-                    + " to " + story.string(to) + " because "
-                    + story.string(to) + " isn't a room"
+                    "I can't make a link from " + story.string(link.from)
+                    + " to " + story.string(link.to) + " because "
+                    + story.string(link.to) + " isn't a room"
                 );
             }
             

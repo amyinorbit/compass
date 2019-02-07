@@ -14,7 +14,7 @@ namespace Compass {
     Sentence::Sentence(const Story& story, const std::string& data, const Grammar& grammar)
         : story_(story), RDParser(data, grammar) {}
     
-    std::pair<bool, Sentence::Command> Sentence::parse() {
+    Result<Sentence::Command> Sentence::parse() {
         Command cmd;
         
         eat();
@@ -27,11 +27,12 @@ namespace Compass {
         if(have(Token::Word)) {
             cmd.object = recWords();
         }
-        return std::make_pair(!isFailed(), cmd);
+        if(error_) return error_.get();
+        return cmd;
     }
     
     void Sentence::error(const std::string& message) {
         fail();
-        std::cout << message << "\n";
+        error_ = Error{message};
     }
 }
