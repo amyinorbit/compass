@@ -12,6 +12,7 @@
 #include <string>
 #include <compass/storyparser.hpp>
 #include <compass/story.hpp>
+#include <compass/utils/string.hpp>
 
 namespace Compass {
     
@@ -66,7 +67,6 @@ namespace Compass {
         match(Token::Period);
         sem_.addDirection(dir, opp);
         sem_.addDirection(opp, dir);
-        // std::cout << dir << " <-> " << opp << "\n";
     }
     
     void StoryParser::recDecl(Story& story) {
@@ -98,7 +98,7 @@ namespace Compass {
     StoryParser::Name StoryParser::recDeclStart(Story& story) {
         std::string article, name;
         
-        if(have(Grammar::Definite) || have(Grammar::Indefinite)) article = eat();
+        if(have(Grammar::Definite) || have(Grammar::Indefinite)) article = String::toLower(eat());
         if(haveBeing()) error("things and places must have names");
         
         name = recWords();

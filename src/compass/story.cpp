@@ -11,14 +11,9 @@
 #include <cassert>
 #include <iostream>
 #include <compass/story.hpp>
+#include <compass/utils/string.hpp>
 
 namespace Compass {
-    
-    static std::string toLower(const std::string& str) {
-        std::string lower = str;
-        for(auto& c: lower) c = ::tolower(c);
-        return lower;
-    }
     
     // MARK: - Strings management
     
@@ -67,7 +62,7 @@ namespace Compass {
     }
     
     StringID Story::uniqueID(const std::string& name) const {
-        const auto id = toLower(name);
+        const auto id = String::toLower(name);
         return stringID(id);
     }
 

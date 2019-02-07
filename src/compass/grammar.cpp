@@ -9,14 +9,9 @@
 //===--------------------------------------------------------------------------------------------===
 #include <cassert>
 #include <compass/grammar.hpp>
+#include <compass/utils/string.hpp>
 
 namespace Compass {
-    
-     static std::string toLower(const std::string& str) {
-         std::string lower = str;
-         for(auto& c: lower) c = ::tolower(c);
-         return lower;
-     }
      
      template <typename T>
      bool contains(const std::set<T>& set, const T& key) {
@@ -51,7 +46,7 @@ namespace Compass {
     // TODO: maybe return a tuple of values? or a std::set?
     // TODO: might also be better rewritng as is(string, class)->bool
     Grammar::Class BasicEnglish::classOf(const std::string& word) const {
-        const auto low = toLower(word);
+        const auto low = String::toLower(word);
         if(low == "the") return Grammar::Definite;
         if(low == "a" || low == "an") return Grammar::Indefinite;
         if(contains(objectives_, low)) return Grammar::Objective;
@@ -64,12 +59,12 @@ namespace Compass {
     }
     
     bool BasicEnglish::meansBeing(const std::string& word) const {
-        const auto low = toLower(word);
+        const auto low = String::toLower(word);
         return low == "is" || low == "are";
     }
     
     bool BasicEnglish::is(const std::string& word, Grammar::Class wordClass) const {
-        const auto low = toLower(word);
+        const auto low = String::toLower(word);
         switch(wordClass) {
             case Grammar::Definite: return low == "the";
             case Grammar::Indefinite: return low == "a" || low == "an";

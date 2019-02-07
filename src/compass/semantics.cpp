@@ -10,14 +10,9 @@
 #include <cassert>
 #include <iostream>
 #include <compass/semantics.hpp>
+#include <compass/utils/string.hpp>
 
 namespace Compass {
-    
-    static std::string toLower(const std::string& str) {
-        std::string lower = str;
-        for(auto& c: lower) c = ::tolower(c);
-        return lower;
-    }
     
     void Semantics::error(const std::string& message) {
         std::cerr << "error: " << message << "\n";
@@ -59,7 +54,7 @@ namespace Compass {
     }
     
     void Semantics::markLink(StringID from, StringID to, const std::string& direction) {
-        links_.push_back(FutureLink{ from, to, toLower(direction) });
+        links_.push_back(FutureLink{ from, to, String::toLower(direction) });
     }
     
     void Semantics::resolve(Story& story) {

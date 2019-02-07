@@ -8,14 +8,9 @@
 // =^•.•^=
 //===--------------------------------------------------------------------------------------------===
 #include <compass/rdparser.hpp>
+#include <compass/utils/string.hpp>
 
 namespace Compass {
-    
-    static std::string toLower(const std::string& str) {
-        std::string lower = str;
-        for(auto& c: lower) c = ::tolower(c);
-        return lower;
-    }
     
     RDParser::RDParser(const std::string& data, const Grammar& grammar)
         : failed_(false), lexer(data), grammar(grammar) {}
@@ -29,7 +24,7 @@ namespace Compass {
     }
     
     bool RDParser::have(const std::string& word) const {
-        return toLower(text()) == toLower(word);
+        return String::toLower(text()) == String::toLower(word);
     }
     
     bool RDParser::have(Grammar::Class wordClass) const {
