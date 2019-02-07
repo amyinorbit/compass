@@ -1,42 +1,19 @@
-# directions:
-#
-# port is a direction, the opposite is starboard.
-# up is a direction, the opposite is down.
-# aft is a direction, the opposite is forward.
-#
-# story:
-#
-# Harmony node is a room. "This is a big, sterile-looking module. There's the constant humming of fans and probably some computers, somewhere. On the floor – or is it the ceiling, you wonder as you drift in the absence of gravity – there's a bunch of flags and patches. You feel weirdly at home here."
-#
-# A name tag is in Harmony node, old and frayed.You can take it. Its description is "An old name tag that reads 'CDR C. HADFIELD - CAN'"
-#
-# Zvezda is a room aft from Harmony Node. "This feels quite cramped. Walls are painted an old russian military green, and hoses and cables run pretty much everywhere you can see."
-#
-# The Cupola is a room down from Harmony Node. "The seven windows are clear, giving you a breathtaking view of the planet flying by below you."
-#
-# A laptop is in Zvezda: "A beat up laptop". you can start it. Its description is "It's dark grey and plastic, looking straight out of the '00s. It's turned off and beat up, but looks like it might still work"
-#
-# # When you start the laptop, say "the laptop chimes" and change the description to "A blue screen of death".
-
 directions:
 
-west is a direction, the opposite is east.
-north is a direction, the opposite is south.
+port is a direction, the opposite is starboard.
+up is a direction, the opposite is down.
+aft is a direction, the opposite is forward.
 
 story:
 
-The foyer is a room. "There's a door to the south. To the west, there's a door that leads to a dark corridor. The dining room is to the north, and the living room is to the east. You know this place, but how did you get here?"
+Harmony node is a room. "This is a big, sterile-looking module. There's the constant humming of fans and probably some computers, somewhere. On the floor – or is it the ceiling, you wonder as you drift in the absence of gravity – there's a bunch of flags and patches. You feel weirdly at home here."
 
-A coat rack is in the foyer. Its description is "The coat rack is covered in jackets in various sizes."
+A name tag is in Harmony node, old and frayed.You can take it. Its description is "An old name tag that reads 'CDR C. HADFIELD - CAN'"
 
-A shoe rack is in the foyer. Its description is "The shoe rack is full of shoes. You see a pair of women's heels and some children's wellies."
+Zvezda is a room aft from Harmony Node. "This feels quite cramped. Walls are painted an old russian military green, and hoses and cables run pretty much everywhere you can see."
 
-A chest of drawers is in the foyer. Its description is "It's a wooden chest of drawers."
+The Cupola is a room down from Harmony Node. "The seven windows are clear, giving you a breathtaking view of the planet flying by below you."
 
-The living room is a room east from the foyer. "The living room is spacious but cosy. There's a fireplace on the southern wall, its glowing embers fill you with a feeling of melancholia. There's a sofa facing the fireplace, with a coffee table separating them. The foyer is through the door on the western wall, the sitting room is to the north and to the east is the library."
+A laptop is in Zvezda: "A beat up laptop". you can start it. Its description is "It's dark grey and plastic, looking straight out of the '00s. It's turned off and beat up, but looks like it might still work"
 
-The sitting room is a room north of the living room and east from the dining room. "The sitting room is attractive and carefully decorated. A large family portrait hangs above a grand piano. There's a sofa in the centre of the room. A glass door on the eastern wall is letting in a cascade of golden sunlight. Through it you can see the patio. The light stretches through the room, through to the dining room to the west. The ballroom is to the north, and the living room to the south." 
-
-The dining room is a room north of the foyer. "The dining room is large, with a vast table surrounded by chairs. The foyer is to the south, and through a door on the northern wall is the kitchen. Sunlight is streaming in from the sitting room to the east."
-
-the dark corridor is a place west of the foyer. "You enter the long, dark corridor. Your shoes make a squelching sound on the wet floor. The foyer is to the east. There are two doors to the north, what looks like a children's bedroom, and a bathroom. A door at the west end of the corridor seems to lead to the master bedroom."
+# When you start the laptop, say "the laptop chimes" and change the description to "A blue screen of death".

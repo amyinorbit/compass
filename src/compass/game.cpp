@@ -26,6 +26,7 @@ namespace Compass {
         
         BasicEnglish grammar;
         
+        io_.print("> ");
         auto phrase = io_.readLine();
         Sentence sentence(story_, phrase, grammar);
         sentence.parse()
@@ -46,9 +47,9 @@ namespace Compass {
     Result<StringID> Game::execute(PlayerAction action) {
         switch(action.verb.kind) {
             case Verb::Go: return handleGo(action.object);
-            case Verb::Look: break;
-            case Verb::Take: break;
-            case Verb::Drop: break;
+            case Verb::Look: return handleLook(action.object);
+            case Verb::Take: return handleTake(action.object);
+            case Verb::Drop: return handleDrop(action.object);
             default: break;
         }
         return Error("This isn't handled yet");
@@ -61,7 +62,9 @@ namespace Compass {
             [this,&object](const auto& link) {
                 return link.direction == object
                     || link.target == story_.uniqueID(object);
-            });
+            }
+        );
+            
         if(it != links.end())
             return it->target;
         return Error("You can't go there");
@@ -91,22 +94,35 @@ namespace Compass {
         auto& run = run_.get();
         
         const auto& place = run.current();
-        io_.print("# " + story_.string(place.name));
-        io_.print(story_.string(place.description));
+        io_.println();
+        io_.println("# " + story_.string(place.name));
+        io_.println();
+        io_.println(story_.string(place.description));
+        io_.println();
         
         if(place.things.size()) {
             bool single = place.things.size() == 1;
-            io_.print(single ? "There is" : "there are", ' ');
+            io_.print(single ? "There is " : "there are ");
+            
+            int idx = 0;
             for(auto id: place.things) {
                 const auto& thing = run.thing(id);
-                io_.print(story_.string(thing.article) + " " + story_.string(thing.name), ',');
+                io_.print(story_.string(thing.article) + " " + story_.string(thing.name));
+                idx += 1;
+                
+                if(idx == place.things.size())
+                    io_.println(" here.");
+                else if(idx == place.things.size()-1)
+                    io_.print(" and ");
+                else
+                    io_.print(", ");
             }
+            io_.println();
         }
-
-        io_.print("\n> ", '\0');
     }
     
     void Game::displayError(Error error) {
-        io_.print(error.description);
+        io_.println(error.description);
+        io_.println();
     }
 }

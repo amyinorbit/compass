@@ -17,7 +17,8 @@ namespace Compass {
     public:
         virtual ~IOManaging() {}
         
-        virtual void print(const std::string& str, char terminator = '\n') = 0;
+        virtual void print(const std::string& str) = 0;
+        virtual void println(const std::string& str = "") = 0;
         virtual void clear() = 0;
         virtual std::string readLine() = 0;
     };
@@ -26,8 +27,12 @@ namespace Compass {
     public:
         virtual ~StreamIO() {}
         
-        virtual void print(const std::string& str, char terminator = '\n') {
-            std::cout << str << terminator;
+        virtual void print(const std::string& str) {
+            std::cout << str;
+        }
+        
+        virtual void println(const std::string& str = "") {
+            std::cout << str << "\n";
         }
         
         virtual void clear() {
