@@ -177,6 +177,7 @@ namespace Compass {
             eat();
             match("description");
             matchBeing();
+            thing.details = story.stringID(text());
             //details = text();
             match(Token::QuotedString, "detailed descriptions must be between quotes");
         }

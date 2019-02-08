@@ -37,9 +37,12 @@ namespace Compass {
         Result<std::string> handleDrop(const std::string& object);
         
         Result<PlayerAction> check(Sentence::Command cmd);
-        void displayResult(const std::string& room);
-        void displayCurrent();
+        void display(const std::string& room);
         void displayError(Error error);
+        
+
+        std::string describeCurrent(bool detailed = false);
+        std::string describe(const std::string& id, int depth = 1);
         
         Maybe<Run>      run_;
         const Story&    story_;

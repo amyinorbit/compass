@@ -42,7 +42,7 @@ namespace Compass {
     // MARK: - Entities
     
     struct Entity {
-        std::vector<std::string> things;
+        std::set<std::string>   things;
         
         std::string             id;
         StringID                article = 0;
@@ -58,6 +58,8 @@ namespace Compass {
     struct Thing: public Entity {
         Maybe<std::string>      location;
         StringID                preposition= 0;
+        
+        StringID                details = 0;
         
         std::vector<StringID>   adjectives;
         std::vector<Action>     actions;

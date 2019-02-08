@@ -22,6 +22,8 @@ namespace Compass {
         addVerb(Verb::Go, stringID("walk"), stringID("to"));
         addVerb(Verb::Look, stringID("look"), stringID("at"));
 
+        //addVerb(Verb::Inventory, stringID("inventory"));
+
         addVerb(Verb::Take, stringID("take"));
         addVerb(Verb::Drop, stringID("drop"));
     }

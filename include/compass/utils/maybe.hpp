@@ -70,3 +70,10 @@ const T& maybe_guard(const Maybe<T>& m, const std::string& message) {
     std::cerr << "cannot unwrap optional: " << message << "\n";
     abort();
 }
+
+template <typename T>
+T& maybe_guard(Maybe<T>& m, const std::string& message) {
+    if(m) return m.get();
+    std::cerr << "cannot unwrap optional: " << message << "\n";
+    abort();
+}

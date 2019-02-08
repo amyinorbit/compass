@@ -15,7 +15,7 @@ namespace Compass {
     
     void Game::start() {
         run_ = Run(story_);
-        displayCurrent();
+        display(describeCurrent());
     }
     
     void Game::update() {
@@ -25,14 +25,12 @@ namespace Compass {
         auto& run = run_.get();
         
         BasicEnglish grammar;
-        
-        io_.print("> ");
         auto phrase = io_.readLine();
         Sentence sentence(story_, phrase, grammar);
         sentence.parse()
             .flatMap<PlayerAction>(std::bind(&Game::check, this, _1))
             .flatMap<std::string>(std::bind(&Game::execute, this, _1))
-            .map(std::bind(&Game::displayResult, this, _1))
+            .map(std::bind(&Game::display, this, _1))
             .mapError(std::bind(&Game::displayError, this, _1));
     }
     
@@ -56,8 +54,8 @@ namespace Compass {
     }
     
     Result<std::string> Game::handleGo(const std::string& object) {
-        
-        const auto& links = run_.get().current().links;
+        auto& run = maybe_guard(run_, "you must have a game run");
+        const auto& links = run.current().links;
         const auto it = std::find_if(links.begin(), links.end(),
             [this,&object](const auto& link) {
                 return link.direction == object
@@ -65,63 +63,112 @@ namespace Compass {
             }
         );
             
-        if(it != links.end())
-            return it->target;
-        return Error("You can't go there");
+        if(it == links.end())
+            return Error("You can't go there");
+        
+        run.go(it->target);
+        return describeCurrent(false);
     }
     
     Result<std::string> Game::handleLook(const std::string& object) {
+        auto& run = maybe_guard(run_, "you must have a game run");
+        if(!object.size())
+            return describeCurrent(true);
         
-        return Error("You can't look at that");
+        auto id = story_.uniqueID(object);
+        const auto& place = run.current();
+        const auto it = place.things.find(id);
+        
+        if(it == place.things.end())
+            return Error("There's no such thing as " + object + " here.");
+        
+        return describe(id);
     }
     
     Result<std::string> Game::handleTake(const std::string& object) {
+        auto& run = maybe_guard(run_, "you must have a game run");
+        if(!object.size())
+            return Error("You can't take nothing!");
         
-        return Error("You can't take this");
+        auto id = story_.uniqueID(object);
+        const auto& place = run.current();
+        const auto it = place.things.find(id);
+        
+        if(it == place.things.end())
+            return Error("There's no such thing as " + object + " here.");
+        
+        run.take(id);
+        return "You now have " + object + "\n"; // TODO: we should probably have an article in here.
     }
     
     Result<std::string> Game::handleDrop(const std::string& object) {
-        return Error("You can't drop that");
+        auto& run = maybe_guard(run_, "you must have a game run");
+        if(!object.size())
+            return Error("You can't drop nothing!");
+        
+        auto id = story_.uniqueID(object);
+        if(!run.has(id))
+            return Error("You don't have anything like that");
+        
+        run.drop(id);
+        return "You dropped " + object + "\n"; // TODO: we should probably have an article in here.
     }
     
-    void Game::displayResult(const std::string& roomID) {
-        run_.get().go(roomID);
-        displayCurrent();
+    void Game::display(const std::string& text) {
+        io_.println();
+        io_.println(text);
+        io_.print("> ");
     }
     
-    void Game::displayCurrent() {
-        if(!run_) return;
-        auto& run = run_.get();
+    std::string Game::describeCurrent(bool detailed) {
+        auto& run = maybe_guard(run_, "you must have a game run");
+        
+        std::string text = "";
         
         const auto& place = run.current();
-        io_.println();
-        io_.println("# " + story_.string(place.name));
-        io_.println();
-        io_.println(story_.string(place.description));
-        io_.println();
         
-        if(place.things.size()) {
-            bool single = place.things.size() == 1;
-            io_.print(single ? "There is " : "there are ");
+        text += "# " + story_.string(place.name) + "\n";
+        text += story_.string(place.description) + "\n";
+        
+        if(!place.things.size() || !detailed) return text;
+        
+        text += "\n";
+        bool single = place.things.size() == 1;
+        text += single ? "There is " : "there are ";
+        
+        int idx = 0;
+        for(auto id: place.things) {
+            const auto& thing = run.thing(id);
+            text += story_.string(thing.article) + " " + story_.string(thing.name);
+            idx += 1;
             
-            int idx = 0;
-            for(auto id: place.things) {
-                const auto& thing = run.thing(id);
-                io_.print(story_.string(thing.article) + " " + story_.string(thing.name));
-                idx += 1;
-                
-                if(idx == place.things.size())
-                    io_.println(" here.");
-                else if(idx == place.things.size()-1)
-                    io_.print(" and ");
-                else
-                    io_.print(", ");
-            }
-            io_.println();
+            if(idx == place.things.size())
+                text += " here.\n";
+            else if(idx == place.things.size()-1)
+                text += " and ";
+            else
+                text += ", ";
         }
+        return text;
+    }
+    
+    std::string Game::describe(const std::string& id, int depth) {
+        auto& run = maybe_guard(run_, "you must have a game run");
+        std::string text = "";
+        
+        const auto& thing = run.thing(id);
+        if(thing.details) {
+            text += story_.string(thing.details);
+        } else {
+            text += "Nothing special about the " + story_.string(thing.name) + ".\n";
+        }
+        
+        // TODO: handle things that are on/in this.
+        return text + "\n";
     }
     
     void Game::displayError(Error error) {
+        
         io_.println(error.description);
         io_.println();
     }

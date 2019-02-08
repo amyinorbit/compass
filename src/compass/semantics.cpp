@@ -88,13 +88,13 @@ namespace Compass {
             auto thing = pair.second;
             auto placesIt = places_.find(thing.location);
             if(placesIt != places_.end()) {
-                placesIt->second.things.push_back(thing.id);
+                placesIt->second.things.insert(thing.id);
                 continue;
             }
 
             auto thingsIt = things_.find(thing.id);
             if(thingsIt != things_.end()) {
-                thingsIt->second.things.push_back(thing.id);
+                thingsIt->second.things.insert(thing.id);
                 continue;
             }
             error("I can't add " + story.string(thing.name) + " to an unknown place or container");

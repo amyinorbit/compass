@@ -68,7 +68,7 @@ namespace Compass {
         inventory_.insert(uniqueID);
         
         auto& things = anything(it->second.location).things;
-        things.erase(std::remove(things.begin(), things.end(), uniqueID), things.end());
+        things.erase(uniqueID);
         it->second.location = {};
     }
     
