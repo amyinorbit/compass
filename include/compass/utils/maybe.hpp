@@ -8,6 +8,7 @@
 // =^•.•^=
 //===--------------------------------------------------------------------------------------------===
 #pragma once
+#include <iostream>
 #include <type_traits>
 #include <functional>
 
@@ -39,8 +40,8 @@ public:
         if(!engaged_) reinterpret_cast<T*>(&storage_)->~T();
     }
     
-    operator bool() { return engaged_; }
-    operator T() { return *reinterpret_cast<const T*>(&storage_); }
+    operator bool() const { return engaged_; }
+    operator T() const { return *reinterpret_cast<const T*>(&storage_); }
     const T& get() const { return *reinterpret_cast<const T*>(&storage_); }
     T& get() { return *reinterpret_cast<T*>(&storage_); }
     
@@ -62,3 +63,10 @@ private:
     T& some() { return *reinterpret_cast<const T*>(&storage_); }
     std::aligned_storage_t<sizeof(T), alignof(T)> storage_;
 };
+
+template <typename T>
+const T& maybe_guard(const Maybe<T>& m, const std::string& message) {
+    if(m) return m.get();
+    std::cerr << "cannot unwrap optional: " << message << "\n";
+    abort();
+}

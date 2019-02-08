@@ -29,15 +29,15 @@ namespace Compass {
             Verb verb;
             std::string object;
         };
-        
-        Result<StringID> handleGo(const std::string& object);
-        Result<StringID> handleLook(const std::string& object);
-        Result<StringID> handleTake(const std::string& object);
-        Result<StringID> handleDrop(const std::string& object);
+
+        Result<std::string> execute(PlayerAction action);
+        Result<std::string> handleGo(const std::string& object);
+        Result<std::string> handleLook(const std::string& object);
+        Result<std::string> handleTake(const std::string& object);
+        Result<std::string> handleDrop(const std::string& object);
         
         Result<PlayerAction> check(Sentence::Command cmd);
-        Result<StringID> execute(PlayerAction action);
-        void displayResult(StringID room);
+        void displayResult(const std::string& room);
         void displayCurrent();
         void displayError(Error error);
         

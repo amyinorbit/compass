@@ -61,12 +61,12 @@ namespace Compass {
         return it->second;
     }
     
-    StringID Story::uniqueID(const std::string& name) const {
-        const auto id = String::toLower(name);
-        return stringID(id);
+    std::string Story::uniqueID(const std::string& name) const {
+        const auto id = String::toLower(name);// TODO: there's probably some sanitising to do here.
+        return id;
     }
 
-    StringID Story::uniqueID(StringID name) const {
+    std::string Story::uniqueID(StringID name) const {
         return uniqueID(string(name));
     }
 }

@@ -45,7 +45,7 @@ namespace Compass {
     }
     
     void Semantics::addPlace(const Place& place) {
-        if(!places_.size()) start_ = place.id;
+        if(!start_) start_ = place.id;
         places_[place.id] = place;
     }
 
@@ -53,12 +53,12 @@ namespace Compass {
         things_[thing.id] = thing;
     }
     
-    void Semantics::markLink(StringID from, StringID to, const std::string& direction) {
+    void Semantics::markLink(const std::string& from, const std::string& to, const std::string& direction) {
         links_.push_back(FutureLink{ from, to, String::toLower(direction) });
     }
     
     void Semantics::resolve(Story& story) {
-        
+        auto start = maybe_guard(start_, "at least one room is required");
         // Check all the links first
         for(const auto& link: links_) {
             
@@ -67,17 +67,15 @@ namespace Compass {
 
             if(fromIt == places_.end()) {
                 error(
-                    "I can't make a link from " + story.string(link.from)
-                    + " to " + story.string(link.to) + " because "
-                    + story.string(link.from) + " isn't a room"
+                    "I can't make a link from " + link.from + " to " + link.to
+                    + " because " + link.from + " isn't a room"
                 );
             }
             
             if(toIt == places_.end()) {
                 error(
-                    "I can't make a link from " + story.string(link.from)
-                    + " to " + story.string(link.to) + " because "
-                    + story.string(link.to) + " isn't a room"
+                    "I can't make a link from " + link.from + " to " + link.to
+                    + " because " + link.to + " isn't a room"
                 );
             }
             
@@ -99,11 +97,11 @@ namespace Compass {
                 thingsIt->second.things.push_back(thing.id);
                 continue;
             }
-            error("I can't add "+story.string(thing.name)+" to an unknown place or container");
+            error("I can't add " + story.string(thing.name) + " to an unknown place or container");
         }
         
         
-        story.prototype.startID = start_;
+        story.prototype.startID = start;
         story.prototype.places = places_;
         story.prototype.things = things_;
     }

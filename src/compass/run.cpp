@@ -18,13 +18,13 @@ namespace Compass {
         current_ = ctx_.startID;
     }
     
-    const Place& Run::place(StringID uniqueID) const {
+    const Place& Run::place(const std::string& uniqueID) const {
         const auto it = ctx_.places.find(uniqueID);
         assert(it != ctx_.places.end() && "invalid place ID");
         return it->second;
     }
     
-    Place& Run::place(StringID uniqueID) {
+    Place& Run::place(const std::string& uniqueID) {
         const auto it = ctx_.places.find(uniqueID);
         assert(it != ctx_.places.end() && "invalid place ID");
         return it->second;
@@ -42,7 +42,7 @@ namespace Compass {
         return it->second;
     }
     
-    void Run::go(StringID placeID) {
+    void Run::go(const std::string& placeID) {
         // TODO: handle locked places
         const auto it = ctx_.places.find(placeID);
         assert(it != ctx_.places.end() && "you can't go to non-place");
@@ -50,39 +50,39 @@ namespace Compass {
         current_ = placeID;
     }
     
-    const Thing& Run::thing(StringID uniqueID) const {
+    const Thing& Run::thing(const std::string& uniqueID) const {
         const auto it = ctx_.things.find(uniqueID);
         assert(it != ctx_.things.end() && "invalid thing ID");
         return it->second;
     }
     
-    Thing& Run::thing(StringID uniqueID) {
+    Thing& Run::thing(const std::string& uniqueID) {
         const auto it = ctx_.things.find(uniqueID);
         assert(it != ctx_.things.end() && "invalid thing ID");
         return it->second;
     }
     
-    void Run::take(StringID uniqueID) {
+    void Run::take(const std::string& uniqueID) {
         const auto it = ctx_.things.find(uniqueID);
         assert(it != ctx_.things.end() && "invalid thing ID");
         inventory_.insert(uniqueID);
         
         auto& things = anything(it->second.location).things;
         things.erase(std::remove(things.begin(), things.end(), uniqueID), things.end());
-        it->second.location = 0;
+        it->second.location = {};
     }
     
-    bool Run::has(StringID uniqueID) const {
+    bool Run::has(const std::string& uniqueID) const {
         return inventory_.find(uniqueID) != inventory_.end();
     }
     
-    void Run::drop(StringID uniqueID) {
+    void Run::drop(const std::string& uniqueID) {
         inventory_.erase(uniqueID);
         // TODO:    There should be a way to drop something "on something"?
         //          if nothing is given by default, should probably drop to the current room.
     }
     
-    Entity& Run::anything(StringID uniqueID) {
+    Entity& Run::anything(const std::string& uniqueID) {
         auto placesIt = ctx_.places.find(uniqueID);
         if(placesIt != ctx_.places.end()) return placesIt->second;
         auto thingsIt = ctx_.things.find(uniqueID);
@@ -90,7 +90,7 @@ namespace Compass {
         assert(false && "you should never reach here");
     }
     
-    const Entity& Run::anything(StringID uniqueID) const {
+    const Entity& Run::anything(const std::string& uniqueID) const {
         auto placesIt = ctx_.places.find(uniqueID);
         if(placesIt != ctx_.places.end()) return placesIt->second;
         auto thingsIt = ctx_.things.find(uniqueID);

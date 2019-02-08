@@ -12,6 +12,7 @@
 #include <string>
 #include <vector>
 #include <compass/story.hpp>
+#include <compass/utils/maybe.hpp>
 
 namespace Compass {
     class Semantics {
@@ -24,13 +25,13 @@ namespace Compass {
         void addPlace(const Place& place);
         void addThing(const Thing& thing);
         
-        void markLink(StringID from, StringID to, const std::string& direction);
+        void markLink(const std::string& from, const std::string& to, const std::string& direction);
         void resolve(Story& story);
         
     private:
         struct FutureLink {
-            StringID from;
-            StringID to;
+            std::string from;
+            std::string to;
             std::string direction;
         };
         
@@ -41,11 +42,12 @@ namespace Compass {
         
         void error(const std::string& message);
         
-        StringID                            start_;
+        Maybe<std::string>                  start_;
+        
         std::map<std::string, Direction>    directions_;
         std::vector<FutureLink>             links_;
-        std::map<StringID, Place>           places_;
-        std::map<StringID, Thing>           things_;
+        std::map<std::string, Place>        places_;
+        std::map<std::string, Thing>        things_;
         
     };
 }

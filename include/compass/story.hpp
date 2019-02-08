@@ -14,6 +14,7 @@
 #include <string>
 #include <utility>
 #include <vector>
+#include <compass/utils/maybe.hpp>
 
 #define BYTECODE_MAX (128)
 
@@ -25,18 +26,8 @@ namespace Compass {
     
     using StringID = std::size_t;
     
-    // struct StringID {
-    //     StringID() : id(0) {}
-    //     StringID(std::size_t id) : id(id+1) {}
-    //     operator bool() { return id == 0; }
-    //     operator std::size_t() { return id-1; }
-    //     std::size_t get() const { return id-1; }
-    // private:
-    //     std::size_t id;
-    // };
-    
     struct Link {
-        StringID                target;
+        std::string             target;
         std::string             direction;
     };
     
@@ -51,9 +42,9 @@ namespace Compass {
     // MARK: - Entities
     
     struct Entity {
-        std::vector<StringID>   things;
+        std::vector<std::string> things;
         
-        StringID                id = 0;
+        std::string             id;
         StringID                article = 0;
         StringID                name = 0;
         StringID                description = 0;
@@ -65,17 +56,17 @@ namespace Compass {
     };
     
     struct Thing: public Entity {
+        Maybe<std::string>      location;
         StringID                preposition= 0;
-        StringID                location= 0;
         
         std::vector<StringID>   adjectives;
         std::vector<Action>     actions;
     };
     
     struct Context {
-        StringID                            startID = 0;
-        std::map<StringID, Place>           places;
-        std::map<StringID, Thing>           things;
+        std::string                         startID;
+        std::map<std::string, Place>        places;
+        std::map<std::string, Thing>        things;
     };
     
     struct Verb {
@@ -96,8 +87,8 @@ namespace Compass {
     public:
         Story();
         
-        StringID uniqueID(const std::string& name) const;
-        StringID uniqueID(StringID name) const;
+        std::string uniqueID(const std::string& name) const;
+        std::string uniqueID(StringID name) const;
         
         void addDirection(const std::string& dir);
         void addVerb(Verb::Kind kind, StringID verb, StringID preposition = 0);

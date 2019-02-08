@@ -31,7 +31,7 @@ namespace Compass {
         Sentence sentence(story_, phrase, grammar);
         sentence.parse()
             .flatMap<PlayerAction>(std::bind(&Game::check, this, _1))
-            .flatMap<StringID>(std::bind(&Game::execute, this, _1))
+            .flatMap<std::string>(std::bind(&Game::execute, this, _1))
             .map(std::bind(&Game::displayResult, this, _1))
             .mapError(std::bind(&Game::displayError, this, _1));
     }
@@ -44,7 +44,7 @@ namespace Compass {
         };
     }
     
-    Result<StringID> Game::execute(PlayerAction action) {
+    Result<std::string> Game::execute(PlayerAction action) {
         switch(action.verb.kind) {
             case Verb::Go: return handleGo(action.object);
             case Verb::Look: return handleLook(action.object);
@@ -55,7 +55,7 @@ namespace Compass {
         return Error("This isn't handled yet");
     }
     
-    Result<StringID> Game::handleGo(const std::string& object) {
+    Result<std::string> Game::handleGo(const std::string& object) {
         
         const auto& links = run_.get().current().links;
         const auto it = std::find_if(links.begin(), links.end(),
@@ -70,21 +70,21 @@ namespace Compass {
         return Error("You can't go there");
     }
     
-    Result<StringID> Game::handleLook(const std::string& object) {
+    Result<std::string> Game::handleLook(const std::string& object) {
         
         return Error("You can't look at that");
     }
     
-    Result<StringID> Game::handleTake(const std::string& object) {
+    Result<std::string> Game::handleTake(const std::string& object) {
         
         return Error("You can't take this");
     }
     
-    Result<StringID> Game::handleDrop(const std::string& object) {
+    Result<std::string> Game::handleDrop(const std::string& object) {
         return Error("You can't drop that");
     }
     
-    void Game::displayResult(StringID roomID) {
+    void Game::displayResult(const std::string& roomID) {
         run_.get().go(roomID);
         displayCurrent();
     }

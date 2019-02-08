@@ -17,5 +17,7 @@ namespace Compass {
             for(auto& c: lower) c = ::tolower(c);
             return lower;
         }
+        
+        bool caseInsensitiveCompare(const std::string& a, const std::string& b);
     }
 }
