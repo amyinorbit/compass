@@ -14,31 +14,37 @@
 
 using namespace Compass;
 
-int compassAppMain(const std::string& path) {
+Result<std::string> getPath(int argc, const char** args) {
+    if(argc != 2) {
+        return Error("usage: " + std::string(args[0]) + " story_file.txt");
+    }
+    return std::string(args[1]);
+}
+
+Result<std::string> readSource(const std::string& path) {
     std::ifstream in(path);
     if(!in.is_open()) {
-        std::cerr << "unable to open file\n";
-        return -1;
+        return Error("unable to open file '" + path + "'");
     }
-    std::string source(std::istreambuf_iterator<char>(in), {});
-    
+    return std::string(std::istreambuf_iterator<char>(in), {});
+}
+
+void runGame(const std::string& source) {
     Compass::BasicEnglish grammar;
     Compass::StoryParser parser(source, grammar);
     auto story = parser.compile();
-    
+
     StreamIO io;
     Game game(story, io);
     game.start();
-    
     for(;;) game.update();
-    
-    return 0;
 }
 
 int main(int argc, const char** args) {
-    if(argc != 2) {
-        std::cerr << "usage: " << args[0] << " story_file.txt\n";
-        return -1;
-    }
-    return compassAppMain(args[1]);
+    getPath(argc, args)
+        .flatMap(readSource)
+        .map(runGame)
+        .mapError([](const auto& error){
+            std::cerr << "error: " << error.description << "\n";
+        });
 }
