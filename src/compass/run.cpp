@@ -67,7 +67,7 @@ namespace Compass {
         assert(it != ctx_.things.end() && "invalid thing ID");
         inventory_.insert(uniqueID);
         
-        auto& things = anything(it->second.location).things;
+        auto& things = anything(*it->second.location).things;
         things.erase(uniqueID);
         it->second.location = {};
     }

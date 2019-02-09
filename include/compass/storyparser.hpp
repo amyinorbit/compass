@@ -15,7 +15,7 @@
 #include <compass/rdparser.hpp>
 #include <compass/semantics.hpp>
 #include <compass/story.hpp>
-#include <compass/utils/maybe.hpp>
+#include <compass/utils/functional.hpp>
 
 namespace Compass {
     class StoryParser: RDParser {

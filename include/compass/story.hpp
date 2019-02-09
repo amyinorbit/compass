@@ -14,7 +14,7 @@
 #include <string>
 #include <utility>
 #include <vector>
-#include <compass/utils/maybe.hpp>
+#include <compass/utils/functional.hpp>
 
 #define BYTECODE_MAX (128)
 
@@ -56,13 +56,13 @@ namespace Compass {
     
     struct Place: public Entity {
         Lock                    lock = Lock::None;
-        Maybe<std::string>      lockID;
+        optional<std::string>   lockID;
         bool                    isVisited = false;
         std::vector<Link>       links;
     };
     
     struct Thing: public Entity {
-        Maybe<std::string>      location;
+        optional<std::string>   location;
         StringID                preposition= 0;
         StringID                details = 0;
         
@@ -107,8 +107,8 @@ namespace Compass {
         const std::string& string(StringID id) const;
         
         Context                             prototype;
-        Maybe<std::string>                  author;
-        Maybe<std::string>                  title;
+        optional<std::string>               author;
+        optional<std::string>               title;
     private:
         friend class Semantics;
         

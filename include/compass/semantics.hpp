@@ -12,7 +12,7 @@
 #include <string>
 #include <vector>
 #include <compass/story.hpp>
-#include <compass/utils/maybe.hpp>
+#include <compass/utils/functional.hpp>
 
 namespace Compass {
     class Semantics {
@@ -42,7 +42,7 @@ namespace Compass {
         
         void error(const std::string& message);
         
-        Maybe<std::string>                  start_;
+        optional<std::string>               start_;
         
         std::map<std::string, Direction>    directions_;
         std::vector<FutureLink>             links_;

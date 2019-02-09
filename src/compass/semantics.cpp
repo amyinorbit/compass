@@ -86,7 +86,7 @@ namespace Compass {
         
         for(const auto& pair: things_) {
             auto thing = pair.second;
-            auto placesIt = places_.find(thing.location);
+            auto placesIt = places_.find(*thing.location);
             if(placesIt != places_.end()) {
                 placesIt->second.things.insert(thing.id);
                 continue;

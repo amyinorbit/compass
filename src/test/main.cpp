@@ -16,7 +16,7 @@ using namespace Compass;
 
 StreamIO io;
 
-Result<std::string> getPath(StreamIO& io) {
+result<std::string> getPath(StreamIO& io) {
     io.println("Compass Engine 0.1 by Amy Parent");
     io.print("story file name> ");
     auto path = io.readLine();
@@ -25,10 +25,10 @@ Result<std::string> getPath(StreamIO& io) {
     return path;
 }
 
-Result<std::string> readSource(const std::string& path) {
+result<std::string> readSource(const std::string& path) {
     std::ifstream in(path);
     if(!in.is_open()) {
-        return Error("unable to open file '" + path + "'");
+        return make_unexpected("unable to open file '" + path + "'");
     }
     return std::string(std::istreambuf_iterator<char>(in), {});
 }
@@ -45,9 +45,10 @@ void runGame(const std::string& source) {
 
 int main(int argc, const char** args) {
     getPath(io)
-        .flatMap(readSource)
+        .and_then(readSource)
         .map(runGame)
-        .mapError([](const auto& error){
-            std::cerr << "error: " << error.description << "\n";
+        .map_error([](const auto& error){
+            std::cerr << "error: " << error << "\n";
+            return error;
         });
 }
