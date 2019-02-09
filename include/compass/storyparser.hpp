@@ -15,6 +15,7 @@
 #include <compass/rdparser.hpp>
 #include <compass/semantics.hpp>
 #include <compass/story.hpp>
+#include <compass/utils/maybe.hpp>
 
 namespace Compass {
     class StoryParser: RDParser {
@@ -27,6 +28,7 @@ namespace Compass {
 
         virtual void error(const std::string& message);
         
+        void recTitleDecl(Story& story);
         void recDirectionDecl(Story& story);
         
         void recDecl(Story& story);

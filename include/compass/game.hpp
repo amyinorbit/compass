@@ -35,6 +35,7 @@ namespace Compass {
         Result<std::string> handleLook(const std::string& object);
         Result<std::string> handleTake(const std::string& object);
         Result<std::string> handleDrop(const std::string& object);
+        Result<std::string> handleInventory(const std::string& object);
         
         Result<PlayerAction> check(Sentence::Command cmd);
         void display(const std::string& room);
@@ -43,6 +44,7 @@ namespace Compass {
 
         std::string describeCurrent(bool detailed = false);
         std::string describe(const std::string& id, int depth = 1);
+        std::string describe(const std::set<std::string>& things);
         
         Maybe<Run>      run_;
         const Story&    story_;

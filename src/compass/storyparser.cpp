@@ -28,8 +28,11 @@ namespace Compass {
     
     Story StoryParser::compile() {
         eat();
-        
         Story story;
+        
+        if(have(Token::QuotedString)) {
+            recTitleDecl(story);
+        }
         
         if(have("directions")) {
             eat();
@@ -48,6 +51,17 @@ namespace Compass {
         match(Token::End);
         sem_.resolve(story);
         return story;
+    }
+    
+    void StoryParser::recTitleDecl(Story& story) {
+        story.title = text();
+        match(Token::QuotedString);
+        if(have(Token::Comma)) eat();
+        if(have("by")) {
+            eat();
+            story.author = recWords();
+            match(Token::Period);
+        }
     }
     
     void StoryParser::recDirectionDecl(Story& story) {

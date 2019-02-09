@@ -45,14 +45,27 @@ public:
     const T& get() const { return *reinterpret_cast<const T*>(&storage_); }
     T& get() { return *reinterpret_cast<T*>(&storage_); }
     
+    const T& operator*() const { return *reinterpret_cast<const T*>(&storage_); }
+    T& operator*() { return *reinterpret_cast<T*>(&storage_); }
+    
     template <typename U>
     Maybe flatMap(std::function<Maybe<U>(T)> transform) {
         if(!engaged_) return {};
         return transform(get());
     }
     
+    Maybe flatMap(std::function<Maybe(T)> transform) {
+        if(!engaged_) return {};
+        return transform(get());
+    }
+    
     template <typename U>
     Maybe<U> map(std::function<U(T)> transform) {
+        if(!engaged_) return {};
+        return transform(get());
+    }
+    
+    Maybe map(std::function<T(T)> transform) {
         if(!engaged_) return {};
         return transform(get());
     }

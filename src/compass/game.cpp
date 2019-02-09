@@ -15,6 +15,13 @@ namespace Compass {
     
     void Game::start() {
         run_ = Run(story_);
+        if(story_.title) {
+            io_.print("\"" + *story_.title + "\"\n");
+            if(story_.author) {
+                io_.print("by " + *story_.author);
+            }
+            io_.println();
+        }
         display(describeCurrent());
     }
     
@@ -48,6 +55,7 @@ namespace Compass {
             case Verb::Look: return handleLook(action.object);
             case Verb::Take: return handleTake(action.object);
             case Verb::Drop: return handleDrop(action.object);
+            case Verb::Inventory: return handleInventory(action.object);
             default: break;
         }
         return Error("This isn't handled yet");
@@ -114,6 +122,11 @@ namespace Compass {
         return "You dropped " + object + "\n"; // TODO: we should probably have an article in here.
     }
     
+    Result<std::string> Game::handleInventory(const std::string& object) {
+        auto& run = maybe_guard(run_, "you must have a game run");
+        return Error("This isn't implemented yet");
+    }
+    
     void Game::display(const std::string& text) {
         io_.println();
         io_.println(text);
@@ -135,20 +148,7 @@ namespace Compass {
         text += "\n";
         bool single = place.things.size() == 1;
         text += single ? "There is " : "there are ";
-        
-        int idx = 0;
-        for(auto id: place.things) {
-            const auto& thing = run.thing(id);
-            text += story_.string(thing.article) + " " + story_.string(thing.name);
-            idx += 1;
-            
-            if(idx == place.things.size())
-                text += " here.\n";
-            else if(idx == place.things.size()-1)
-                text += " and ";
-            else
-                text += ", ";
-        }
+        text += describe(place.things) + " here.";
         return text;
     }
     
@@ -160,15 +160,35 @@ namespace Compass {
         if(thing.details) {
             text += story_.string(thing.details);
         } else {
-            text += "Nothing special about the " + story_.string(thing.name) + ".\n";
+            text += "Nothing special about the " + story_.string(thing.name) + ".";
         }
         
         // TODO: handle things that are on/in this.
         return text + "\n";
     }
     
-    void Game::displayError(Error error) {
+    std::string Game::describe(const std::set<std::string>& things) {
+        auto& run = maybe_guard(run_, "you must have a game run");
         
+        std::string text = "";
+        int idx = 0;
+        for(auto id: things) {
+            const auto& thing = run.thing(id);
+            if(thing.article)
+                text += story_.string(thing.article) + " ";
+            text += story_.string(thing.name);
+            idx += 1;
+            
+            if(idx == things.size()-1)
+                text += " and ";
+            else if(idx != things.size())
+                text += ", ";
+        }
+        return text;
+    }
+    
+    void Game::displayError(Error error) {
+        io_.println();
         io_.println(error.description);
         io_.println();
     }

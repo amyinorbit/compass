@@ -50,15 +50,20 @@ namespace Compass {
         StringID                description = 0;
     };
     
+    enum class Lock {
+        None, Key, Password
+    };
+    
     struct Place: public Entity {
-        bool                    isVisited;
+        Lock                    lock = Lock::None;
+        Maybe<std::string>      lockID;
+        bool                    isVisited = false;
         std::vector<Link>       links;
     };
     
     struct Thing: public Entity {
         Maybe<std::string>      location;
         StringID                preposition= 0;
-        
         StringID                details = 0;
         
         std::vector<StringID>   adjectives;
@@ -74,7 +79,7 @@ namespace Compass {
     struct Verb {
         enum Kind {
             // Those are basic actions that any game gets by default. Dealt with by the engine.
-            Go, Look, Take, Drop,
+            Go, Look, Take, Drop, Inventory,
             // These are custom actions, defined by the story and compiled to bytecode
             StoryCode, CustomCode,
         };
@@ -102,6 +107,8 @@ namespace Compass {
         const std::string& string(StringID id) const;
         
         Context                             prototype;
+        Maybe<std::string>                  author;
+        Maybe<std::string>                  title;
     private:
         friend class Semantics;
         
