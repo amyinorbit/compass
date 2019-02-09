@@ -35,8 +35,8 @@ namespace Compass {
         auto phrase = io_.readLine();
         Sentence sentence(story_, phrase, grammar);
         sentence.parse()
-            .flatMap<PlayerAction>(std::bind(&Game::check, this, _1))
-            .flatMap<std::string>(std::bind(&Game::execute, this, _1))
+            .flatMap(std::bind(&Game::check, this, _1))
+            .flatMap(std::bind(&Game::execute, this, _1))
             .map(std::bind(&Game::display, this, _1))
             .mapError(std::bind(&Game::displayError, this, _1));
     }
@@ -174,11 +174,15 @@ namespace Compass {
         int idx = 0;
         for(auto id: things) {
             const auto& thing = run.thing(id);
-            if(thing.article)
-                text += story_.string(thing.article) + " ";
-            text += story_.string(thing.name);
-            idx += 1;
+            if(thing.description) {
+                text += story_.string(thing.description);
+            } else {
+                if(thing.article)
+                    text += story_.string(thing.article) + " ";
+                text += story_.string(thing.name);
+            }
             
+            idx += 1;
             if(idx == things.size()-1)
                 text += " and ";
             else if(idx != things.size())

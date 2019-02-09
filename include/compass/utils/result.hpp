@@ -8,8 +8,10 @@
 // =^•.•^=
 //===--------------------------------------------------------------------------------------------===
 #pragma once
+#include <type_traits>
 #include <string>
 #include <functional>
+#include <compass/utils/invoke_compat.hpp>
 
 struct Error {
     explicit Error(const std::string& description) : description(description) {}
@@ -64,34 +66,44 @@ public:
     const T& value() const { return value_; }
     const E& error() const { return error_; }
     
-    template <typename U>
-    Result<U, E> map(std::function<U(T)> transform) const {
-        if(engaged_) return transform(value_);
-        return error_;
-    }
+//    template <typename U>
+//    Result<U, E> map(std::function<U(T)> transform) const {
+//        if(engaged_) return transform(value_);
+//        return error_;
+//    }
+//    
+//    Result<T, E> map(std::function<T(T)> transform) const {
+//        if(engaged_) return transform(value_);
+//        return error_;
+//    }
     
-    Result<T, E> map(std::function<T(T)> transform) const {
-        if(engaged_) return transform(value_);
-        return error_;
-    }
+//    Result map(std::function<void(T)> transform) const {
+//        if(engaged_) {
+//            transform(value_);
+//            return value_;
+//        }
+//        return error_;
+//    }
     
-    Result map(std::function<void(T)> transform) const {
+    template <typename F, std::enable_if_t<std::is_void<invoke_result_t<F, T>>{}, int> = 0>
+    Result map(F&& f) const {
         if(engaged_) {
-            transform(value_);
+            invoke(f, value_);
             return value_;
         }
         return error_;
     }
     
-    template <typename U>
-    Result<U, E> flatMap(std::function<Result<U, E>(T)> transform) const {
-        if(engaged_) return transform(value_);
-        return error_;
+    template <typename F, std::enable_if_t<!std::is_void<invoke_result_t<F, T>>{}, int> = 0>
+    Result map(F&& f) const {
+        if(engaged_) return Result(invoke(f, value_));
+        return Result(error_);
     }
     
-    Result<T, E> flatMap(std::function<Result(T)> transform) const {
-        if(engaged_) return transform(value_);
-        return error_;
+    template <typename F>
+    constexpr auto flatMap(F&& f) const {
+        if(engaged_) return invoke(f, value_);
+        return invoke_result_t<F, T>(error_);
     }
     
     Result mapError(std::function<void(E)> fn) const {
@@ -107,5 +119,3 @@ private:
         T value_;
     };
 };
-
-

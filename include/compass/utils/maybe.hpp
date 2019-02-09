@@ -11,6 +11,7 @@
 #include <iostream>
 #include <type_traits>
 #include <functional>
+#include <compass/utils/invoke_compat.hpp>
 
 template <typename T>
 class Maybe final {
@@ -48,26 +49,25 @@ public:
     const T& operator*() const { return *reinterpret_cast<const T*>(&storage_); }
     T& operator*() { return *reinterpret_cast<T*>(&storage_); }
     
-    template <typename U>
-    Maybe flatMap(std::function<Maybe<U>(T)> transform) {
-        if(!engaged_) return {};
-        return transform(get());
+    template <typename F>
+    constexpr auto flatMap(F&& f) const {
+        if(!engaged_) return invoke_result_t<F,T>{};
+        return invoke(f, get());
     }
     
-    Maybe flatMap(std::function<Maybe(T)> transform) {
-        if(!engaged_) return {};
-        return transform(get());
+    template <typename F, std::enable_if_t<std::is_void<invoke_result_t<F, T>>{}, int> = 0>
+    Maybe map(F&& f) const {
+        if(engaged_) {
+            invoke(f, get());
+            return get();
+        }
+        return {};
     }
     
-    template <typename U>
-    Maybe<U> map(std::function<U(T)> transform) {
-        if(!engaged_) return {};
-        return transform(get());
-    }
-    
-    Maybe map(std::function<T(T)> transform) {
-        if(!engaged_) return {};
-        return transform(get());
+    template <typename F, std::enable_if_t<!std::is_void<invoke_result_t<F, T>>{}, int> = 0>
+    Maybe map(F&& f) const {
+        if(engaged_) return invoke(f, get());
+        return {};
     }
     
 private:
