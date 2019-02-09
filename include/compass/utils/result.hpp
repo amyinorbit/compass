@@ -66,25 +66,6 @@ public:
     const T& value() const { return value_; }
     const E& error() const { return error_; }
     
-//    template <typename U>
-//    Result<U, E> map(std::function<U(T)> transform) const {
-//        if(engaged_) return transform(value_);
-//        return error_;
-//    }
-//    
-//    Result<T, E> map(std::function<T(T)> transform) const {
-//        if(engaged_) return transform(value_);
-//        return error_;
-//    }
-    
-//    Result map(std::function<void(T)> transform) const {
-//        if(engaged_) {
-//            transform(value_);
-//            return value_;
-//        }
-//        return error_;
-//    }
-    
     template <typename F, std::enable_if_t<std::is_void<invoke_result_t<F, T>>{}, int> = 0>
     Result map(F&& f) const {
         if(engaged_) {
@@ -95,9 +76,9 @@ public:
     }
     
     template <typename F, std::enable_if_t<!std::is_void<invoke_result_t<F, T>>{}, int> = 0>
-    Result map(F&& f) const {
-        if(engaged_) return Result(invoke(f, value_));
-        return Result(error_);
+    constexpr auto map(F&& f) const {
+        if(engaged_) return Result<invoke_result_t<F, T>, E>(invoke(f, value_));
+        return Result<invoke_result_t<F, T>, E>(error_);
     }
     
     template <typename F>

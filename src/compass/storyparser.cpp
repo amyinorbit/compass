@@ -136,6 +136,7 @@ namespace Compass {
         
         place.description = story.stringID(text());
         match(Token::QuotedString);
+        if(have(Token::Period)) eat();
         sem_.addPlace(place);
     }
     
@@ -193,7 +194,8 @@ namespace Compass {
             thing.details = story.stringID(text());
             match(Token::QuotedString, "detailed descriptions must be between quotes");
         }
-        
+
+        if(have(Token::Period)) eat();
         sem_.addThing(thing);
     }
     
