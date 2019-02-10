@@ -1,13 +1,8 @@
 #include <compass/storyparser.hpp>
 #include <compass/story.hpp>
-#include <compass/lexer.hpp>
 #include <compass/grammar.hpp>
-#include <compass/sentence.hpp>
 #include <compass/game.hpp>
-#include <compass/run.hpp>
 #include <compass/iomanaging.hpp>
-#include <algorithm>
-#include <set>
 #include <string>
 #include <fstream>
 #include <iostream>
@@ -47,8 +42,7 @@ int main(int argc, const char** args) {
     getPath(io)
         .and_then(readSource)
         .map(runGame)
-        .map_error([](const auto& error){
+        .map_error([](const auto& error) -> void {
             std::cerr << "error: " << error << "\n";
-            return error;
         });
 }

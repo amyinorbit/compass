@@ -8,6 +8,8 @@
 // =^•.•^=
 //===--------------------------------------------------------------------------------------------===
 #pragma once
+#include <algorithm>
+#include <functional>
 #include <iostream>
 #include <string>
 #include <compass/utils/expected.hpp>
@@ -23,4 +25,10 @@ T& maybe_guard(optional<T>& m, const std::string& message) {
     if(m) return *m;
     std::cerr << "cannot unwrap optional: " << message << "\n";
     abort();
+}
+
+template <typename T>
+typename T::value_type filter(const T& c, std::function<bool(typename T::value_type)> pred) {
+    T filtered;
+    return std::copy_if(c.begin(), c.end(), std::back_inserter(filtered), pred);
 }
