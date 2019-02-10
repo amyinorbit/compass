@@ -1,8 +1,0 @@
-This is the foyer. It is "a medium-sized room. Everything is dusty in here. It evokes some memories that you can't quite place."
-
-objects:
- - A key, green & round. You can take it, look at it & boop it. it is "a mysterious key. It calls to you!".
- - a chest of drawers. It is "an old, worn-out chest of drawers".
-
-rooms:
- - the living room is north. it is "".

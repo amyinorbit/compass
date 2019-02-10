@@ -1,0 +1,22 @@
+
+direction-decl  = {word}, present-being, indefinite, "direction", ["," opposite-decl] ".";
+opposite-decl   = definite, "opposite", present-being, {word};
+
+entity-decl     = (there-decl | be-decl);
+
+there-decl      = "there", present-being, noun, [location-decl];
+be-decl         = noun, {word}, present-being, [thing-class], [location-decl];
+
+thing-class     = noun;
+
+location-decl   = location-prep, {word} [{",", location-prep, {word}}];
+present-being   = "is" | "are";
+article         = "a" | "an" | "the" | integer;
+
+location-prep   = "in" | "on" | "inside" | direction;
+
+ability-decl    = (objective, "can", "be", passive) | ("you", "can", verb, objective);
+
+noun            = [article], {word};
+quoted-string   = '"', {character} , '"';
+
