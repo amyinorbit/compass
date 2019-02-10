@@ -31,28 +31,48 @@ namespace Compass {
         return grammar.is(text(), wordClass);
     }
     
-    void RDParser::matchBeing(const std::string& message) {
-        if(failed_) skipUntil(Token::End);
-        if(!haveBeing()) error(message);
+    bool RDParser::matchBeing() {
+        if(!haveBeing()) return false;
         lexer.nextToken();
+        return true;
+    }
+    
+    bool RDParser::match(Token::Kind kind) {
+        if(!have(kind)) return false;
+        lexer.nextToken();
+        return true;
+    }
+    
+    bool RDParser::match(const std::string& word) {
+        if(!have(word)) return false;
+        lexer.nextToken();
+        return true;
+    }
+    
+    bool RDParser::match(Grammar::Class wordClass) {
+        if(!have(wordClass)) return false;
+        lexer.nextToken();
+        return true;
+    }
+    
+    void RDParser::expectBeing(const std::string& message) {
+        if(failed_) skipUntil(Token::End);
+        if(!matchBeing()) error(message);
     }
 
-    void RDParser::match(Token::Kind kind, const std::string& message) {
+    void RDParser::expect(Token::Kind kind, const std::string& message) {
         if(failed_) skipUntil(kind);
-        if(!have(kind)) error(message);
-        lexer.nextToken();
+        if(!match(kind)) error(message);
     }
     
-    void RDParser::match(const std::string& word, const std::string& message) {
+    void RDParser::expect(const std::string& word, const std::string& message) {
         if(failed_) skipUntil(Token::End);
-        if(!have(word)) error(message);
-        lexer.nextToken();
+        if(!match(word)) error(message);
     }
     
-    void RDParser::match(Grammar::Class wordClass, const std::string& message) {
+    void RDParser::expect(Grammar::Class wordClass, const std::string& message) {
         if(failed_) skipUntil(Token::End);
-        if(!have(wordClass)) error(message);
-        lexer.nextToken();
+        if(!match(wordClass)) error(message);
     }
     
     std::string RDParser::eat() {

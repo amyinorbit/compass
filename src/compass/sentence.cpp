@@ -19,7 +19,7 @@ namespace Compass {
         
         eat();
         cmd.verb = text();
-        match(Token::Word);
+        expect(Token::Word);
         
         if(have(Grammar::Preposition)) cmd.preposition = eat();
         if(have(Grammar::Definite) || have(Grammar::Indefinite)) eat();

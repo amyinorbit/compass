@@ -29,10 +29,15 @@ namespace Compass {
         bool have(const std::string& word) const;
         bool have(Grammar::Class wordClass) const;
         
-        void matchBeing(const std::string& error = "invalid token");
-        void match(Token::Kind kind, const std::string& error = "invalid token");
-        void match(const std::string& word, const std::string& error = "invalid token");
-        void match(Grammar::Class wordClass, const std::string& error = "invalid token");
+        bool matchBeing();
+        bool match(Token::Kind kind);
+        bool match(const std::string& word);
+        bool match(Grammar::Class wordClass);
+        
+        void expectBeing(const std::string& error = "invalid token");
+        void expect(Token::Kind kind, const std::string& error = "invalid token");
+        void expect(const std::string& word, const std::string& error = "invalid token");
+        void expect(Grammar::Class wordClass, const std::string& error = "invalid token");
         
         std::string recWords(const std::string& stop = "");
         std::string recWords(Grammar::Class stop);

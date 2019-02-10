@@ -36,61 +36,61 @@ namespace Compass {
         
         if(have("directions")) {
             eat();
-            match(Token::Colon);
+            expect(Token::Colon);
             
             while(!have("story")) {
                 recDirectionDecl(story);
             }
         }
-        match("story");
-        match(Token::Colon);
+        expect("story");
+        expect(Token::Colon);
         
         while(!have(Token::End)) {
             recDecl(story);
         }
-        match(Token::End);
+        expect(Token::End);
         sem_.resolve(story);
         return story;
     }
     
     void StoryParser::recTitleDecl(Story& story) {
         story.title = text();
-        match(Token::QuotedString);
+        expect(Token::QuotedString);
         if(have(Token::Comma)) eat();
         if(have("by")) {
             eat();
             story.author = recWords();
-            match(Token::Period);
+            expect(Token::Period);
         }
     }
     
     void StoryParser::recDirectionDecl(Story& story) {
         std::string dir, opp;
         dir = recWords();
-        matchBeing();
-        match(Grammar::Indefinite, "directions must be *a* direction");
-        match("direction", "I expected a direction");
+        expectBeing();
+        expect(Grammar::Indefinite, "directions must be *a* direction");
+        expect("direction", "I expected a direction");
         
         if(have(Token::Comma) || have("and")) {
             eat();
-            match(Grammar::Definite, "expected a 'the' before opposite");
-            match("opposite", "expected 'opposite'");
-            matchBeing();
+            expect(Grammar::Definite, "expected a 'the' before opposite");
+            expect("opposite", "expected 'opposite'");
+            expectBeing();
             opp = recWords();
         }
-        match(Token::Period);
+        expect(Token::Period);
         sem_.addDirection(dir, opp);
         sem_.addDirection(opp, dir);
     }
     
     void StoryParser::recDecl(Story& story) {
         const auto name = recDeclStart(story);
-        matchBeing("invalid verb after a thing or place");
+        expectBeing("invalid verb after a thing or place");
         
         static bool foundFirst = false; // TODO: get rid of this ugly hack
         
-        if(have(Grammar::Definite) || have(Grammar::Indefinite)) {
-            eat();
+        if(match(Grammar::Definite) || match(Grammar::Indefinite)) {
+            
             Place place;
             place.article = story.stringID(name.first);
             place.name = story.stringID(name.second);
@@ -120,30 +120,28 @@ namespace Compass {
     }
     
     void StoryParser::recRoomDecl(Story& story, Place& place) {
-        if(have("room")) eat();
-        else if(have("place")) eat();
-        else error("this should be a place, but I can't see 'room' or 'place'");
+        if(!match("room") && !match("place"))
+            error("this should be a place, but I can't see 'room' or 'place'");
         
         if(!have(Token::Period)) {
             recDirection(story, place);
-            while(have(Token::Comma) || have("and")) {
-                eat();
+            while(match(Token::Comma) || match("and")) {
                 recDirection(story, place);
             }
         }
         
-        match(Token::Period);
-        
+        expect(Token::Period);
         place.description = story.stringID(text());
-        match(Token::QuotedString);
-        if(have(Token::Period)) eat();
+        expect(Token::QuotedString);
+        
+        match(Token::Period);
         sem_.addPlace(place);
     }
     
     void StoryParser::recDirection(Story& story, Place& place) {
             std::string dir = recWords(Grammar::Preposition);
             sem_.checkDirection(dir);
-            match(Grammar::Preposition);
+            expect(Grammar::Preposition);
             std::string article, room;
             
             if(have(Grammar::Definite) || have(Grammar::Indefinite)) article = eat();
@@ -156,46 +154,42 @@ namespace Compass {
         
         // TODO: handle "compound" prepositions like "inside of"
         thing.preposition = story.stringID(text());
-        match(Grammar::Preposition, "Things must be placed somewhere");
+        expect(Grammar::Preposition, "Things must be placed somewhere");
         // Parse the location of the object.
         if(have(Grammar::Definite) || have(Grammar::Indefinite)) eat();
         thing.location = story.uniqueID(recWords());
         
         
         // adjectives?
-        while(have(Token::Comma) || have("and")) {
-            eat();
+        while(match(Token::Comma) || match("and")) {
             thing.adjectives.push_back(story.stringID(recWords("and")));
         }
         
-        if(have(Token::Colon)) {
-            eat();
+        if(match(Token::Colon)) {
             thing.description = story.stringID(text());
-            match(Token::QuotedString, "descriptions of short things should be in quotes");
+            expect(Token::QuotedString, "descriptions of short things should be in quotes");
         }
-        match(Token::Period);
+        expect(Token::Period);
         
-        if(have("you")) {
-            eat();
-            match("can");
+        if(match("you")) {
+            expect("can");
             thing.actions.push_back(recAction(story));
             
-            while(have(Token::Comma) || have("and")) {
-                eat();
+            while(match(Token::Comma) || match("and"))
                 thing.actions.push_back(recAction(story));
-            }
-            match(Token::Period);
+            
+            expect(Token::Period);
         }
         
-        if(have(Grammar::Possessive)) {
-            eat();
-            match("description");
-            matchBeing();
+        if(match(Grammar::Possessive)) {
+            
+            expect("description");
+            expectBeing();
             thing.details = story.stringID(text());
-            match(Token::QuotedString, "detailed descriptions must be between quotes");
+            expect(Token::QuotedString, "detailed descriptions must be between quotes");
         }
-
-        if(have(Token::Period)) eat();
+        
+        match(Token::Period);
         sem_.addThing(thing);
     }
     
@@ -203,7 +197,7 @@ namespace Compass {
         Action action;
         action.kind = Action::Native;
         action.verb = story.stringID(recWords(Grammar::Objective));
-        match(Grammar::Objective);
+        expect(Grammar::Objective);
         return action;
     }
 }
