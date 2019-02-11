@@ -9,5 +9,6 @@ add_library(Compass STATIC
 	semantics.cpp
 	run.cpp
 	game.cpp
+	parser.cpp
 )
 target_include_directories(Compass INTERFACE ${PROJECT_SOURCE_DIR}/include)

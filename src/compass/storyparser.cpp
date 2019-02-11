@@ -34,14 +34,14 @@ namespace Compass {
             recTitleDecl(story);
         }
         
-        if(have("directions")) {
-            eat();
+        if(match("directions")) {
             expect(Token::Colon);
             
             while(!have("story")) {
                 recDirectionDecl(story);
             }
         }
+        
         expect("story");
         expect(Token::Colon);
         

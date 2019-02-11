@@ -7,6 +7,8 @@
 #include <fstream>
 #include <iostream>
 
+#include <compass/parser.hpp>
+
 using namespace Compass;
 
 StreamIO io;
@@ -29,13 +31,15 @@ result<std::string> readSource(const std::string& path) {
 }
 
 void runGame(const std::string& source) {
-    Compass::BasicEnglish grammar;
-    Compass::StoryParser parser(source, grammar);
-    auto story = parser.compile();
-    
-    Game game(story, io);
-    game.start();
-    for(;;) game.update();
+    BasicEnglish grammar;
+    FParser parser(source, grammar);
+    parser.compile();
+//     Compass::StoryParser parser(source, grammar);
+//     auto story = parser.compile();
+//
+//     Game game(story, io);
+//     game.start();
+//     for(;;) game.update();
 }
 
 int main(int argc, const char** args) {
