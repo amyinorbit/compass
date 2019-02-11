@@ -1,22 +1,31 @@
 
+(* Direction declarations *)
+
 direction-decl  = {word}, present-being, indefinite, "direction", ["," opposite-decl] ".";
 opposite-decl   = definite, "opposite", present-being, {word};
 
-entity-decl     = (there-decl | be-decl);
+(* Things *)
 
-there-decl      = "there", present-being, noun, [location-decl];
-be-decl         = noun, {word}, present-being, [thing-class], [location-decl];
+sentence        = (there-decl | be-decl | ability-decl | entity-decl), ".";
 
-thing-class     = noun;
+entity-decl     = (there-decl | be-decl) "." [quoted-string, "."];
 
-location-decl   = location-prep, {word} [{",", location-prep, {word}}];
+there-decl      = "there", present-being, subject, [location-spec] ;
+be-decl         = subject, present-being, [object], [location-spec | {",", object}];
+
+locations       = location-spec, {",", location-spec};
+location-spec   = location-name, {preposition}, entity-reference;
+
+ability-decl    = passive-ability | active-ability;
+passive-ability = subject, "can", "be", past-participle, {",", past-participle};
+active-ability  = "you", "can", infinitive, subject, {",", infinitive, subject};
+
+(* common patterns *)
+
+subject         = subjective-pronoun | noun;
+noun            = [article], {word}; 
+
 present-being   = "is" | "are";
 article         = "a" | "an" | "the" | integer;
-
-location-prep   = "in" | "on" | "inside" | direction;
-
-ability-decl    = (objective, "can", "be", passive) | ("you", "can", verb, objective);
-
-noun            = [article], {word};
 quoted-string   = '"', {character} , '"';
 
