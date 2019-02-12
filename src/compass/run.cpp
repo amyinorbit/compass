@@ -18,56 +18,46 @@ namespace Compass {
         current_ = ctx_.startID;
     }
     
-    const Place& Run::place(const std::string& uniqueID) const {
-        const auto it = ctx_.places.find(uniqueID);
-        assert(it != ctx_.places.end() && "invalid place ID");
+    const Entity& Run::entity(const std::string& uniqueID) const {
+        const auto it = ctx_.entities.find(uniqueID);
+        assert(it != ctx_.entities.end() && "invalid place ID");
         return it->second;
     }
     
-    Place& Run::place(const std::string& uniqueID) {
-        const auto it = ctx_.places.find(uniqueID);
-        assert(it != ctx_.places.end() && "invalid place ID");
+    Entity& Run::entity(const std::string& uniqueID) {
+        const auto it = ctx_.entities.find(uniqueID);
+        assert(it != ctx_.entities.end() && "invalid place ID");
         return it->second;
     }
     
-    Place& Run::current() {
-        const auto it = ctx_.places.find(current_);
-        assert(it != ctx_.places.end() && "invalid place ID");
+    Entity& Run::current() {
+        const auto it = ctx_.entities.find(current_);
+        assert(it != ctx_.entities.end() && "invalid place ID");
         return it->second;
     }
     
-    const Place& Run::current() const {
-        const auto it = ctx_.places.find(current_);
-        assert(it != ctx_.places.end() && "invalid place ID");
+    const Entity& Run::current() const {
+        const auto it = ctx_.entities.find(current_);
+        assert(it != ctx_.entities.end() && "invalid place ID");
         return it->second;
     }
     
     void Run::go(const std::string& placeID) {
         // TODO: handle locked places
-        const auto it = ctx_.places.find(placeID);
-        assert(it != ctx_.places.end() && "you can't go to non-place");
-        it->second.isVisited = true;
+        const auto it = ctx_.entities.find(placeID);
+        assert(it != ctx_.entities.end() && "you can't go to non-place");
+        assert(it->second.kind == Entity::Place && "you can't go to a thing");
+        it->second.isSeen = true;
         current_ = placeID;
     }
     
-    const Thing& Run::thing(const std::string& uniqueID) const {
-        const auto it = ctx_.things.find(uniqueID);
-        assert(it != ctx_.things.end() && "invalid thing ID");
-        return it->second;
-    }
-    
-    Thing& Run::thing(const std::string& uniqueID) {
-        const auto it = ctx_.things.find(uniqueID);
-        assert(it != ctx_.things.end() && "invalid thing ID");
-        return it->second;
-    }
-    
     void Run::take(const std::string& uniqueID) {
-        const auto it = ctx_.things.find(uniqueID);
-        assert(it != ctx_.things.end() && "invalid thing ID");
+        const auto it = ctx_.entities.find(uniqueID);
+        assert(it != ctx_.entities.end() && "invalid thing ID");
+        assert(it->second.kind == Entity::Thing && "you can't take a place");
         inventory_.insert(uniqueID);
         
-        auto& things = anything(*it->second.location).things;
+        auto& things = entity(*it->second.location).things;
         things.erase(uniqueID);
         it->second.location = {};
     }
@@ -80,21 +70,5 @@ namespace Compass {
         inventory_.erase(uniqueID);
         // TODO:    There should be a way to drop something "on something"?
         //          if nothing is given by default, should probably drop to the current room.
-    }
-    
-    Entity& Run::anything(const std::string& uniqueID) {
-        auto placesIt = ctx_.places.find(uniqueID);
-        if(placesIt != ctx_.places.end()) return placesIt->second;
-        auto thingsIt = ctx_.things.find(uniqueID);
-        if(thingsIt != ctx_.things.end()) return thingsIt->second;
-        assert(false && "you should never reach here");
-    }
-    
-    const Entity& Run::anything(const std::string& uniqueID) const {
-        auto placesIt = ctx_.places.find(uniqueID);
-        if(placesIt != ctx_.places.end()) return placesIt->second;
-        auto thingsIt = ctx_.things.find(uniqueID);
-        if(thingsIt != ctx_.things.end()) return thingsIt->second;
-        assert(false && "you should never reach here");
     }
 }

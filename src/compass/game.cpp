@@ -156,9 +156,9 @@ namespace Compass {
         auto& run = maybe_guard(run_, "you must have a game run");
         std::string text = "";
         
-        const auto& thing = run.thing(id);
-        if(thing.details) {
-            text += story_.string(thing.details);
+        const auto& thing = run.entity(id);
+        if(thing.description) {
+            text += story_.string(thing.description);
         } else {
             text += "Nothing special about the " + story_.string(thing.name) + ".";
         }
@@ -173,14 +173,10 @@ namespace Compass {
         std::string text = "";
         int idx = 0;
         for(auto id: things) {
-            const auto& thing = run.thing(id);
-            if(thing.description) {
-                text += story_.string(thing.description);
-            } else {
-                if(thing.article)
-                    text += story_.string(thing.article) + " ";
-                text += story_.string(thing.name);
-            }
+            const auto& thing = run.entity(id);
+            if(thing.article)
+                text += story_.string(thing.article) + " ";
+            text += story_.string(thing.name);
             
             idx += 1;
             if(idx == things.size()-1)

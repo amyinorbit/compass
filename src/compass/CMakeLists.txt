@@ -2,13 +2,11 @@ add_library(Compass STATIC
 	lexer.cpp
 	utf8.c
 	grammar.cpp
-	# storyparser.cpp
 	rdparser.cpp
 	sentence.cpp
 	story.cpp
-	# semantics.cpp
-	# run.cpp
-	# game.cpp
+	run.cpp
+	game.cpp
 	parser.cpp
 	contextsema.cpp
 )

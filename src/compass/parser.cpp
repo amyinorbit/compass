@@ -9,6 +9,7 @@
 //===--------------------------------------------------------------------------------------------===
 #include <iostream>
 #include <compass/parser.hpp>
+#include <compass/utils/string.hpp>
 
 namespace Compass {
     using namespace std::placeholders;
@@ -73,6 +74,7 @@ namespace Compass {
     // there-sentence  = "there", present-being, noun, container-rel ;
     void Parser::recThereSentence() {
         expect("there");
+        expectBeing();
         auto thing = recNoun();
         sema_.declare(Entity::Thing, thing);
         recRelContainer();
@@ -116,7 +118,7 @@ namespace Compass {
             sema_.declare(kind, *subject);
         }
         
-        if(match("in") || match("on")) { // TODO: move into recRelContainer() to support in/on
+        if(have("in") || have("on")) {
             recRelContainer();
         } else if(haveDirection()) {
             recRelDirection();
@@ -141,6 +143,15 @@ namespace Compass {
     }
     
     void Parser::recRelContainer() {
+        if(have("in")) {
+            eat();
+        } else if(have("on")) {
+            eat();
+        } else {
+            error("things can be in or on other things in places");
+            return;
+        }
+            
         auto place = recNoun();
         sema_.setContainer({}, place.text);
     }
@@ -169,7 +180,7 @@ namespace Compass {
     Noun Parser::recNoun() {
         Noun noun{{}, ""};
         if(have(Grammar::Definite) | have(Grammar::Indefinite)) {
-            noun.article = eat();
+            noun.article = String::toLower(eat());
         }
         noun.text = text();
         expect(Token::Word);

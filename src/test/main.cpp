@@ -29,21 +29,22 @@ result<std::string> readSource(const std::string& path) {
     return std::string(std::istreambuf_iterator<char>(in), {});
 }
 
-void runGame(const std::string& source) {
+result<Story> compile(const std::string& source) {
     BasicEnglish grammar;
     Parser parser(source, grammar);
-    parser.compile();
-//     Compass::StoryParser parser(source, grammar);
-//     auto story = parser.compile();
-//
-//     Game game(story, io);
-//     game.start();
-//     for(;;) game.update();
+    return parser.compile();
+}
+
+void runGame(Story story) {
+    Game game(story, io);
+    game.start();
+    for(;;) game.update();
 }
 
 int main(int argc, const char** args) {
     getPath(io)
         .and_then(readSource)
+        .and_then(compile)
         .map(runGame)
         .map_error([](const auto& error) -> void {
             std::cerr << "error: " << error << "\n";

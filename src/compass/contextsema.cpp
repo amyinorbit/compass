@@ -50,7 +50,7 @@ namespace Compass {
             
             Entity e;
             e.id = id;
-            e.kind = Entity::Place;
+            e.kind = kind;
             
             if(name.article)
                 e.article = story_.stringID(*name.article);
@@ -58,6 +58,8 @@ namespace Compass {
             entities_[id] = e;
             
             current_ = id;
+            
+            std::cout << "* declared: " << name.text << "\n";
         }
         
         void ContextSema::setDescription(const string& text) {
@@ -75,10 +77,10 @@ namespace Compass {
             // TODO: implementation
         }
         
-        void ContextSema::addLink(const optional<string>& from, const string& to, const string& direction) {
-            get(from).map([this,&to,&direction](auto id){
+        void ContextSema::addLink(const optional<string>& to, const string& from, const string& direction) {
+            get(to).map([this,&from,&direction](auto id){
                 
-                links_.push_back(FutureLink{id, story_.uniqueID(to), String::toLower(direction)});
+                links_.push_back(FutureLink{from, story_.uniqueID(id), String::toLower(direction)});
                 
             }).map_error([this,&to](auto msg) {
                 error("ADD_LOCATION/" + msg);
@@ -91,6 +93,7 @@ namespace Compass {
                 
                 auto& e = entities_.at(id);
                 e.location = story_.uniqueID(container);
+                std::cout << "container: " << *e.location << "\n";
                 
             }).map_error([this,&container](auto msg) {
                 error("SET_CONTAINER/" + msg);
@@ -137,12 +140,13 @@ namespace Compass {
                 const auto& thing = pair.second;
                 
                 auto it = entities_.find(*thing.location);
+                std::cout << "* added: " << *thing.location << "<-" << thing.id << "\n";
                 if(it == entities_.end())
                     return make_unexpected("cannot put thing in a container that does not exist");
                 it->second.things.insert(thing.id);
             }
             
-            return make_unexpected("unimplemented");
+            //return make_unexpected("unimplemented");
             story_.prototype.startID = *start_;
             story_.prototype.entities = entities_;
             return story_;
