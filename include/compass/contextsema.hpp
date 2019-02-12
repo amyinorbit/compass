@@ -26,18 +26,15 @@ namespace Compass {
         enum Property { Locked, None };
         
         void declareDirection(const string& direction, optional<string> opposite);
-        void declarePlace(const Noun& name);
-        void declare(const Noun& name, optional<Noun> what = {});
+        void declare(Entity::Kind kind, const Noun& name);
         
-        void setKind(optional<string> entity, Entity::Kind what);
-        void setKind(optional<string> entity, const string& what);
         void setProperty(optional<string> entity, Property property);
         void setDescription(const string& text);
-        void addLocation(optional<string> from, const string& to, const string& direction);
-        void addAbility(optional<string> entity, const string& verb);
+        void addLink(const optional<string>& from, const string& to, const string& direction);
+        //void addAbility(optional<string> entity, const string& verb);
         
         // TODO: add support for in/on
-        void setContainer(optional<string> what, const string& container);
+        void setContainer(const optional<string>& what, const string& container);
         
         result<Story> resolve();
         
@@ -53,12 +50,8 @@ namespace Compass {
         optional<string>                start_ = {};
         
         std::map<string, Direction>     directions_;
-        
         std::vector<FutureLink>         links_;
-        //std::map<string, Place>         places_;
-        //std::map<string, Thing>         things_;
-        
-        std::map<string, Entity>       entities_;
+        std::map<string, Entity>        entities_;
         
         Story                           story_;
         

@@ -26,24 +26,30 @@ namespace Compass {
         result<Story> compile();
         
     private:
+        enum SentenceKind { Decl, Spec };
+        
         void error(const std::string& e);
         
         void recDirectionDecl();
         
-        void recThereDecl();
-        void recBeDecl();
+        void recThereSentence();
         
+        // MARK: - active sentence parsing
+        void recActiveSentence();
+        void recBeSentence(const optional<Noun>& subject);
+        void recCanSentence(const optional<Noun>& subject);
+        
+        void recBeDecl(const optional<Noun>& subject);
+        void recPropertyDecl(const optional<Noun>& subject);
+        
+        // MARK: - relative positioning parsing
+        void recRelDirection();
+        void recRelContainer();
+        
+        // MARK: - parsing common blocks
         optional<Noun> recSubject();
-        Noun recObject();
-        
-        void recDirectionList();
-        void recDirection();
-        void recContainer();
-        
         void recDescription();
-        
-        void recPassiveAbility();
-        void recActiveAbility();
+        Entity::Kind recClass();
         Noun recNoun();
         
         bool haveDirection() const;

@@ -19,71 +19,23 @@ namespace Compass {
             }
         }
         
-        void ContextSema::declarePlace(const Noun& name) {
+        void ContextSema::declare(Entity::Kind kind, const Noun& name) {
             const auto id = story_.uniqueID(name.text);
             if(entities_.find(id) != entities_.end()) {
                 error("You cannot create '" + name.text + "' more than one time");
                 return;
             }
             
-            Entity place;
-            
-            place.id = story_.stringID(id);
-            place.kind = Entity::Place;
-            
-            if(name.article)
-                place.article = story_.stringID(*name.article);
-            place.name = story_.stringID(name.text);
-            
-            entities_[id] = place;
-        }
-        
-        void ContextSema::declare(const Noun& name, optional<Noun> what) {
-            const auto id = story_.uniqueID(name.text);
-            if(entities_.find(id) != entities_.end()) {
-                error("You cannot create '" + name.text + "' more than one time");
-                return;
-            }
-            
-            Entity thing;
-            
-            thing.id = story_.stringID(id);
-            thing.kind = Entity::Unknown;
+            Entity e;
+            e.id = story_.stringID(id);
+            e.kind = Entity::Place;
             
             if(name.article)
-                thing.article = story_.stringID(*name.article);
-            thing.name = story_.stringID(name.text);
+                e.article = story_.stringID(*name.article);
+            e.name = story_.stringID(name.text);
+            entities_[id] = e;
             
-            entities_[id] = thing;
-            
-            if(what) setKind(name.text, what->text);
-        }
-        
-        void ContextSema::setKind(optional<string> entity, Entity::Kind what) {
-            get(entity).and_then([this,what](auto id) -> result<Entity::Kind> {
-                
-                auto& e = entities_.at(id);
-                if(e.kind != Entity::Unknown)
-                    return make_unexpected(story_.string(e.name) + " cannot be multiple things");
-                e.kind = what;
-                return what;
-                
-            }).map_error([this](auto msg) { error(msg); });
-        }
-        
-        void ContextSema::setKind(optional<string> entity, const string& what) {
-            
-            get(entity).and_then([this,&what](auto id) -> result<Entity::Kind> {
-                
-                auto kind = String::toLower(what);
-                auto& e = entities_.at(id);
-                if(e.kind != Entity::Unknown)
-                    return make_unexpected(story_.string(e.name) + " cannot be multiple things");
-                return e.kind = (kind == "place" || kind == "room")
-                              ? Entity::Place
-                              : Entity::Thing;
-                
-            }).map_error([this](auto msg) { error(msg); });
+            current_ = id;
         }
         
         void ContextSema::setDescription(const string& text) {
@@ -92,8 +44,8 @@ namespace Compass {
                 auto& e = entities_.at(id);
                 e.description = story_.stringID(text);
                 
-            }).map_error([this](auto msg) {
-                error(msg);
+            }).map_error([this,&text](auto msg) {
+                error("SET_DESCRIPTION/" + msg);
             });
         }
 
@@ -101,23 +53,25 @@ namespace Compass {
             
         }
         
-        void ContextSema::addLocation(optional<string> from, const string& to, const string& direction) {
-            
-        }
-        
-        void ContextSema::addAbility(optional<string> entity, const string& verb) {
-            
+        void ContextSema::addLink(const optional<string>& from, const string& to, const string& direction) {
+            get(from).map([this,&to,&direction](auto id){
+                
+                links_.push_back(FutureLink{id, story_.uniqueID(to), String::toLower(direction)});
+                
+            }).map_error([this,&to](auto msg) {
+                error("ADD_LOCATION/" + msg);
+            });
         }
 
         // TODO: add support for in/on
-        void ContextSema::setContainer(optional<string> entity, const string& container) {
+        void ContextSema::setContainer(const optional<string>& entity, const string& container) {
             get(entity).map([this,&container](auto id) {
                 
                 auto& e = entities_.at(id);
                 e.location = story_.uniqueID(container);
                 
-            }).map_error([this](auto msg) {
-                error(msg);
+            }).map_error([this,&container](auto msg) {
+                error("SET_CONTAINER/" + msg);
             });
         }
 
@@ -133,7 +87,6 @@ namespace Compass {
             if(entity) {
                 auto id = story_.uniqueID(*entity);
                 current_ = *entity;
-                std::cout << "current: " << *entity << "\n";
             }
             if(!current_)
                 return make_unexpected("I can't tell what thing or place you are talking about");

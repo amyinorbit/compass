@@ -6,11 +6,11 @@ opposite-decl   = definite, "opposite", present-being, {word};
 
 (* Things *)
 
-sentence        = (there-sentence | you-can-sentence | active-sentence), ".";
+sentence        = (there-sentence | you-can-sentence | active-sentence | description), ".";
 
 active-sentence = subject, (be-sentence | can-sentence);
 
-there-sentence  = "there", present-being, object, [directions] ;
+there-sentence  = "there", present-being, noun, container-rel ;
 be-sentence     = present-being, ( property | be-spec ) ;
 
 (* TODO: add support for saying what a thing is. Not needed while just rooms + things *)
@@ -26,6 +26,8 @@ can-sentence    = "can", "be", past-participle, {",", past-participle};
 you-can-sentence= "you", "can", infinitive, subject, {",", infinitive, subject};
 
 (* common patterns *)
+
+description     = quoted-string;
 
 object          = [article], {word};
 subject         = subjective-pronoun | noun;

@@ -14,7 +14,7 @@ namespace Compass {
     using namespace std::placeholders;
     
     void Parser::error(const std::string& e) {
-        std::cerr << "[PARSER]: " << e << std::endl;
+        std::cerr << "[PARSER/" << lexer.currentToken().type() << "]: " << e << std::endl;
         abort();
         error_.emplace(e);
         fail();
@@ -35,11 +35,11 @@ namespace Compass {
         
         while(!have(Token::End) && !isFailed()) {
             if(have("there"))
-                recThereDecl();
+                recThereSentence();
             else if(have(Token::QuotedString))
                 recDescription();
             else
-                recBeDecl();
+                recActiveSentence();
             expect(Token::Period);
         }
         
@@ -67,116 +67,103 @@ namespace Compass {
         sema_.declareDirection(dir, opp);
     }
     
-    // "there", present-being, subject, [location-spec] ;
-    void Parser::recThereDecl() {
+    // MARK: - Story Parsing system
+    // MARK: - There-decl
+    
+    // there-sentence  = "there", present-being, noun, container-rel ;
+    void Parser::recThereSentence() {
         expect("there");
+        auto thing = recNoun();
+        sema_.declare(Entity::Thing, thing);
+        recRelContainer();
+    }
+    
+    // MARK: - active sentence parsing
+    
+    // active-sentence = subject, (be-sentence | can-sentence);
+    void Parser::recActiveSentence() {
+        auto subject = recSubject();
+        if(haveBeing())
+            recBeSentence(subject);
+        else if(have("can"))
+            recCanSentence(subject);
+        else
+            error("<must have either 'can' or 'be'>");
+    }
+    
+    // be-sentence     = present-being, ( property | be-spec ) ;
+    void Parser::recBeSentence(const optional<Noun>& subject) {
         expectBeing();
-        auto noun = recNoun();
+        if(have("in") || have("on") || haveDirection() || have(Grammar::Indefinite))
+            recBeDecl(subject);
+        else
+            recPropertyDecl(subject);
+    }
+    
+    void Parser::recCanSentence(const optional<Noun>& subject) {
         
-        sema_.declare(noun);
+    }
+    
+    // be-spec         = [directions | container-rel];
+    // TODO: in the long run, we probably need a better way to decide whether to declare or ref.
+    void Parser::recBeDecl(const optional<Noun>& subject) {
+        if(have(Grammar::Indefinite)) {
+            if(!subject) {
+                error("You can only declare places or things with names");
+                return;
+            }
+            auto kind = recClass();
+            sema_.declare(kind, *subject);
+        }
         
-        std::cout << noun.text << "\n";
-        
-        if(have("in") || have("on")) {
-            auto preposition = eat();
-            auto container = recNoun();
-            std::cout << " - " << preposition << " " << container.text << "\n";
+        if(match("in") || match("on")) { // TODO: move into recRelContainer() to support in/on
+            recRelContainer();
+        } else if(haveDirection()) {
+            recRelDirection();
+            while(match(Token::Comma) || match("and"))
+                recRelDirection();
         }
     }
-
-    void Parser::recBeDecl() {
-        auto name = recSubject();
-        optional<Noun> what = {};
-        expectBeing();
-        
-        // TODO: change to recObject();
-        if(!haveDirection() && !have("in") && !have("on")) {
-            what = recObject();
-            std::cout << " [" << what->text << "]\n";
-        }
-        
-        //sema_.declare(name, what);
-        
-        // Parse location. If we get there, we change from specifying a property to declaring
-        // a new thing or room.
-        if(have("in") || have("on")) {
-            recContainer();
-        }
-        else if(haveDirection()) {
-            recDirectionList();
-        }
+    
+    void Parser::recPropertyDecl(const optional<Noun>& subject) {
+        std::string prop = text();
+        expect(Token::Word);
+        while(have(Token::Word))
+            prop += " " + eat();
     }
+    
+    void Parser::recRelDirection() {
+        auto direction = text(); // TODO: probably needs to be more strict
+        expect(Token::Word);
+        expect(Grammar::Preposition);
+        auto place = recNoun();
+        sema_.addLink({}, place.text, direction);
+    }
+    
+    void Parser::recRelContainer() {
+        auto place = recNoun();
+        sema_.setContainer({}, place.text);
+    }
+    
     
     optional<Noun> Parser::recSubject() {
-        if(match(Grammar::Subjective)) {
-            std::cout << "subjective\n";
+        if(match(Grammar::Subjective))
             return {};
-        } else {
-            auto noun = recNoun();
-            std::cout << noun.text << "\n";
-            return noun;
-        }
-    }
-    
-    Noun Parser::recObject() {
-        
-        Noun noun{{}, ""};
-        if(have(Grammar::Definite) | have(Grammar::Indefinite)) {
-            noun.article = eat();
-        }
-        
-        noun.text = text();
-        expect(Token::Word);
-        
-        while(have(Token::Word)&& !have(Grammar::Preposition) && !haveDirection()) {
-            noun.text += " " + eat();
-        }
-        return noun;
-    }
-    
-    void Parser::recDirectionList() {
-        recDirection();
-        while(match(Token::Comma) || match("and")) {
-            recDirection();
-        }
-    }
-
-    void Parser::recDirection() {
-        std::string dir = text();
-        expect(Token::Word);
-        
-        std::string preposition = text();
-        expect(Token::Word);
-        
-        Noun place = recNoun();
-        
-        std::cout << "  -> " << dir << " " << preposition << " " << place.text << "\n";
-    }
-
-    void Parser::recContainer() {
-        if(!have("in") && !have("on")) {
-            error("Things can be in or on other things only");
-            return;
-        }
-        auto preposition = eat();
-        auto container = recNoun();
-        sema_.setContainer({}, container.text);
-        std::cout << " - " << preposition << " " << container.text << "\n";
+        return recNoun();
     }
     
     void Parser::recDescription() {
-        auto look = text();
+        auto description = text();
         expect(Token::QuotedString);
-        sema_.setDescription(look);
-        std::cout << "desc: '" << look << "'\n";
+        sema_.setDescription(description);
     }
     
-    void Parser::recPassiveAbility() {
-        // TODO: implementation
-    }
-    
-    void Parser::recActiveAbility() {
-        // TODO: implementation
+    Entity::Kind Parser::recClass() {
+        expect(Grammar::Indefinite, "Must have 'a' thing or 'a' place");
+        if(match("place") || match("room"))
+            return Entity::Place;
+        eat();
+        return Entity::Thing;
     }
     
     Noun Parser::recNoun() {
