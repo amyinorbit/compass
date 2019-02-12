@@ -8,7 +8,7 @@ opposite-decl   = definite, "opposite", present-being, {word};
 
 sentence        = (there-sentence | you-can-sentence | active-sentence), ".";
 
-active-sentence = subject, (be-sentence | ability-decl | can-sentence);
+active-sentence = subject, (be-sentence | can-sentence);
 
 there-sentence  = "there", present-being, object, [directions] ;
 be-sentence     = present-being, ( property | be-spec ) ;
