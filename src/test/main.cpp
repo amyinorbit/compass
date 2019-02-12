@@ -32,7 +32,7 @@ result<std::string> readSource(const std::string& path) {
 
 void runGame(const std::string& source) {
     BasicEnglish grammar;
-    FParser parser(source, grammar);
+    Parser parser(source, grammar);
     parser.compile();
 //     Compass::StoryParser parser(source, grammar);
 //     auto story = parser.compile();

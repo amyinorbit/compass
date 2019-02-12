@@ -8,10 +8,10 @@ opposite-decl   = definite, "opposite", present-being, {word};
 
 sentence        = (there-decl | be-decl | ability-decl | entity-decl), ".";
 
-entity-decl     = (there-decl | be-decl) "." [quoted-string, "."];
+entity-decl     = (there-decl | be-decl) [":", quoted-string];
 
-there-decl      = "there", present-being, subject, [location-spec] ;
-be-decl         = subject, present-being, [object], [location-spec | {",", object}];
+there-decl      = "there", present-being, object, [location-spec] ;
+be-decl         = subject, present-being, [object], [locations];
 
 locations       = location-spec, {",", location-spec};
 location-spec   = location-name, {preposition}, entity-reference;
@@ -22,10 +22,13 @@ active-ability  = "you", "can", infinitive, subject, {",", infinitive, subject};
 
 (* common patterns *)
 
+object          = [article], {word};
 subject         = subjective-pronoun | noun;
 noun            = [article], {word}; 
 
 present-being   = "is" | "are";
 article         = "a" | "an" | "the" | integer;
 quoted-string   = '"', {character} , '"';
+
+comment         = "(", {character}, ")";
 

@@ -8,55 +8,50 @@
 // =^•.•^=
 //===--------------------------------------------------------------------------------------------===
 #pragma once
-
+#include <set>
 #include <string>
 #include <compass/grammar.hpp>
 #include <compass/rdparser.hpp>
 #include <compass/story.hpp>
+#include <compass/contextsema.hpp>
 #include <compass/utils/functional.hpp>
 
 namespace Compass {
     
     // TODO: merge that into the main story system
-    struct FEntity {
-        enum Kind { Thing, Place, Custom };
-        
-        Kind        kind;
-        std::string uniqueID;
-        
-        StringID    article         = 0;
-        StringID    name            = 0;
-        
-        StringID    look            = 0;
-        StringID    description     = 0;    
-    };
     
-    class FParser: public RDParser {
+    class Parser: public RDParser {
     public:
-        FParser(const std::string& source, const Grammar& grammar) : RDParser(source, grammar) {}
-        /*result<Story>*/ void compile();
+        Parser(const std::string& source, const Grammar& grammar) : RDParser(source, grammar) {}
+        result<Story> compile();
         
     private:
-        void error(const std::string& e) {}
+        void error(const std::string& e);
         
-        struct Noun {
-            optional<std::string> article;
-            std::string name;
-        };
+        void recDirectionDecl();
         
-        result<FEntity> recEntity();
-        result<Noun> recDeclNoun();
+        void recThereDecl();
+        void recBeDecl();
         
-        result<Noun> recThereDecl();
-        result<Noun> recBeDecl();
+        void recSubject();
+        Noun recObject();
         
-        result<FEntity> recEntityKind(Noun noun);
-        result<FEntity> recDeclLocations(FEntity entity);
+        void recDirectionList();
+        void recDirection();
         
-        result<Noun> recNoun();
+        void recDescription();
         
+        void recPassiveAbility();
+        void recActiveAbility();
+        Noun recNoun();
         
-        BasicEnglish grammar_;
+        bool haveDirection() const;
+        void declareDirection(const std::string& direction, const std::string& opposite);
+        
+        std::set<std::string>   directions_;
+        optional<std::string>   error_;
+        
+        ContextSema             sema_;
     };
     
 }
