@@ -19,6 +19,24 @@ namespace Compass {
             }
         }
         
+        void ContextSema::checkDirection(const std::string& direction) {
+            if(directions_.find(direction) != directions_.end()) return;
+            error("you are trying to use the direction " + direction + ", which I don't know about");
+        }
+        
+        bool ContextSema::hasOppositeDirection(const std::string& direction) {
+            const auto it = directions_.find(direction);
+            assert(it != directions_.end() && "invalid direction given for opposite check");
+            return it->second.opposite.has_value();
+        }
+        
+        std::string ContextSema::oppositeDirection(const std::string& direction) {
+            const auto it = directions_.find(direction);
+            assert(it != directions_.end() && "invalid direction given for opposite");
+            assert(it->second.opposite.has_value() && "direction has no opposite");
+            return *it->second.opposite;
+        }
+        
         void ContextSema::declare(Entity::Kind kind, const Noun& name) {
             const auto id = story_.uniqueID(name.text);
             if(entities_.find(id) != entities_.end()) {
@@ -26,8 +44,12 @@ namespace Compass {
                 return;
             }
             
+            if(!start_ && kind == Entity::Place) {
+                start_ = id;
+            }
+            
             Entity e;
-            e.id = story_.stringID(id);
+            e.id = id;
             e.kind = Entity::Place;
             
             if(name.article)
@@ -50,7 +72,7 @@ namespace Compass {
         }
 
         void ContextSema::setProperty(optional<string> entity, Property property) {
-            
+            // TODO: implementation
         }
         
         void ContextSema::addLink(const optional<string>& from, const string& to, const string& direction) {
@@ -76,7 +98,54 @@ namespace Compass {
         }
 
         result<Story> ContextSema::resolve() {
+            //if(error_) return make_unexpected(error_);
+            if(!start_) return make_unexpected("I need at least one room to make a story");
+            
+            for(const auto& link: links_) {
+            
+                const auto fromIt = entities_.find(link.from);
+                const auto toIt = entities_.find(link.to);
+                
+                if(fromIt == entities_.end()) {
+                    return make_unexpected(
+                        "I can't make a link from " + link.from + " to " + link.to
+                        + " because " + link.from + " isn't a room"
+                    );
+                }
+                
+                if(fromIt->second.kind != Entity::Place)
+                    return make_unexpected(fromIt->second.id + " is a thing, not a place");
+                
+                if(toIt == entities_.end()) {
+                    return make_unexpected(
+                        "I can't make a link from " + link.from + " to " + link.to
+                        + " because " + link.to + " isn't a room"
+                    );
+                }
+                
+                if(toIt->second.kind != Entity::Place)
+                    return make_unexpected(fromIt->second.id + " is a thing, not a place");
+                
+                entities_.at(link.from).links.push_back(Link{link.to, link.direction});
+                if(!hasOppositeDirection(link.direction)) continue;
+                entities_.at(link.to).links.push_back(Link{link.from, oppositeDirection(link.direction)});
+            }
+            
+            for(const auto& pair: entities_) {
+                if(pair.second.kind != Entity::Thing) continue;
+                
+                const auto& thing = pair.second;
+                
+                auto it = entities_.find(*thing.location);
+                if(it == entities_.end())
+                    return make_unexpected("cannot put thing in a container that does not exist");
+                it->second.things.insert(thing.id);
+            }
+            
             return make_unexpected("unimplemented");
+            story_.prototype.startID = *start_;
+            story_.prototype.entities = entities_;
+            return story_;
         }
         
         void ContextSema::error(const string& message) {

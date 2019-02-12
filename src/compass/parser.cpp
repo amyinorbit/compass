@@ -15,7 +15,7 @@ namespace Compass {
     
     void Parser::error(const std::string& e) {
         std::cerr << "[PARSER/" << lexer.currentToken().type() << "]: " << e << std::endl;
-        abort();
+        //abort();
         error_.emplace(e);
         fail();
     }
@@ -43,7 +43,7 @@ namespace Compass {
             expect(Token::Period);
         }
         
-        return make_unexpected(*error_);
+        return sema_.resolve();
     }
     
     void Parser::recDirectionDecl() {

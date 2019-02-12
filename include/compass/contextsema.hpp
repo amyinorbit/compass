@@ -26,6 +26,10 @@ namespace Compass {
         enum Property { Locked, None };
         
         void declareDirection(const string& direction, optional<string> opposite);
+        void checkDirection(const std::string& direction);
+        bool hasOppositeDirection(const std::string& direction);
+        string oppositeDirection(const std::string& direction);
+        
         void declare(Entity::Kind kind, const Noun& name);
         
         void setProperty(optional<string> entity, Property property);
