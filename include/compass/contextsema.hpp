@@ -30,7 +30,7 @@ namespace Compass {
         bool hasOppositeDirection(const std::string& direction);
         string oppositeDirection(const std::string& direction);
         
-        void declare(Entity::Kind kind, const Noun& name);
+        void declare(Entity::Kind kind, const Noun& name, bool silent=false);
         
         void setProperty(optional<string> entity, Property property);
         void setDescription(const string& text);

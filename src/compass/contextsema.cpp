@@ -37,10 +37,10 @@ namespace Compass {
             return *it->second.opposite;
         }
         
-        void ContextSema::declare(Entity::Kind kind, const Noun& name) {
+        void ContextSema::declare(Entity::Kind kind, const Noun& name, bool silent) {
             const auto id = story_.uniqueID(name.text);
             if(entities_.find(id) != entities_.end()) {
-                error("You cannot create '" + name.text + "' more than one time");
+                if(!silent) error("You cannot create '" + name.text + "' more than one time");
                 return;
             }
             
@@ -101,7 +101,6 @@ namespace Compass {
         }
 
         result<Story> ContextSema::resolve() {
-            //if(error_) return make_unexpected(error_);
             if(!start_) return make_unexpected("I need at least one room to make a story");
             
             for(const auto& link: links_) {

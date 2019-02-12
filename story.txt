@@ -16,7 +16,7 @@ The living room is a room north of the hallway. "The living room feels comfy and
 
 There is a coffee table in the living room. "An old, wooden coffee table. There are some magazines thrown haphazardly on here along with a couple of remotes".
 
-A TV is a thing in the living room. "A small flatscreen TV, barely hiding a mess of various cables going to battered consoles".
+A TV is in the living room. "A small flatscreen TV, barely hiding a mess of various cables going to battered consoles".
 
 The dining room is a room south of the hallway. "There are bookcases around. The hallway is north".
 

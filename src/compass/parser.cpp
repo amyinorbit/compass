@@ -109,6 +109,7 @@ namespace Compass {
     // be-spec         = [directions | container-rel];
     // TODO: in the long run, we probably need a better way to decide whether to declare or ref.
     void Parser::recBeDecl(const optional<Noun>& subject) {
+        bool declared = false;
         if(have(Grammar::Indefinite)) {
             if(!subject) {
                 error("You can only declare places or things with names");
@@ -116,11 +117,14 @@ namespace Compass {
             }
             auto kind = recClass();
             sema_.declare(kind, *subject);
+            declared = true;
         }
         
         if(have("in") || have("on")) {
+            if(!declared && subject) sema_.declare(Entity::Thing, *subject, true);
             recRelContainer();
         } else if(haveDirection()) {
+            if(!declared && subject) sema_.declare(Entity::Place, *subject, true);
             recRelDirection();
             while(match(Token::Comma) || match("and"))
                 recRelDirection();
