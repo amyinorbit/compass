@@ -14,7 +14,7 @@ namespace Compass {
     using namespace std::placeholders;
     
     void Parser::error(const std::string& e) {
-        std::cerr << "error: " << e << std::endl;
+        std::cerr << "[PARSER]: " << e << std::endl;
         abort();
         error_.emplace(e);
         fail();
@@ -47,7 +47,8 @@ namespace Compass {
     }
     
     void Parser::recDirectionDecl() {
-        std::string dir, opp;
+        std::string dir;
+        optional<std::string> opp;
         dir = recWords();
         expectBeing();
         expect(Grammar::Indefinite, "directions must be *a* direction");
@@ -62,6 +63,8 @@ namespace Compass {
         }
         expect(Token::Period);
         declareDirection(dir, opp);
+        
+        sema_.declareDirection(dir, opp);
     }
     
     // "there", present-being, subject, [location-spec] ;
@@ -69,6 +72,8 @@ namespace Compass {
         expect("there");
         expectBeing();
         auto noun = recNoun();
+        
+        sema_.declare(noun);
         
         std::cout << noun.text << "\n";
         
@@ -80,33 +85,36 @@ namespace Compass {
     }
 
     void Parser::recBeDecl() {
-        recSubject();
+        auto name = recSubject();
+        optional<Noun> what = {};
         expectBeing();
         
         // TODO: change to recObject();
-        if(!haveDirection()) {
-            auto object = recObject();
-            std::cout << " [" << object.text << "]\n";
+        if(!haveDirection() && !have("in") && !have("on")) {
+            what = recObject();
+            std::cout << " [" << what->text << "]\n";
         }
+        
+        //sema_.declare(name, what);
         
         // Parse location. If we get there, we change from specifying a property to declaring
         // a new thing or room.
         if(have("in") || have("on")) {
-            auto preposition = eat();
-            auto container = recNoun();
-            std::cout << " - " << preposition << " " << container.text << "\n";
+            recContainer();
         }
         else if(haveDirection()) {
             recDirectionList();
         }
     }
     
-    void Parser::recSubject() {
+    optional<Noun> Parser::recSubject() {
         if(match(Grammar::Subjective)) {
             std::cout << "subjective\n";
+            return {};
         } else {
             auto noun = recNoun();
             std::cout << noun.text << "\n";
+            return noun;
         }
     }
     
@@ -144,10 +152,22 @@ namespace Compass {
         
         std::cout << "  -> " << dir << " " << preposition << " " << place.text << "\n";
     }
+
+    void Parser::recContainer() {
+        if(!have("in") && !have("on")) {
+            error("Things can be in or on other things only");
+            return;
+        }
+        auto preposition = eat();
+        auto container = recNoun();
+        sema_.setContainer({}, container.text);
+        std::cout << " - " << preposition << " " << container.text << "\n";
+    }
     
     void Parser::recDescription() {
         auto look = text();
         expect(Token::QuotedString);
+        sema_.setDescription(look);
         std::cout << "desc: '" << look << "'\n";
     }
     
@@ -177,8 +197,9 @@ namespace Compass {
         return directions_.find(lexer.currentToken().text) != directions_.end();
     }
     
-    void Parser::declareDirection(const std::string& direction, const std::string& opposite) {
+    void Parser::declareDirection(const std::string& direction, const optional<std::string>& opposite) {
         directions_.insert(direction);
-        directions_.insert(opposite);
+        if(opposite)
+            directions_.insert(*opposite);
     }
 }

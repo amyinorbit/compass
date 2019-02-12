@@ -1,4 +1,3 @@
-#include <compass/storyparser.hpp>
 #include <compass/story.hpp>
 #include <compass/grammar.hpp>
 #include <compass/game.hpp>

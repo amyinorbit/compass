@@ -1,7 +1,7 @@
 directions:
 
 north is a direction, the opposite is south.
-east is a direction, the opposite is wes.
+east is a direction, the opposite is west.
 
 story:
 

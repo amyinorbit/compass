@@ -33,11 +33,12 @@ namespace Compass {
         void recThereDecl();
         void recBeDecl();
         
-        void recSubject();
+        optional<Noun> recSubject();
         Noun recObject();
         
         void recDirectionList();
         void recDirection();
+        void recContainer();
         
         void recDescription();
         
@@ -46,7 +47,7 @@ namespace Compass {
         Noun recNoun();
         
         bool haveDirection() const;
-        void declareDirection(const std::string& direction, const std::string& opposite);
+        void declareDirection(const std::string& direction, const optional<std::string>& opposite);
         
         std::set<std::string>   directions_;
         optional<std::string>   error_;

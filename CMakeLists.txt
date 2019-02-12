@@ -14,3 +14,10 @@ add_custom_target(run
     DEPENDS compassr
     WORKING_DIRECTORY ${CMAKE_SOURCE_DIR}
 )
+
+add_custom_target(debug
+    COMMAND lldb compassr test.txt
+    DEPENDS compassr
+    WORKING_DIRECTORY ${CMAKE_SOURCE_DIR}
+)
+

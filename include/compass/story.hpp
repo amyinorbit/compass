@@ -42,38 +42,25 @@ namespace Compass {
     // MARK: - Entities
     
     struct Entity {
+        enum Kind { Place, Thing, Unknown };
+    
+        Kind                    kind            = Unknown;
+        std::string             id              = "";
+    
+        bool                    isSeen          = false;
+        StringID                article         = 0;
+        StringID                name            = 0;
+        StringID                description     = 0;
+        optional<std::string>   location        = {};
+    
         std::set<std::string>   things;
-        
-        std::string             id;
-        StringID                article = 0;
-        StringID                name = 0;
-        StringID                description = 0;
-    };
-    
-    enum class Lock {
-        None, Key, Password
-    };
-    
-    struct Place: public Entity {
-        Lock                    lock = Lock::None;
-        optional<std::string>   lockID;
-        bool                    isVisited = false;
-        std::vector<Link>       links;
-    };
-    
-    struct Thing: public Entity {
-        optional<std::string>   location;
-        StringID                preposition= 0;
-        StringID                details = 0;
-        
-        std::vector<StringID>   adjectives;
         std::vector<Action>     actions;
+        std::vector<Link>       links;
     };
     
     struct Context {
         std::string                         startID;
-        std::map<std::string, Place>        places;
-        std::map<std::string, Thing>        things;
+        std::map<std::string, Entity>       entities;
     };
     
     struct Verb {

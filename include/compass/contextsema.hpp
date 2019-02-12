@@ -25,13 +25,16 @@ namespace Compass {
         
         enum Property { Locked, None };
         
-        void declareDirection();
-        void declarePlace();
-        void declare(const Noun& name, optional<string> what);
+        void declareDirection(const string& direction, optional<string> opposite);
+        void declarePlace(const Noun& name);
+        void declare(const Noun& name, optional<Noun> what = {});
         
-        void setProperty(optional<string> what, Property property);
+        void setKind(optional<string> entity, Entity::Kind what);
+        void setKind(optional<string> entity, const string& what);
+        void setProperty(optional<string> entity, Property property);
+        void setDescription(const string& text);
         void addLocation(optional<string> from, const string& to, const string& direction);
-        void addAbility(optional<string> what, const string& verb);
+        void addAbility(optional<string> entity, const string& verb);
         
         // TODO: add support for in/on
         void setContainer(optional<string> what, const string& container);
@@ -40,10 +43,11 @@ namespace Compass {
         
     private:
         struct FutureLink { string from, to, direction; };
-        struct Direction { string direction, opposite; };
+        struct Direction { string direction; optional<string> opposite; };
         
         void error(const string& message);
-        void makeCurrent(optional<string> what);
+        
+        result<string> get(optional<string> entity);
         
         optional<string>                current_ = {};
         optional<string>                start_ = {};
@@ -51,8 +55,10 @@ namespace Compass {
         std::map<string, Direction>     directions_;
         
         std::vector<FutureLink>         links_;
-        std::map<string, Place>         places_;
-        std::map<string, Thing>         things_;
+        //std::map<string, Place>         places_;
+        //std::map<string, Thing>         things_;
+        
+        std::map<string, Entity>       entities_;
         
         Story                           story_;
         
