@@ -6,19 +6,24 @@ opposite-decl   = definite, "opposite", present-being, {word};
 
 (* Things *)
 
-sentence        = (there-decl | be-decl | ability-decl | entity-decl), ".";
+sentence        = (there-sentence | you-can-sentence | active-sentence), ".";
 
-entity-decl     = (there-decl | be-decl) [":", quoted-string];
+active-sentence = subject, (be-sentence | ability-decl | can-sentence);
 
-there-decl      = "there", present-being, object, [location-spec] ;
-be-decl         = subject, present-being, [object], [locations];
+there-sentence  = "there", present-being, object, [directions] ;
+be-sentence     = present-being, ( property | be-spec ) ;
 
-locations       = location-spec, {",", location-spec};
-location-spec   = location-name, {preposition}, entity-reference;
+(* TODO: add support for saying what a thing is. Not needed while just rooms + things *)
+be-spec         = [directions | container-rel];
+property        = "locked"; (* specify better *)
 
-ability-decl    = passive-ability | active-ability;
-passive-ability = subject, "can", "be", past-participle, {",", past-participle};
-active-ability  = "you", "can", infinitive, subject, {",", infinitive, subject};
+directions      = direction-rel , {",", direction-rel};
+direction-rel   = location-name, {preposition}, entity-reference;
+
+container-rel   = ("in" | "on") noun;
+
+can-sentence    = "can", "be", past-participle, {",", past-participle};
+you-can-sentence= "you", "can", infinitive, subject, {",", infinitive, subject};
 
 (* common patterns *)
 
