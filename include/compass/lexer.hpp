@@ -59,6 +59,7 @@ namespace Compass {
         const Token& lexWord();
         const Token& lexNumber();
         void eatLineComment();
+        void eatParenComment();
         
         std::string source_ = "";
         

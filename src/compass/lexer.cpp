@@ -129,6 +129,11 @@ namespace Compass {
             nextChar();
         }
     }
+    
+    void Lexer::eatParenComment() {
+        while(current() != ')') nextChar();
+        nextChar();
+    }
 
     const Token& Lexer::nextToken() {
         if(ptr_ >= source_.size()) {
@@ -165,7 +170,7 @@ namespace Compass {
                 case '-':
                     return makeToken(Token::Dash);
             
-                case '!':
+                case '@':
                     return lexKeyword();
                 
                 case '"':
@@ -175,7 +180,12 @@ namespace Compass {
                     return makeToken(Token::Colon);
                     
                 case '#':
+                case '!':
                     eatLineComment();
+                    break;
+                    
+                case '(':
+                    eatParenComment();
                     break;
                 
                 default:
