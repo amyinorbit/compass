@@ -35,13 +35,18 @@ namespace Compass {
         expect(Token::Colon);
         
         while(!have(Token::End) && !isFailed()) {
-            if(have("there"))
+            if(have("there")) {
                 recThereSentence();
-            else if(have(Token::QuotedString))
+                expect(Token::Period);
+            }
+            else if(have(Token::QuotedString)) {
                 recDescription();
-            else
+                match(Token::Period);
+            }
+            else {
                 recActiveSentence();
-            expect(Token::Period);
+                expect(Token::Period);
+            }
         }
         
         return sema_.resolve();
@@ -189,7 +194,7 @@ namespace Compass {
         noun.text = text();
         expect(Token::Word);
         
-        while(have(Token::Word) && !haveBeing() && !have(Grammar::Preposition)) {
+        while(have(Token::Word) && !haveBeing() && !have(Grammar::Preposition) && !have("and")) {
             noun.text += " " + eat();
         }
         return noun;
