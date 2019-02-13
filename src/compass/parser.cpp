@@ -24,6 +24,10 @@ namespace Compass {
     result<Story> Parser::compile() {
         eat();
         
+        if(have(Token::QuotedString)) {
+            recTitleAndAuthor();
+        }
+        
         if(match("directions")) {
             expect(Token::Colon);
             while(!have("story")) {
@@ -48,8 +52,22 @@ namespace Compass {
                 expect(Token::Period);
             }
         }
-        
         return sema_.resolve();
+    }
+    
+    void Parser::recTitleAndAuthor() {
+        auto title = text();
+        expect(Token::QuotedString);
+        expect("by");
+        auto author = text();
+        expect(Token::Word);
+        while(have(Token::Word))
+            author += " " + eat();
+        
+        expect(Token::Period);
+        
+        sema_.setTitle(title);
+        sema_.setAuthor(author);
     }
     
     void Parser::recDirectionDecl() {

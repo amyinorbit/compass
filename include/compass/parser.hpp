@@ -30,6 +30,8 @@ namespace Compass {
         
         void error(const std::string& e);
         
+        void recTitleAndAuthor();
+        
         void recDirectionDecl();
         
         void recThereSentence();
