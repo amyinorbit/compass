@@ -7,12 +7,11 @@
 // Licensed under the MIT License
 // =^•.•^=
 //===--------------------------------------------------------------------------------------------===
+#include <cassert>
 #include <compass/contextsema.hpp>
 #include <compass/utils/string.hpp>
 
 namespace Compass {
-    
-    
     void ContextSema::setTitle(const string& title) {
         story_.title = title;
     }
@@ -67,7 +66,6 @@ namespace Compass {
         entities_[id] = e;
         
         current_ = id;
-        
         std::cout << "* declared: " << name.text << "\n";
     }
     
@@ -78,7 +76,7 @@ namespace Compass {
             e.description = story_.stringID(text);
             
         }).map_error([this,&text](auto msg) {
-            error("SET_DESCRIPTION/" + msg);
+            this->error("SET_DESCRIPTION/" + msg);
         });
     }
 
@@ -92,7 +90,7 @@ namespace Compass {
             links_.push_back(FutureLink{from, story_.uniqueID(id), String::toLower(direction)});
             
         }).map_error([this,&to](auto msg) {
-            error("ADD_LOCATION/" + msg);
+            this->error("ADD_LOCATION/" + msg);
         });
     }
 
@@ -104,7 +102,7 @@ namespace Compass {
             e.location = story_.uniqueID(container);
             
         }).map_error([this,&container](auto msg) {
-            error("SET_CONTAINER/" + msg);
+            this->error("SET_CONTAINER/" + msg);
         });
     }
 
