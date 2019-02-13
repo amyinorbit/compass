@@ -13,7 +13,7 @@ using namespace Compass;
 StreamIO io;
 
 result<std::string> getPath(StreamIO& io) {
-    io.println("Compass Engine 0.1 by Amy Parent");
+    io.println("Compass Engine " COMPASS_VERSION_STRING " by Amy Parent");
     io.print("story file name> ");
     auto path = io.readLine();
     io.println("Trying to load '" + path + "'");

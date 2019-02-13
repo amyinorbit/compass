@@ -87,7 +87,9 @@ namespace Compass {
     void ContextSema::addLink(const optional<string>& to, const string& from, const string& direction) {
         get(to).map([this,&from,&direction](auto id){
             
-            links_.push_back(FutureLink{from, story_.uniqueID(id), String::toLower(direction)});
+            links_.push_back(FutureLink{
+                story_.uniqueID(from), story_.uniqueID(id), String::toLower(direction)
+            });
             
         }).map_error([this,&to](auto msg) {
             this->error("ADD_LOCATION/" + msg);
