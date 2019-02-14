@@ -12,7 +12,7 @@ Harmony node is a room. "This is a big, sterile-looking module. There's the cons
 
 There is a name tag in Harmony node. "An old name tag that reads 'CDR C. HADFIELD - CAN'"
 
-Zvezda is a room aft from Harmony Node. "This feels quite cramped. Walls are painted an old russian military green, and hoses and cables run pretty much everywhere you can see."
+Zvezda is a room aft from Harmony Node. "This feels quite cramped. Walls are painted an old Russian military green, and hoses and cables run pretty much everywhere you can see."
 
 The Cupola is a room down from Harmony Node. "The seven windows are clear, giving you a breathtaking view of the planet flying by below you."
 

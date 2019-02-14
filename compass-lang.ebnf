@@ -14,7 +14,7 @@ there-sentence  = "there", present-being, noun, container-rel ;
 be-sentence     = present-being, ( property | be-spec ) ;
 
 (* TODO: add support for saying what a thing is. Not needed while just rooms + things *)
-be-spec         = [directions | container-rel];
+be-spec         = [article {word}], (directions | container-rel);
 property        = "locked"; (* specify better *)
 
 directions      = direction-rel , {",", direction-rel};
