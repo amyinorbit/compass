@@ -126,7 +126,17 @@ namespace Compass {
     }
     
     void Parser::recCanSentence(const optional<Noun>& subject) {
+        expect("can");
+        expect("be");
         
+        auto participle = text();
+        expect(Token::Word);
+        std::cout << " *~" << participle << "\n";
+        while(match(Token::Comma) || match("and")) {
+            participle = text();
+            expect(Token::Word);
+            std::cout << " *~" << participle << "\n";
+        }
     }
     
     // be-spec         = [directions | container-rel];
