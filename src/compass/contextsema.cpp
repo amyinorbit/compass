@@ -7,11 +7,22 @@
 // Licensed under the MIT License
 // =^•.•^=
 //===--------------------------------------------------------------------------------------------===
+#include <algorithm>
 #include <cassert>
 #include <compass/contextsema.hpp>
 #include <compass/utils/string.hpp>
 
 namespace Compass {
+    
+    ContextSema::ContextSema() {
+        declareVerb(VerbBuilder("go").past("went").participle("gone").infinitive("going").make(Verb::Go));
+        declareVerb(VerbBuilder("walk").make(Verb::Go));
+        declareVerb(VerbBuilder("look").make(Verb::Look));
+        declareVerb(VerbBuilder("examine").infinitive("examining").make(Verb::Look));
+        declareVerb(VerbBuilder("take").past("took").participle("taken").infinitive("taking").make(Verb::Take));
+        declareVerb(VerbBuilder("drop").past("dropped").participle("dropped").infinitive("dropping").make(Verb::Drop));
+    }
+    
     void ContextSema::setTitle(const string& title) {
         story_.title = title;
     }
@@ -43,6 +54,35 @@ namespace Compass {
         assert(it != directions_.end() && "invalid direction given for opposite");
         assert(it->second.opposite.has_value() && "direction has no opposite");
         return *it->second.opposite;
+    }
+    
+    void ContextSema::declareVerb(const Verb& verb) {
+        verbs_[verb.present] = verb;
+    }
+    
+    void ContextSema::addVerb(optional<string> entity, const string& verb) {
+        const auto it = std::find_if(verbs_.begin(), verbs_.end(), [&](const auto& v){
+            return v.second.participle == verb;
+        });
+        if(it == verbs_.end()) {
+            error("I don't know the verb " + verb);
+            return;
+        }
+        const auto& present = it->second.present;
+        
+        get(entity).map([this,present](auto id){
+            
+            Action action;
+            action.kind = Action::Native;
+            action.verb = present;
+            
+            // TODO: we'll have to store more stuff here, including Bytecode info if needed
+            auto& e = entities_[id];
+            e.actions.push_back(action);
+            
+        }).map_error([this](auto msg) {
+            this->error("ADD_VERB/" + msg);
+        });
     }
     
     void ContextSema::declare(Entity::Kind kind, const Noun& name, bool silent) {
@@ -151,6 +191,13 @@ namespace Compass {
             if(it == entities_.end())
                 return make_unexpected("cannot put thing in a container that does not exist");
             it->second.things.insert(thing.id);
+        }
+        
+        for(const auto& pair: verbs_) {
+            std::cout << "~ " << pair.second.present;
+            std::cout << ", " << pair.second.past;
+            std::cout << ", " << pair.second.participle << "\n";
+            story_.addVerb(pair.second.present, pair.second.kind);
         }
         
         //return make_unexpected("unimplemented");

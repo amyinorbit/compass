@@ -128,19 +128,20 @@ namespace Compass {
     void Parser::recCanSentence(const optional<Noun>& subject) {
         expect("can");
         expect("be");
+        const auto name = subject.map([](const auto& n) { return n.text; });
         
         auto participle = text();
         expect(Token::Word);
-        std::cout << " *~" << participle << "\n";
+        sema_.addVerb(name, participle);
+        //std::cout << " *~" << participle << "\n";
         while(match(Token::Comma) || match("and")) {
             participle = text();
             expect(Token::Word);
-            std::cout << " *~" << participle << "\n";
+            sema_.addVerb(name, participle);
         }
     }
     
     // be-spec         = [directions | container-rel];
-    // TODO: in the long run, we probably need a better way to decide whether to declare or ref.
     void Parser::recBeDecl(const optional<Noun>& subject) {
         bool declared = false;
         if(have(Grammar::Indefinite)) {

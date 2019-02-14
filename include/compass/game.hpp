@@ -25,7 +25,7 @@ namespace Compass {
         
     private:
         struct PlayerAction {
-            Verb verb;
+            Verb::Kind action;
             std::string object;
         };
 

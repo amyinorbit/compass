@@ -36,7 +36,7 @@ namespace Compass {
         enum Kind { Native, Bytecode };
         
         Kind                    kind;
-        StringID                verb = 0;
+        std::string             verb;
         std::uint32_t           bytecode[BYTECODE_MAX];
     };
     
@@ -74,12 +74,8 @@ namespace Compass {
         
         void addDirection(const std::string& dir);
         
-        void addVerb(const Verb& verb);
-        optional<std::string> present(const std::string& verb) const;
-        optional<std::string> participle(const std::string& verb) const;
-        optional<std::string> infinitive(const std::string& verb) const;
-        
-        const Verb& verb(const std::string& verb) const;
+        void addVerb(const std::string& present, Verb::Kind kind);
+        optional<Verb::Kind> verb(const std::string& verb) const;
         
         // MARK: - Strings management
         StringID stringID(const std::string& str) const;
@@ -94,6 +90,6 @@ namespace Compass {
         // The string pool is mutable to allow const-qualified stringID
         mutable std::vector<std::string>    strings_;
         std::set<std::string>               directions_;
-        std::map<std::string, Verb>         verbs_;
+        std::map<std::string, Verb::Kind>   verbs_;
     };
 }

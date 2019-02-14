@@ -10,7 +10,7 @@ story:
 
 Harmony node is a room. "This is a big, sterile-looking module. There's the constant humming of fans and probably some computers, somewhere. On the floor – or is it the ceiling, you wonder as you drift in the absence of gravity – there's a bunch of flags and patches. You feel weirdly at home here."
 
-There is a name tag in Harmony node. "An old name tag that reads 'CDR C. HADFIELD - CAN'". It can be taken, shaken and vented.
+There is a name tag in Harmony node. "An old name tag that reads 'CDR C. HADFIELD - CAN'". It can be taken.
 
 Zvezda is a room aft from Harmony Node. "This feels quite cramped. Walls are painted an old Russian military green, and hoses and cables run pretty much everywhere you can see."
 

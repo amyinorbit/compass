@@ -9,6 +9,7 @@
 //===--------------------------------------------------------------------------------------------===
 #pragma once
 #include <compass/story.hpp>
+#include <compass/verb.hpp>
 #include <compass/utils/functional.hpp>
 
 namespace Compass {
@@ -25,6 +26,8 @@ namespace Compass {
         
         enum Property { Locked, None };
         
+        ContextSema();
+        
         void setTitle(const string& title);
         void setAuthor(const string& author);
         
@@ -32,6 +35,10 @@ namespace Compass {
         void checkDirection(const std::string& direction);
         bool hasOppositeDirection(const std::string& direction);
         string oppositeDirection(const std::string& direction);
+        
+        
+        void declareVerb(const Verb& verb);
+        void addVerb(optional<string> entity, const string& participle);
         
         void declare(Entity::Kind kind, const Noun& name, bool silent=false);
         
@@ -59,6 +66,7 @@ namespace Compass {
         std::map<string, Direction>     directions_;
         std::vector<FutureLink>         links_;
         std::map<string, Entity>        entities_;
+        std::map<std::string, Verb>     verbs_;
         
         Story                           story_;
         

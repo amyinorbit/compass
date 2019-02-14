@@ -18,12 +18,6 @@ namespace Compass {
     // MARK: - Strings management
     
     Story::Story() {
-        addVerb(VerbBuilder("go").past("went").participle("gone").infinitive("going").make(Verb::Go));
-        addVerb(VerbBuilder("walk").make(Verb::Go));
-        addVerb(VerbBuilder("look").make(Verb::Look));
-        addVerb(VerbBuilder("examine").infinitive("examining").make(Verb::Look));
-        addVerb(VerbBuilder("take").past("took").participle("taken").infinitive("taking").make(Verb::Take));
-        addVerb(VerbBuilder("drop").past("dropped").participle("dropped").infinitive("dropping").make(Verb::Drop));
     }
     
     StringID Story::stringID(const std::string& str) const {
@@ -46,35 +40,13 @@ namespace Compass {
         directions_.insert(dir);
     }
     
-    void Story::addVerb(const Verb& verb) {
-        verbs_[verb.present] = verb;
+    void Story::addVerb(const std::string& present, Verb::Kind kind) {
+        verbs_[present] = kind;
     }
 
-    optional<std::string> Story::present(const std::string& verb) const {
+    optional<Verb::Kind> Story::verb(const std::string& verb) const {
         const auto it = verbs_.find(verb);
         if(it == verbs_.end()) return {};
-        return it->second.present;
-    }
-    
-    optional<std::string> Story::participle(const std::string& verb) const {
-        const auto it = std::find_if(verbs_.begin(), verbs_.end(), [&](const auto& v){
-            return v.second.participle == verb;
-        });
-        if(it == verbs_.end()) return {};
-        return it->second.present;
-    }
-    
-    optional<std::string> Story::infinitive(const std::string& verb) const {
-        const auto it = std::find_if(verbs_.begin(), verbs_.end(), [&](const auto& v){
-            return v.second.participle == verb;
-        });
-        if(it == verbs_.end()) return {};
-        return it->second.present;
-    }
-    
-    const Verb& Story::verb(const std::string& verb) const {
-        const auto it = verbs_.find(verb);
-        assert(it != verbs_.end() && "This is not a verb");
         return it->second;
     }
     

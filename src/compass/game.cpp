@@ -41,16 +41,14 @@ namespace Compass {
     }
     
     result<Game::PlayerAction> Game::check(Sentence::Command cmd) {
-        auto p = story_.present(cmd.verb);
-        if(!p) return make_unexpected("I don't know the verb " + cmd.verb);
-        return PlayerAction {
-            story_.verb(*p),
-            cmd.object
-        };
+        auto action = story_.verb(cmd.verb);
+        if(!action)
+            return make_unexpected("I don't know the verb " + cmd.verb);
+        return PlayerAction { *action, cmd.object };
     }
     
     result<std::string> Game::execute(PlayerAction action) {
-        switch(action.verb.kind) {
+        switch(action.action) {
             case Verb::Go: return handleGo(action.object);
             case Verb::Look: return handleLook(action.object);
             case Verb::Take: return handleTake(action.object);
@@ -104,6 +102,16 @@ namespace Compass {
         
         if(it == place.things.end())
             return make_unexpected("There's no such thing as " + object + " here.");
+        
+        const auto& thing = run.entity(id);
+        
+        // TODO: find something better here.
+        const auto actIt = std::find_if(thing.actions.begin(), thing.actions.end(), [](const auto& a) {
+            std::cout << a.verb << std::endl;
+            return a.verb == "take";
+        });
+        if(actIt == thing.actions.end())
+            return make_unexpected("you can't take that");
         
         run.take(id);
         return "You now have " + object + "\n"; // TODO: we should probably have an article in here.
