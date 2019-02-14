@@ -9,5 +9,6 @@ Compass is an experimental engine for interactive fiction. It's heavily inspired
 - [ ] support for default properties
 - [ ] better object/object matching system
 - [ ] lock support (move to bytecode later?)
+- [ ] compilation/loader systen
 - [ ] custom actions & bytecode support
 - [ ] basic adjectives recognition

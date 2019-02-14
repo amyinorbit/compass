@@ -41,10 +41,10 @@ namespace Compass {
     }
     
     result<Game::PlayerAction> Game::check(Sentence::Command cmd) {
-        if(!story_.isVerb(cmd.verb))
-            return make_unexpected("I don't know the verb " + cmd.verb);
+        auto p = story_.present(cmd.verb);
+        if(!p) return make_unexpected("I don't know the verb " + cmd.verb);
         return PlayerAction {
-            story_.getVerb(cmd.verb),
+            story_.verb(*p),
             cmd.object
         };
     }

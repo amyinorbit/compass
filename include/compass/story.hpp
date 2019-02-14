@@ -14,6 +14,7 @@
 #include <string>
 #include <utility>
 #include <vector>
+#include <compass/verb.hpp>
 #include <compass/utils/functional.hpp>
 
 #define BYTECODE_MAX (128)
@@ -63,19 +64,6 @@ namespace Compass {
         std::map<std::string, Entity>       entities;
     };
     
-    struct Verb {
-        enum Kind {
-            // Those are basic actions that any game gets by default. Dealt with by the engine.
-            Go, Look, Take, Drop, Inventory,
-            // These are custom actions, defined by the story and compiled to bytecode
-            StoryCode, CustomCode,
-        };
-        
-        Kind        kind;
-        StringID    verb;
-        StringID    preposition;
-    };
-    
     // The story structure binds a whole thing together
     class Story {
     public:
@@ -85,9 +73,13 @@ namespace Compass {
         std::string uniqueID(StringID name) const;
         
         void addDirection(const std::string& dir);
-        void addVerb(Verb::Kind kind, StringID verb, StringID preposition = 0);
-        bool isVerb(const std::string& verb) const;
-        const Verb& getVerb(const std::string& verb) const;
+        
+        void addVerb(const Verb& verb);
+        optional<std::string> present(const std::string& verb) const;
+        optional<std::string> participle(const std::string& verb) const;
+        optional<std::string> infinitive(const std::string& verb) const;
+        
+        const Verb& verb(const std::string& verb) const;
         
         // MARK: - Strings management
         StringID stringID(const std::string& str) const;
