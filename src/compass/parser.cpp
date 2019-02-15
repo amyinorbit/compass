@@ -182,9 +182,8 @@ namespace Compass {
     
     void Parser::recRelContainer() {
         auto kind = recContainerLoc();
-            
         auto place = recNoun();
-        sema_.setContainer({}, place.text);
+        sema_.setContainer({}, kind, place.text);
     }
     
     Container::Kind Parser::recContainerLoc() {

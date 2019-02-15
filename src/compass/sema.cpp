@@ -137,11 +137,11 @@ namespace Compass {
     }
 
     // TODO: add support for in/on
-    void Sema::setContainer(const optional<string>& entity, const string& container) {
-        get(entity).map([this,&container](auto id) {
+    void Sema::setContainer(const optional<string>& entity, Container::Kind where, const string& container) {
+        get(entity).map([this,&container,where](auto id) {
             
             auto& e = entities_.at(id);
-            e.container = Container{Container::In, story_.uniqueID(container)};
+            e.container = Container{where, story_.uniqueID(container)};
             
         }).map_error([this,&container](auto msg) {
             this->error("SET_CONTAINER/" + msg);

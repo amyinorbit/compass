@@ -47,8 +47,7 @@ namespace Compass {
         void addLink(const optional<string>& from, const string& to, const string& direction);
         //void addAbility(optional<string> entity, const string& verb);
         
-        // TODO: add support for in/on
-        void setContainer(const optional<string>& what, const string& container);
+        void setContainer(const optional<string>& what, Container::Kind where, const string& container);
         
         result<Story> resolve();
         
