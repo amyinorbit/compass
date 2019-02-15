@@ -48,6 +48,8 @@ namespace Compass {
         void recRelDirection();
         void recRelContainer();
         
+        Container::Kind recContainerLoc();
+        
         // MARK: - parsing common blocks
         optional<Noun> recSubject();
         void recDescription();

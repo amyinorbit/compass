@@ -154,7 +154,7 @@ namespace Compass {
             declared = true;
         }
         
-        if(have("in") || have("on")) {
+        if(have("in") || have("on") || have("under")) {
             if(!declared && subject) sema_.declare(Entity::Thing, *subject, true);
             recRelContainer();
         } else if(haveDirection()) {
@@ -181,19 +181,21 @@ namespace Compass {
     }
     
     void Parser::recRelContainer() {
-        if(have("in")) {
-            eat();
-        } else if(have("on")) {
-            eat();
-        } else {
-            error("things can be in or on other things in places");
-            return;
-        }
+        auto kind = recContainerLoc();
             
         auto place = recNoun();
         sema_.setContainer({}, place.text);
     }
     
+    Container::Kind Parser::recContainerLoc() {
+        if(match("in"))
+            return Container::In;
+        if(match("on"))
+            return Container::On;
+        if(match("under"))
+            return Container::Under;
+        assert("unreachable");
+    }
     
     optional<Noun> Parser::recSubject() {
         if(match(Grammar::Subjective))
