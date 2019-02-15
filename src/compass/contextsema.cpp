@@ -141,7 +141,7 @@ namespace Compass {
         get(entity).map([this,&container](auto id) {
             
             auto& e = entities_.at(id);
-            e.location = story_.uniqueID(container);
+            e.container = Container{Container::In, story_.uniqueID(container)};
             
         }).map_error([this,&container](auto msg) {
             this->error("SET_CONTAINER/" + msg);
@@ -183,11 +183,13 @@ namespace Compass {
         
         for(const auto& pair: entities_) {
             if(pair.second.kind != Entity::Thing) continue;
+            if(!pair.second.container)
+                return make_unexpected(pair.second.id + " does not have a container");
             
             const auto& thing = pair.second;
             
-            auto it = entities_.find(*thing.location);
-            std::cout << " * contain: " << *thing.location << "<-" << thing.id << "\n";
+            auto it = entities_.find(thing.container->id);
+            std::cout << " * contain: " << thing.container->id << "<-" << thing.id << "\n";
             if(it == entities_.end())
                 return make_unexpected("cannot put thing in a container that does not exist");
             it->second.things.insert(thing.id);

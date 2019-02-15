@@ -57,9 +57,9 @@ namespace Compass {
         assert(it->second.kind == Entity::Thing && "you can't take a place");
         inventory_.insert(uniqueID);
         
-        auto& things = entity(*it->second.location).things;
+        auto& things = entity(it->second.container->id).things;
         things.erase(uniqueID);
-        it->second.location = {};
+        it->second.container = {};
     }
     
     bool Run::has(const std::string& uniqueID) const {

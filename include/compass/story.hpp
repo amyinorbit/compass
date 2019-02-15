@@ -32,6 +32,13 @@ namespace Compass {
         std::string             direction;
     };
     
+    struct Container {
+        enum Kind { In, On, Under };
+        
+        Kind            kind;
+        std::string     id;
+    };
+    
     struct Action {
         enum Kind { Native, Bytecode };
         
@@ -52,7 +59,8 @@ namespace Compass {
         StringID                article         = 0;
         StringID                name            = 0;
         StringID                description     = 0;
-        optional<std::string>   location        = {};
+        
+        optional<Container>     container        = {};
     
         std::set<std::string>   things;
         std::vector<Action>     actions;
