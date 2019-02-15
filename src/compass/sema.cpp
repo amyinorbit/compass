@@ -9,12 +9,12 @@
 //===--------------------------------------------------------------------------------------------===
 #include <algorithm>
 #include <cassert>
-#include <compass/contextsema.hpp>
+#include <compass/sema.hpp>
 #include <compass/utils/string.hpp>
 
 namespace Compass {
     
-    ContextSema::ContextSema() {
+    Sema::Sema() {
         declareVerb(VerbBuilder("go").past("went").participle("gone").infinitive("going").make(Verb::Go));
         declareVerb(VerbBuilder("walk").make(Verb::Go));
         declareVerb(VerbBuilder("look").make(Verb::Look));
@@ -23,44 +23,44 @@ namespace Compass {
         declareVerb(VerbBuilder("drop").past("dropped").participle("dropped").infinitive("dropping").make(Verb::Drop));
     }
     
-    void ContextSema::setTitle(const string& title) {
+    void Sema::setTitle(const string& title) {
         story_.title = title;
     }
     
-    void ContextSema::setAuthor(const string& author) {
+    void Sema::setAuthor(const string& author) {
         story_.author = author;
     }
     
-    void ContextSema::declareDirection(const string& direction, optional<string> opposite) {
+    void Sema::declareDirection(const string& direction, optional<string> opposite) {
         directions_[direction] = Direction{direction, opposite};
         if(opposite) {
             directions_[*opposite] = Direction{*opposite, direction};
         }
     }
     
-    void ContextSema::checkDirection(const std::string& direction) {
+    void Sema::checkDirection(const std::string& direction) {
         if(directions_.find(direction) != directions_.end()) return;
         error("you are trying to use the direction " + direction + ", which I don't know about");
     }
     
-    bool ContextSema::hasOppositeDirection(const std::string& direction) {
+    bool Sema::hasOppositeDirection(const std::string& direction) {
         const auto it = directions_.find(direction);
         assert(it != directions_.end() && "invalid direction given for opposite check");
         return it->second.opposite.has_value();
     }
     
-    std::string ContextSema::oppositeDirection(const std::string& direction) {
+    std::string Sema::oppositeDirection(const std::string& direction) {
         const auto it = directions_.find(direction);
         assert(it != directions_.end() && "invalid direction given for opposite");
         assert(it->second.opposite.has_value() && "direction has no opposite");
         return *it->second.opposite;
     }
     
-    void ContextSema::declareVerb(const Verb& verb) {
+    void Sema::declareVerb(const Verb& verb) {
         verbs_[verb.present] = verb;
     }
     
-    void ContextSema::addVerb(optional<string> entity, const string& verb) {
+    void Sema::addVerb(optional<string> entity, const string& verb) {
         const auto it = std::find_if(verbs_.begin(), verbs_.end(), [&](const auto& v){
             return v.second.participle == verb;
         });
@@ -85,7 +85,7 @@ namespace Compass {
         });
     }
     
-    void ContextSema::declare(Entity::Kind kind, const Noun& name, bool silent) {
+    void Sema::declare(Entity::Kind kind, const Noun& name, bool silent) {
         const auto id = story_.uniqueID(name.text);
         if(entities_.find(id) != entities_.end()) {
             if(!silent) error("You cannot create '" + name.text + "' more than one time");
@@ -109,7 +109,7 @@ namespace Compass {
         std::cout << "* declared: " << name.text << "\n";
     }
     
-    void ContextSema::setDescription(const string& text) {
+    void Sema::setDescription(const string& text) {
         get({}).map([this,&text](auto id) {
             
             auto& e = entities_.at(id);
@@ -120,11 +120,11 @@ namespace Compass {
         });
     }
 
-    void ContextSema::setProperty(optional<string> entity, Property property) {
+    void Sema::setProperty(optional<string> entity, Property property) {
         // TODO: implementation
     }
     
-    void ContextSema::addLink(const optional<string>& to, const string& from, const string& direction) {
+    void Sema::addLink(const optional<string>& to, const string& from, const string& direction) {
         get(to).map([this,&from,&direction](auto id){
             
             links_.push_back(FutureLink{
@@ -137,7 +137,7 @@ namespace Compass {
     }
 
     // TODO: add support for in/on
-    void ContextSema::setContainer(const optional<string>& entity, const string& container) {
+    void Sema::setContainer(const optional<string>& entity, const string& container) {
         get(entity).map([this,&container](auto id) {
             
             auto& e = entities_.at(id);
@@ -148,7 +148,7 @@ namespace Compass {
         });
     }
 
-    result<Story> ContextSema::resolve() {
+    result<Story> Sema::resolve() {
         if(!start_) return make_unexpected("I need at least one room to make a story");
         
         for(const auto& link: links_) {
@@ -208,11 +208,11 @@ namespace Compass {
         return story_;
     }
     
-    void ContextSema::error(const string& message) {
+    void Sema::error(const string& message) {
         std::cerr << "[SEMA]: " << message << "\n";
     }
     
-    result<ContextSema::string> ContextSema::get(optional<string> entity) {
+    result<Sema::string> Sema::get(optional<string> entity) {
         if(entity) {
             auto id = story_.uniqueID(*entity);
             current_ = *entity;

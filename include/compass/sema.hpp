@@ -1,5 +1,5 @@
 //===--------------------------------------------------------------------------------------------===
-// contextsema.hpp - Context-checking semantics checker for CompassLang V2
+// sema.hpp - Context-checking semantics checker for CompassLang V2
 // This source is part of the Compass Engine
 //
 // Created on 2019-02-12 by Amy Parent <amy@amyparent.com>
@@ -19,14 +19,14 @@ namespace Compass {
         std::string text;
     };
     
-    class ContextSema {
+    class Sema {
     public:
 
         using string =  std::string;
         
         enum Property { Locked, None };
         
-        ContextSema();
+        Sema();
         
         void setTitle(const string& title);
         void setAuthor(const string& author);

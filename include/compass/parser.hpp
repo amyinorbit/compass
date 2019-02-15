@@ -13,7 +13,7 @@
 #include <compass/grammar.hpp>
 #include <compass/rdparser.hpp>
 #include <compass/story.hpp>
-#include <compass/contextsema.hpp>
+#include <compass/sema.hpp>
 #include <compass/utils/functional.hpp>
 
 namespace Compass {
@@ -60,7 +60,7 @@ namespace Compass {
         std::set<std::string>   directions_;
         optional<std::string>   error_;
         
-        ContextSema             sema_;
+        Sema             sema_;
     };
     
 }
