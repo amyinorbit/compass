@@ -4,3 +4,5 @@ projectDirectory        = $CWD
 PROJECT_NAME            = 'the Compass Engine'
 PROJECT_CPYEAR          = '2019'
 PROJECT_LICENSE         = 'MIT'
+
+excludeSCMDeleted       = true
