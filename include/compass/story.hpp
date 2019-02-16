@@ -51,17 +51,18 @@ namespace Compass {
     
     struct Entity {
         enum Kind { Place, Thing, Unknown };
-    
+        
         Kind                    kind            = Unknown;
         std::string             id              = "";
-    
+        
         bool                    isSeen          = false;
         StringID                article         = 0;
         StringID                name            = 0;
         StringID                description     = 0;
         
-        optional<Container>     container        = {};
-    
+        optional<Container>     container       = {};
+        
+        // TODO: for this we might need something with more data, including in/on/under rel.
         std::set<std::string>   things;
         std::vector<Action>     actions;
         std::vector<Link>       links;
@@ -86,7 +87,7 @@ namespace Compass {
         optional<Verb::Kind> verb(const std::string& verb) const;
         
         // MARK: - Strings management
-        StringID stringID(const std::string& str) const;
+        StringID intern(const std::string& str) const;
         const std::string& string(StringID id) const;
         
         Context                             prototype;
@@ -95,7 +96,7 @@ namespace Compass {
     private:
         friend class Semantics;
         
-        // The string pool is mutable to allow const-qualified stringID
+        // The string pool is mutable to allow const-qualified intern
         mutable std::vector<std::string>    strings_;
         std::set<std::string>               directions_;
         std::map<std::string, Verb::Kind>   verbs_;

@@ -20,7 +20,7 @@ namespace Compass {
     Story::Story() {
     }
     
-    StringID Story::stringID(const std::string& str) const {
+    StringID Story::intern(const std::string& str) const {
         const auto it = std::find(strings_.begin(), strings_.end(), str);
         if(it != strings_.end())
             return StringID((it - strings_.begin()) + 1);

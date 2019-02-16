@@ -101,8 +101,8 @@ namespace Compass {
         e.kind = kind;
         
         if(name.article)
-            e.article = story_.stringID(*name.article);
-        e.name = story_.stringID(name.text);
+            e.article = story_.intern(*name.article);
+        e.name = story_.intern(name.text);
         entities_[id] = e;
         
         current_ = id;
@@ -113,7 +113,7 @@ namespace Compass {
         get({}).map([this,&text](auto id) {
             
             auto& e = entities_.at(id);
-            e.description = story_.stringID(text);
+            e.description = story_.intern(text);
             
         }).map_error([this,&text](auto msg) {
             this->error("SET_DESCRIPTION/" + msg);
