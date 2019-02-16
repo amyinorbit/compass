@@ -27,10 +27,21 @@ T& maybe_guard(optional<T>& m, const std::string& message) {
     abort();
 }
 
+template<typename T>
+struct filter_impl {
+    std::function<bool(T)> fn;
+};
+
 template <typename T>
-typename T::value_type filter(const T& c, std::function<bool(typename T::value_type)> pred) {
-    T filtered;
-    return std::copy_if(c.begin(), c.end(), std::back_inserter(filtered), pred);
+filter_impl<T> filter(std::function<bool(T)> fn) {
+    return filter_impl<T>{fn};
+}
+
+template <typename T>
+T operator |(const T& lhs, const filter_impl<typename T::value_type>& rhs) {
+    T result;
+    std::copy_if(lhs.begin(), lhs.end(), std::back_inserter(result), rhs.fn);
+    return result;
 }
 
 template <typename T>

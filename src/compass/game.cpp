@@ -156,7 +156,7 @@ namespace Compass {
         text += "\n";
         bool single = place.things.size() == 1;
         text += single ? "There is " : "there are ";
-        text += describe(place.things) + " here.";
+        text += describe(place.things ) + " here.";
         return text;
     }
     
