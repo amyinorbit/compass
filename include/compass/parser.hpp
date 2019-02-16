@@ -18,8 +18,6 @@
 
 namespace Compass {
     
-    // TODO: merge that into the main story system
-    
     class Parser: public RDParser {
     public:
         Parser(const std::string& source, const Grammar& grammar) : RDParser(source, grammar) {}
@@ -31,12 +29,14 @@ namespace Compass {
         void error(const std::string& e);
         
         void recTitleAndAuthor();
-        
         void recDirectionDecl();
+        
+        // MARK: - there sentence parsing
         
         void recThereSentence();
         
         // MARK: - active sentence parsing
+        
         void recActiveSentence();
         void recBeSentence(const optional<Noun>& subject);
         void recCanSentence(const optional<Noun>& subject);
@@ -45,12 +45,13 @@ namespace Compass {
         void recPropertyDecl(const optional<Noun>& subject);
         
         // MARK: - relative positioning parsing
+        
         void recRelDirection();
         void recRelContainer();
-        
         Container::Kind recContainerLoc();
         
         // MARK: - parsing common blocks
+        
         optional<Noun> recSubject();
         void recDescription();
         Entity::Kind recClass();

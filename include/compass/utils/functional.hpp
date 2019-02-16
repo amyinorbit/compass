@@ -32,3 +32,10 @@ typename T::value_type filter(const T& c, std::function<bool(typename T::value_t
     T filtered;
     return std::copy_if(c.begin(), c.end(), std::back_inserter(filtered), pred);
 }
+
+template <typename T>
+optional<typename T::value_type> find(const T& c, std::function<bool(typename T::value_type)> pred) {
+    const auto it = std::find_if(c.begin(), c.end(), pred);
+    if(it == c.end()) return {};
+    return it->second;
+}

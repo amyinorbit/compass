@@ -104,7 +104,6 @@ namespace Compass {
     }
     
     // MARK: - active sentence parsing
-    
     // active-sentence = subject, (be-sentence | can-sentence);
     void Parser::recActiveSentence() {
         auto subject = recSubject();

@@ -119,7 +119,7 @@ namespace Compass {
             this->error("SET_DESCRIPTION/" + msg);
         });
     }
-
+    
     void Sema::setProperty(optional<string> entity, Property property) {
         // TODO: implementation
     }
@@ -135,8 +135,7 @@ namespace Compass {
             this->error("ADD_LOCATION/" + msg);
         });
     }
-
-    // TODO: add support for in/on
+    
     void Sema::setContainer(const optional<string>& entity, Container::Kind where, const string& container) {
         get(entity).map([this,&container,where](auto id) {
             
@@ -147,7 +146,7 @@ namespace Compass {
             this->error("SET_CONTAINER/" + msg);
         });
     }
-
+    
     result<Story> Sema::resolve() {
         if(!start_) return make_unexpected("I need at least one room to make a story");
         
@@ -202,7 +201,6 @@ namespace Compass {
             story_.addVerb(pair.second.present, pair.second.kind);
         }
         
-        //return make_unexpected("unimplemented");
         story_.prototype.startID = *start_;
         story_.prototype.entities = entities_;
         return story_;
