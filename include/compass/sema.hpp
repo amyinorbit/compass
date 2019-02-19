@@ -47,7 +47,7 @@ namespace Compass {
         void addLink(const optional<string>& from, const string& to, const string& direction);
         //void addAbility(optional<string> entity, const string& verb);
         
-        void setContainer(const optional<string>& what, Container::Kind where, const string& container);
+        void setRelation(const optional<string>& what, Relation::Kind where, const string& container);
         
         result<Story> resolve();
         

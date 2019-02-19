@@ -136,11 +136,11 @@ namespace Compass {
         });
     }
     
-    void Sema::setContainer(const optional<string>& entity, Container::Kind where, const string& container) {
+    void Sema::setRelation(const optional<string>& entity, Relation::Kind where, const string& container) {
         get(entity).map([this,&container,where](auto id) {
             
             auto& e = entities_.at(id);
-            e.container = Container{where, story_.uniqueID(container)};
+            e.container = Relation{where, story_.uniqueID(container)};
             
         }).map_error([this,&container](auto msg) {
             this->error("SET_CONTAINER/" + msg);
@@ -191,7 +191,8 @@ namespace Compass {
             std::cout << " * contain: " << thing.container->id << "<-" << thing.id << "\n";
             if(it == entities_.end())
                 return make_unexpected("cannot put thing in a container that does not exist");
-            it->second.things.insert(thing.id);
+            //it->second.things.insert(thing.id);
+            it->second.things[thing.id] = thing.container->kind;
         }
         
         for(const auto& pair: verbs_) {

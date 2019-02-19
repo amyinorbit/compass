@@ -100,7 +100,7 @@ namespace Compass {
         expectBeing();
         auto thing = recNoun();
         sema_.declare(Entity::Thing, thing);
-        recRelContainer();
+        recRelRelation();
     }
     
     // MARK: - active sentence parsing
@@ -155,7 +155,7 @@ namespace Compass {
         
         if(have("in") || have("on") || have("under")) {
             if(!declared && subject) sema_.declare(Entity::Thing, *subject, true);
-            recRelContainer();
+            recRelRelation();
         } else if(haveDirection()) {
             if(!declared && subject) sema_.declare(Entity::Place, *subject, true);
             recRelDirection();
@@ -179,19 +179,19 @@ namespace Compass {
         sema_.addLink({}, place.text, direction);
     }
     
-    void Parser::recRelContainer() {
-        auto kind = recContainerLoc();
+    void Parser::recRelRelation() {
+        auto kind = recRelationLoc();
         auto place = recNoun();
-        sema_.setContainer({}, kind, place.text);
+        sema_.setRelation({}, kind, place.text);
     }
     
-    Container::Kind Parser::recContainerLoc() {
+    Relation::Kind Parser::recRelationLoc() {
         if(match("in"))
-            return Container::In;
+            return Relation::In;
         if(match("on"))
-            return Container::On;
+            return Relation::On;
         if(match("under"))
-            return Container::Under;
+            return Relation::Under;
         assert("unreachable");
     }
     

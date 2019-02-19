@@ -27,14 +27,6 @@ T& maybe_guard(optional<T>& m, const std::string& message) {
     abort();
 }
 
-// FILTER
-template <typename T, typename F>
-auto operator |(const T& lhs, F&& fn) {
-    T result;
-    std::copy_if(lhs.begin(), lhs.end(), std::back_inserter(result), fn);
-    return result;
-}
-
 template <typename T>
 optional<typename T::value_type> find(const T& c, std::function<bool(typename T::value_type)> pred) {
     const auto it = std::find_if(c.begin(), c.end(), pred);

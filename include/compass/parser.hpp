@@ -47,8 +47,8 @@ namespace Compass {
         // MARK: - relative positioning parsing
         
         void recRelDirection();
-        void recRelContainer();
-        Container::Kind recContainerLoc();
+        void recRelRelation();
+        Relation::Kind recRelationLoc();
         
         // MARK: - parsing common blocks
         

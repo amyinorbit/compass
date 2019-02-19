@@ -10,6 +10,8 @@
 #include <algorithm>
 #include <compass/game.hpp>
 #include <compass/grammar.hpp>
+#include <boost/range/adaptors.hpp>
+#include <boost/range/algorithm.hpp>
 
 namespace Compass {
     
@@ -175,13 +177,18 @@ namespace Compass {
         return text + "\n";
     }
     
-    std::string Game::describe(const std::set<std::string>& things) {
+    std::string Game::describe(const Entity::RelationList& things, Relation::Kind kind) {
         auto& run = maybe_guard(run_, "you must have a game run");
+        
+        using namespace boost::adaptors;
+        
+        const auto ofKind = things
+            | filtered([=](const auto& pair) { return pair.second == kind; });
         
         std::string text = "";
         int idx = 0;
-        for(auto id: things) {
-            const auto& thing = run.entity(id);
+        for(auto pair: ofKind) {
+            const auto& thing = run.entity(pair.first);
             if(thing.article)
                 text += story_.string(thing.article) + " ";
             text += story_.string(thing.name);

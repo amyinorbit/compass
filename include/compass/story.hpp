@@ -32,7 +32,7 @@ namespace Compass {
         std::string             direction;
     };
     
-    struct Container {
+    struct Relation {
         enum Kind { In, On, Under };
         
         Kind            kind;
@@ -52,6 +52,8 @@ namespace Compass {
     struct Entity {
         enum Kind { Place, Thing, Unknown };
         
+        using RelationList = std::map<std::string, Relation::Kind>;
+        
         Kind                    kind            = Unknown;
         std::string             id              = "";
         
@@ -60,10 +62,9 @@ namespace Compass {
         StringID                name            = 0;
         StringID                description     = 0;
         
-        optional<Container>     container       = {};
+        optional<Relation>      container       = {};
         
-        // TODO: for this we might need something with more data, including in/on/under rel.
-        std::set<std::string>   things;
+        RelationList            things;
         std::vector<Action>     actions;
         std::vector<Link>       links;
     };
