@@ -157,8 +157,7 @@ namespace Compass {
         
         text += "\n";
         bool single = place.things.size() == 1;
-        text += single ? "There is " : "there are ";
-        text += describe(place.things ) + " here.";
+        text += describe(place.things, Relation::In, "here");
         return text;
     }
     
@@ -177,18 +176,27 @@ namespace Compass {
         return text + "\n";
     }
     
-    std::string Game::describe(const Entity::RelationList& things, Relation::Kind kind) {
+    std::string Game::describe(
+        const Entity::RelationList& things, 
+        Relation::Kind kind,
+        std::string itHere
+    ) {
+        
         auto& run = maybe_guard(run_, "you must have a game run");
         
         using namespace boost::adaptors;
         
-        const auto ofKind = things
-            | filtered([=](const auto& pair) { return pair.second == kind; });
+        const auto entities = things
+            | filtered([=](const auto& pair) { return pair.second == kind; })
+            | transformed([&](const auto& pair) -> Entity& { return run.entity(pair.first); });
         
-        std::string text = "";
+        if(!boost::size(entities)) return ""; // TODO: return an optional instead?
+        
+        bool single = boost::size(entities) == 1;
+        
+        std::string text = single ? "There is " : "There are ";
         int idx = 0;
-        for(auto pair: ofKind) {
-            const auto& thing = run.entity(pair.first);
+        for(const auto& thing: entities) {
             if(thing.article)
                 text += story_.string(thing.article) + " ";
             text += story_.string(thing.name);
@@ -199,6 +207,21 @@ namespace Compass {
             else if(idx != things.size())
                 text += ", ";
         }
+        
+        switch(kind) {
+        case Relation::In:
+            text += " in ";
+            break;
+        case Relation::On:
+            text += " on ";
+            break;
+        case Relation::Under:
+            text += " under ";
+            break;
+        }
+        
+        text += itHere + ".";
+        
         return text;
     }
     

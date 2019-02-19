@@ -43,7 +43,11 @@ namespace Compass {
 
         std::string describeCurrent(bool detailed = false);
         std::string describe(const std::string& id, int depth = 1);
-        std::string describe(const Entity::RelationList& things, Relation::Kind kind = Relation::In);
+        std::string describe(
+            const Entity::RelationList& things, 
+            Relation::Kind kind = Relation::In,
+            std::string itHere = "here"
+        );
         
         optional<Run>   run_;
         const Story&    story_;
