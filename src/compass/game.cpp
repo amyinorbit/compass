@@ -153,10 +153,7 @@ namespace Compass {
         text += "# " + story_.string(place.name) + "\n";
         text += story_.string(place.description) + "\n";
         
-        if(!place.things.size() || !detailed) return text;
-        
-        text += "\n";
-        bool single = place.things.size() == 1;
+        if(!detailed) return text;
         text += describe(place.things, Relation::In, "here");
         return text;
     }
@@ -167,13 +164,15 @@ namespace Compass {
         
         const auto& thing = run.entity(id);
         if(thing.description) {
-            text += story_.string(thing.description);
+            text += story_.string(thing.description) + "\n";
         } else {
-            text += "Nothing special about the " + story_.string(thing.name) + ".";
+            text += "Nothing special about the " + story_.string(thing.name) + ".\n";
         }
         
-        // TODO: handle things that are on/in this.
-        return text + "\n";
+        text += describe(thing.things, Relation::In, "it");
+        text += describe(thing.things, Relation::On, "it");
+        text += describe(thing.things, Relation::Under, "it");
+        return text;
     }
     
     std::string Game::describe(
@@ -194,7 +193,7 @@ namespace Compass {
         
         bool single = boost::size(entities) == 1;
         
-        std::string text = single ? "There is " : "There are ";
+        std::string text = single ? "\nThere is " : "\nThere are ";
         int idx = 0;
         for(const auto& thing: entities) {
             if(thing.article)
@@ -220,7 +219,7 @@ namespace Compass {
             break;
         }
         
-        text += itHere + ".";
+        text += itHere + ".\n";
         
         return text;
     }
