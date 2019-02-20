@@ -7,6 +7,7 @@
 // Licensed under the MIT License
 // =^•.•^=
 //===--------------------------------------------------------------------------------------------===
+#include <cassert>
 #include <iostream>
 #include <compass/parser.hpp>
 #include <compass/utils/string.hpp>
