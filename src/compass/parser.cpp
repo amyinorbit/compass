@@ -9,20 +9,15 @@
 //===--------------------------------------------------------------------------------------------===
 #include <cassert>
 #include <iostream>
+#include <compass/driver.hpp>
 #include <compass/parser.hpp>
+#include <compass/sema.hpp>
 #include <compass/utils/string.hpp>
 
 namespace Compass {
     using namespace std::placeholders;
     
-    void Parser::error(const std::string& e) {
-        std::cerr << "[PARSER/" << lexer.currentToken().type() << "]: " << e << std::endl;
-        //abort();
-        error_.emplace(e);
-        fail();
-    }
-    
-    result<Story> Parser::compile() {
+    void Parser::run() {
         eat();
         
         if(have(Token::QuotedString)) {
@@ -39,7 +34,7 @@ namespace Compass {
         expect("story");
         expect(Token::Colon);
         
-        while(!have(Token::End) && !isFailed()) {
+        while(!have(Token::End) && !driver.isFailed()) {
             if(have("there")) {
                 recThereSentence();
                 expect(Token::Period);
@@ -53,7 +48,6 @@ namespace Compass {
                 expect(Token::Period);
             }
         }
-        return sema_.resolve();
     }
     
     void Parser::recTitleAndAuthor() {
@@ -113,7 +107,7 @@ namespace Compass {
         else if(have("can"))
             recCanSentence(subject);
         else
-            error("<must have either 'can' or 'be'>");
+            driver.error("<must have either 'can' or 'be'>");
     }
     
     // be-sentence     = present-being, ( property | be-spec ) ;
@@ -146,7 +140,7 @@ namespace Compass {
         bool declared = false;
         if(have(Grammar::Indefinite)) {
             if(!subject) {
-                error("You can only declare places or things with names");
+                driver.error("You can only declare places or things with names");
                 return;
             }
             auto kind = recClass();

@@ -6,7 +6,7 @@
 #include <fstream>
 #include <iostream>
 
-#include <compass/parser.hpp>
+#include <compass/compiler.hpp>
 
 using namespace Compass;
 
@@ -29,10 +29,9 @@ result<std::string> readSource(const std::string& path) {
     return std::string(std::istreambuf_iterator<char>(in), {});
 }
 
-result<Story> compile(const std::string& source) {
-    BasicEnglish grammar;
-    Parser parser(source, grammar);
-    return parser.compile();
+result<Story> compile(const std::string& path) {
+    Compiler compiler;
+    return Compiler().compile(path);
 }
 
 void runGame(Story story) {
@@ -43,7 +42,6 @@ void runGame(Story story) {
 
 int main(int argc, const char** args) {
     getPath(io)
-        .and_then(readSource)
         .and_then(compile)
         .map(runGame)
         .map_error([](const auto& error) -> void {

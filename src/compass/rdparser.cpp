@@ -7,16 +7,17 @@
 // Licensed under the MIT License
 // =^•.•^=
 //===--------------------------------------------------------------------------------------------===
+#include <compass/driver.hpp>
 #include <compass/rdparser.hpp>
 #include <compass/utils/string.hpp>
 
 namespace Compass {
     
-    RDParser::RDParser(const std::string& data, const Grammar& grammar)
-        : failed_(false), lexer(data), grammar(grammar) {}
+    RDParser::RDParser(const std::string& data, Driver& driver)
+        : lexer(data), driver(driver) {}
 
     bool RDParser::haveBeing() const {
-        return grammar.meansBeing(text());
+        return driver.grammar().meansBeing(text());
     }
     
     bool RDParser::have(Token::Kind kind) const {
@@ -28,7 +29,7 @@ namespace Compass {
     }
     
     bool RDParser::have(Grammar::Class wordClass) const {
-        return grammar.is(text(), wordClass);
+        return driver.grammar().is(text(), wordClass);
     }
     
     bool RDParser::matchBeing() {
@@ -56,23 +57,23 @@ namespace Compass {
     }
     
     void RDParser::expectBeing(const std::string& message) {
-        if(failed_) skipUntil(Token::End);
-        if(!matchBeing()) error(message);
+        if(driver.isFailed()) skipUntil(Token::End);
+        if(!matchBeing()) driver.error(message);
     }
 
     void RDParser::expect(Token::Kind kind, const std::string& message) {
-        if(failed_) skipUntil(kind);
-        if(!match(kind)) error(message);
+        if(driver.isFailed()) skipUntil(kind);
+        if(!match(kind)) driver.error(message);
     }
     
     void RDParser::expect(const std::string& word, const std::string& message) {
-        if(failed_) skipUntil(Token::End);
-        if(!match(word)) error(message);
+        if(driver.isFailed()) skipUntil(Token::End);
+        if(!match(word)) driver.error(message);
     }
     
     void RDParser::expect(Grammar::Class wordClass, const std::string& message) {
-        if(failed_) skipUntil(Token::End);
-        if(!match(wordClass)) error(message);
+        if(driver.isFailed()) skipUntil(Token::End);
+        if(!match(wordClass)) driver.error(message);
     }
     
     std::string RDParser::eat() {

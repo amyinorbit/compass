@@ -12,7 +12,7 @@
 
 namespace Compass {
     Sentence::Sentence(const Story& story, const std::string& data, const Grammar& grammar)
-        : story_(story), RDParser(data, grammar) {}
+        : story_(story), grammar_(grammar), RDParser(data, *this) {}
     
     result<Sentence::Command> Sentence::parse() {
         Command cmd;
@@ -32,7 +32,6 @@ namespace Compass {
     }
     
     void Sentence::error(const std::string& message) {
-        fail();
-        error_ = message;
+        error_.emplace(message);
     }
 }

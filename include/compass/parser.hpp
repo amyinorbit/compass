@@ -12,16 +12,17 @@
 #include <string>
 #include <compass/grammar.hpp>
 #include <compass/rdparser.hpp>
-#include <compass/story.hpp>
 #include <compass/sema.hpp>
 #include <compass/utils/functional.hpp>
+
 
 namespace Compass {
     
     class Parser: public RDParser {
     public:
-        Parser(const std::string& source, const Grammar& grammar) : RDParser(source, grammar) {}
-        result<Story> compile();
+        Parser(const std::string& source, Driver& driver, Sema& sema)
+            : RDParser(source, driver), sema_(sema) {}
+        void run();
         
     private:
         enum SentenceKind { Decl, Spec };
@@ -60,10 +61,8 @@ namespace Compass {
         bool haveDirection() const;
         void declareDirection(const std::string& direction, const optional<std::string>& opposite);
         
+        Sema&                   sema_;
         std::set<std::string>   directions_;
-        optional<std::string>   error_;
-        
-        Sema             sema_;
     };
     
 }

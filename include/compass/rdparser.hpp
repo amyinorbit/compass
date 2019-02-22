@@ -9,20 +9,18 @@
 //===--------------------------------------------------------------------------------------------===
 #pragma once
 #include <string>
+#include <compass/driver.hpp>
 #include <compass/grammar.hpp>
 #include <compass/lexer.hpp>
 #include <compass/story.hpp>
 
 namespace Compass {
+    
     class RDParser {
     public:
-        RDParser(const std::string& data, const Grammar& grammar);
+        RDParser(const std::string& data, Driver& grammar);
         virtual ~RDParser() {}
     protected:
-        virtual void error(const std::string& message) = 0;
-        
-        void fail() { failed_ = true; }
-        bool isFailed() const { return failed_; }
         
         bool haveBeing() const;
         bool have(Token::Kind kind) const;
@@ -46,10 +44,9 @@ namespace Compass {
         std::string text() const { return lexer.currentToken().text; }
 
         Lexer lexer;
-        const Grammar& grammar;
+        Driver& driver;
         
     private:
         void skipUntil(Token::Kind kind);
-        bool failed_;
     };
 }

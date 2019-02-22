@@ -10,6 +10,7 @@
 #pragma once
 #include <string>
 #include <utility>
+#include <compass/driver.hpp>
 #include <compass/grammar.hpp>
 #include <compass/lexer.hpp>
 #include <compass/rdparser.hpp>
@@ -17,7 +18,7 @@
 #include <compass/utils/functional.hpp>
 
 namespace Compass {
-    class Sentence: public RDParser {
+    class Sentence: public RDParser, public Driver {
     public:
         
         struct Command {
@@ -27,10 +28,17 @@ namespace Compass {
         };
         
         Sentence(const Story& story, const std::string& data, const Grammar& grammar);
+        virtual ~Sentence() {}
+        
         result<Command> parse();
         
     private:
         virtual void error(const std::string& message);
+        
+        virtual const Grammar&  grammar() const { return grammar_; }
+        virtual bool isFailed() const { return error_.has_value(); }
+        
+        const Grammar& grammar_;
         const Story& story_;
         optional<std::string> error_;
     };
