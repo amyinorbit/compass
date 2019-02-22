@@ -31,7 +31,8 @@ namespace Compass {
         void error(const std::string& e);
         
         void recTitleAndAuthor();
-        void recDirectionDecl();
+
+        void recImport();
         
         // MARK: - there sentence parsing
         
@@ -45,6 +46,7 @@ namespace Compass {
         
         void recBeDecl(const optional<Noun>& subject);
         void recPropertyDecl(const optional<Noun>& subject);
+        void recDirectionDecl(const std::string& dir);
         
         // MARK: - relative positioning parsing
         
@@ -60,11 +62,8 @@ namespace Compass {
         Noun recNoun();
         
         bool haveDirection() const;
-        void declareDirection(const std::string& direction, const optional<std::string>& opposite);
-        
         Compiler& compiler() { return reinterpret_cast<Compiler&>(driver); }
-        
-        std::set<std::string>   directions_;
+        const Compiler& compiler() const { return reinterpret_cast<const Compiler&>(driver); }
     };
     
 }

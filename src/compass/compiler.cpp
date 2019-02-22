@@ -41,13 +41,14 @@ namespace Compass {
         //          "invoked" file.
         std::string path;
         boost::copy(
-            name | transformed([](char c) { return c == ' ' ? '_' : c; }),
+            name | transformed([](char c) { return c == ' ' ? '-' : c; }),
             std::back_inserter(path)
         );
-        return name + ".txt";
+        return path + ".txt";
     }
     
     result<std::string> Compiler::getFileContents(const std::string& path) {
+        std::cout << "compiling: " << path << "\n";
         std::ifstream in(path);
         if(!in.is_open()) {
             return make_unexpected("unable to open file '" + path + "'");

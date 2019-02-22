@@ -28,6 +28,7 @@ namespace Compass {
         bool include(const std::string& path);
         
         Sema& sema() { return sema_; }
+        const Sema& sema() const { return sema_; }
         virtual const Grammar& grammar() const { return grammar_; }
         
         virtual void error(const std::string& message);

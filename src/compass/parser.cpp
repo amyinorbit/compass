@@ -24,16 +24,6 @@ namespace Compass {
             recTitleAndAuthor();
         }
         
-        if(match("directions")) {
-            expect(Token::Colon);
-            while(!have("story")) {
-                recDirectionDecl();
-            }
-        }
-        
-        expect("story");
-        expect(Token::Colon);
-        
         while(!have(Token::End) && !driver.isFailed()) {
             if(have("there")) {
                 recThereSentence();
@@ -42,6 +32,10 @@ namespace Compass {
             else if(have(Token::QuotedString)) {
                 recDescription();
                 match(Token::Period);
+            }
+            else if(have("use")) {
+                recImport();
+                expect(Token::Period);
             }
             else {
                 recActiveSentence();
@@ -65,25 +59,10 @@ namespace Compass {
         compiler().sema().setAuthor(author);
     }
     
-    void Parser::recDirectionDecl() {
-        std::string dir;
-        optional<std::string> opp;
-        dir = recWords();
-        expectBeing();
-        expect(Grammar::Indefinite, "directions must be *a* direction");
-        expect("direction", "I expected a direction");
-        
-        if(have(Token::Comma) || have("and")) {
-            eat();
-            expect(Grammar::Definite, "expected a 'the' before opposite");
-            expect("opposite", "expected 'opposite'");
-            expectBeing();
-            opp = recWords();
-        }
-        expect(Token::Period);
-        declareDirection(dir, opp);
-        
-        compiler().sema().declareDirection(dir, opp);
+    void Parser::recImport() {
+        expect("use");
+        auto name = recWords();
+        compiler().include(name);
     }
     
     // MARK: - Story Parsing system
@@ -99,6 +78,7 @@ namespace Compass {
     }
     
     // MARK: - active sentence parsing
+    
     // active-sentence = subject, (be-sentence | can-sentence);
     void Parser::recActiveSentence() {
         auto subject = recSubject();
@@ -127,7 +107,7 @@ namespace Compass {
         auto participle = text();
         expect(Token::Word);
         compiler().sema().addVerb(name, participle);
-        //std::cout << " *~" << participle << "\n";
+        
         while(match(Token::Comma) || match("and")) {
             participle = text();
             expect(Token::Word);
@@ -138,14 +118,21 @@ namespace Compass {
     // be-spec         = [directions | container-rel];
     void Parser::recBeDecl(const optional<Noun>& subject) {
         bool declared = false;
-        if(have(Grammar::Indefinite)) {
+        if(match(Grammar::Indefinite)) {
             if(!subject) {
                 driver.error("You can only declare places or things with names");
                 return;
             }
-            auto kind = recClass();
-            compiler().sema().declare(kind, *subject);
-            declared = true;
+
+            // TODO: find a better way to test this, this is a bit ugly
+            if(match("direction")) {
+                recDirectionDecl(subject->text);
+                return;
+            } else {
+                auto kind = recClass();
+                compiler().sema().declare(kind, *subject);
+                declared = true;
+            }
         }
         
         if(have("in") || have("on") || have("under")) {
@@ -164,6 +151,19 @@ namespace Compass {
         expect(Token::Word);
         while(have(Token::Word))
             prop += " " + eat();
+    }
+    
+    void Parser::recDirectionDecl(const std::string& dir) {
+        optional<std::string> opp;
+        
+        if(have(Token::Comma) || have("and")) {
+            eat();
+            expect(Grammar::Definite, "expected a 'the' before opposite");
+            expect("opposite", "expected 'opposite'");
+            expectBeing();
+            opp = recWords();
+        }
+        compiler().sema().declareDirection(dir, opp);
     }
     
     void Parser::recRelDirection() {
@@ -203,7 +203,6 @@ namespace Compass {
     }
     
     Entity::Kind Parser::recClass() {
-        expect(Grammar::Indefinite, "Must have 'a' thing or 'a' place");
         if(match("place") || match("room"))
             return Entity::Place;
         eat();
@@ -225,12 +224,6 @@ namespace Compass {
     }
     
     bool Parser::haveDirection() const {
-        return directions_.find(lexer.currentToken().text) != directions_.end();
-    }
-    
-    void Parser::declareDirection(const std::string& direction, const optional<std::string>& opposite) {
-        directions_.insert(direction);
-        if(opposite)
-            directions_.insert(*opposite);
+        return compiler().sema().isDirection(text());
     }
 }

@@ -32,24 +32,31 @@ namespace Compass {
     }
     
     void Sema::declareDirection(const string& direction, optional<string> opposite) {
-        directions_[direction] = Direction{direction, opposite};
-        if(opposite) {
-            directions_[*opposite] = Direction{*opposite, direction};
+        auto dir = String::toLower(direction);
+        auto opp = opposite.map(String::toLower);
+        
+        directions_[direction] = Direction{dir, opp};
+        if(opp) {
+            directions_[*opp] = Direction{*opp, dir};
         }
     }
     
     void Sema::checkDirection(const std::string& direction) {
-        if(directions_.find(direction) != directions_.end()) return;
+        if(directions_.find(String::toLower(direction)) != directions_.end()) return;
         error("you are trying to use the direction " + direction + ", which I don't know about");
     }
     
-    bool Sema::hasOppositeDirection(const std::string& direction) {
+    bool Sema::isDirection(const std::string& direction) const {
+        return directions_.find(String::toLower(direction)) != directions_.end();
+    }
+    
+    bool Sema::hasOppositeDirection(const std::string& direction) const {
         const auto it = directions_.find(direction);
         assert(it != directions_.end() && "invalid direction given for opposite check");
         return it->second.opposite.has_value();
     }
     
-    std::string Sema::oppositeDirection(const std::string& direction) {
+    std::string Sema::oppositeDirection(const std::string& direction) const {
         const auto it = directions_.find(direction);
         assert(it != directions_.end() && "invalid direction given for opposite");
         assert(it->second.opposite.has_value() && "direction has no opposite");
@@ -111,7 +118,6 @@ namespace Compass {
     
     void Sema::setDescription(const string& text) {
         get({}).map([this,&text](auto id) {
-            
             auto& e = entities_.at(id);
             e.description = story_.intern(text);
             

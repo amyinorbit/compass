@@ -1,12 +1,9 @@
 "ISS Exploration" by Amy Parent.
 
-directions:
-
+!use ship directions.
 port is a direction, the opposite is starboard.
 up is a direction, the opposite is down.
 aft is a direction, the opposite is forward.
-
-story:
 
 Harmony node is a room. "This is a big, sterile-looking module. There's the constant humming of fans and probably some computers, somewhere. On the floor – or is it the ceiling, you wonder as you drift in the absence of gravity – there's a bunch of flags and patches. You feel weirdly at home here."
 

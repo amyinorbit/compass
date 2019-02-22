@@ -33,8 +33,9 @@ namespace Compass {
         
         void declareDirection(const string& direction, optional<string> opposite);
         void checkDirection(const std::string& direction);
-        bool hasOppositeDirection(const std::string& direction);
-        string oppositeDirection(const std::string& direction);
+        bool isDirection(const std::string& direction) const;
+        bool hasOppositeDirection(const std::string& direction) const;
+        string oppositeDirection(const std::string& direction) const;
         
         
         void declareVerb(const Verb& verb);
