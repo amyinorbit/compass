@@ -15,13 +15,14 @@
 #include <compass/sema.hpp>
 #include <compass/utils/functional.hpp>
 
-
 namespace Compass {
+    
+    class Compiler;
     
     class Parser: public RDParser {
     public:
-        Parser(const std::string& source, Driver& driver, Sema& sema)
-            : RDParser(source, driver), sema_(sema) {}
+        Parser(const std::string& source, Compiler& driver)
+            : RDParser(source, driver) {}
         void run();
         
     private:
@@ -61,7 +62,8 @@ namespace Compass {
         bool haveDirection() const;
         void declareDirection(const std::string& direction, const optional<std::string>& opposite);
         
-        Sema&                   sema_;
+        Compiler& compiler() { return reinterpret_cast<Compiler&>(driver); }
+        
         std::set<std::string>   directions_;
     };
     

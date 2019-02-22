@@ -10,6 +10,8 @@
 #include <fstream>
 #include <compass/compiler.hpp>
 #include <compass/parser.hpp>
+#include <boost/range/adaptors.hpp>
+#include <boost/range/algorithm.hpp>
 
 namespace Compass {
     
@@ -20,15 +22,29 @@ namespace Compass {
     
     result<Story> Compiler::compile(const std::string& path) {
         return getFileContents(path).and_then([this](const auto& source) {
-            auto invocation = Parser(source, *this, sema_);
+            auto invocation = Parser(source, *this);
             invocation.run();
             return sema_.resolve();
         });
     }
     
     bool Compiler::include(const std::string& path) {
-        // TODO: implementation!
-        return false;
+        return getFileContents(makeFileName(path)).map([this](const auto& source) {
+            auto invocation = Parser(source, *this);
+            invocation.run();
+        }).has_value();
+    }
+    
+    std::string Compiler::makeFileName(const std::string& name) {
+        using namespace boost::adaptors;
+        // TODO:    dear god please change that. We should at least tack on the root folder of the
+        //          "invoked" file.
+        std::string path;
+        boost::copy(
+            name | transformed([](char c) { return c == ' ' ? '_' : c; }),
+            std::back_inserter(path)
+        );
+        return name + ".txt";
     }
     
     result<std::string> Compiler::getFileContents(const std::string& path) {

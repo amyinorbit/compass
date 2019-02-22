@@ -9,7 +9,7 @@
 //===--------------------------------------------------------------------------------------------===
 #include <cassert>
 #include <iostream>
-#include <compass/driver.hpp>
+#include <compass/compiler.hpp>
 #include <compass/parser.hpp>
 #include <compass/sema.hpp>
 #include <compass/utils/string.hpp>
@@ -61,8 +61,8 @@ namespace Compass {
         
         expect(Token::Period);
         
-        sema_.setTitle(title);
-        sema_.setAuthor(author);
+        compiler().sema().setTitle(title);
+        compiler().sema().setAuthor(author);
     }
     
     void Parser::recDirectionDecl() {
@@ -83,7 +83,7 @@ namespace Compass {
         expect(Token::Period);
         declareDirection(dir, opp);
         
-        sema_.declareDirection(dir, opp);
+        compiler().sema().declareDirection(dir, opp);
     }
     
     // MARK: - Story Parsing system
@@ -94,7 +94,7 @@ namespace Compass {
         expect("there");
         expectBeing();
         auto thing = recNoun();
-        sema_.declare(Entity::Thing, thing);
+        compiler().sema().declare(Entity::Thing, thing);
         recRelRelation();
     }
     
@@ -126,12 +126,12 @@ namespace Compass {
         
         auto participle = text();
         expect(Token::Word);
-        sema_.addVerb(name, participle);
+        compiler().sema().addVerb(name, participle);
         //std::cout << " *~" << participle << "\n";
         while(match(Token::Comma) || match("and")) {
             participle = text();
             expect(Token::Word);
-            sema_.addVerb(name, participle);
+            compiler().sema().addVerb(name, participle);
         }
     }
     
@@ -144,15 +144,15 @@ namespace Compass {
                 return;
             }
             auto kind = recClass();
-            sema_.declare(kind, *subject);
+            compiler().sema().declare(kind, *subject);
             declared = true;
         }
         
         if(have("in") || have("on") || have("under")) {
-            if(!declared && subject) sema_.declare(Entity::Thing, *subject, true);
+            if(!declared && subject) compiler().sema().declare(Entity::Thing, *subject, true);
             recRelRelation();
         } else if(haveDirection()) {
-            if(!declared && subject) sema_.declare(Entity::Place, *subject, true);
+            if(!declared && subject) compiler().sema().declare(Entity::Place, *subject, true);
             recRelDirection();
             while(match(Token::Comma) || match("and"))
                 recRelDirection();
@@ -171,13 +171,13 @@ namespace Compass {
         expect(Token::Word);
         expect(Grammar::Preposition);
         auto place = recNoun();
-        sema_.addLink({}, place.text, direction);
+        compiler().sema().addLink({}, place.text, direction);
     }
     
     void Parser::recRelRelation() {
         auto kind = recRelationLoc();
         auto place = recNoun();
-        sema_.setRelation({}, kind, place.text);
+        compiler().sema().setRelation({}, kind, place.text);
     }
     
     Relation::Kind Parser::recRelationLoc() {
@@ -199,7 +199,7 @@ namespace Compass {
     void Parser::recDescription() {
         auto description = text();
         expect(Token::QuotedString);
-        sema_.setDescription(description);
+        compiler().sema().setDescription(description);
     }
     
     Entity::Kind Parser::recClass() {

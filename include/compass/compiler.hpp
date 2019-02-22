@@ -35,12 +35,12 @@ namespace Compass {
         
     private:
         using Error = std::string;
-        
+        // TODO: provide an override point here. Probably need some path/FS library, Boost?
+        std::string makeFileName(const std::string& name);
         result<std::string> getFileContents(const std::string& path);
         
         BasicEnglish    grammar_;
         Sema            sema_;
-        
         optional<Error> error_ = {};
     };
 }

@@ -1,4 +1,6 @@
 
+include-decl    = "use", {word}, ".";
+
 (* Direction declarations *)
 
 direction-decl  = {word}, present-being, indefinite, "direction", ["," opposite-decl] ".";
