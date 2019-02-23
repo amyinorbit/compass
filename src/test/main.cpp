@@ -27,7 +27,7 @@ result<std::string> readSource(const std::string& path) {
 }
 
 result<Story> compile(const std::string& path) {
-    Compiler compiler(Path("libraries")); // TODO: replace with something better yeah?
+    Compiler::Compiler compiler(Path("libraries")); // TODO: replace with something better yeah?
     compiler.include(Path("standard.txt"));
     return compiler.compile(path);
 }

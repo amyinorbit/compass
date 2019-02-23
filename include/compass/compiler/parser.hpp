@@ -16,6 +16,7 @@
 #include <compass/language/rdparser.hpp>
 
 namespace Compass {
+namespace Compiler {
     
     class Compiler;
     
@@ -65,5 +66,5 @@ namespace Compass {
         Compiler& compiler() { return reinterpret_cast<Compiler&>(driver); }
         const Compiler& compiler() const { return reinterpret_cast<const Compiler&>(driver); }
     };
-    
+}
 }

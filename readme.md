@@ -8,7 +8,7 @@ Compass is an experimental engine for interactive fiction. It's heavily inspired
 - [x] in/on/under location support
 - [x] in/on/under location display
 - [x] include system
-- [ ] project structure overhaul
+- [x] project structure overhaul
 - [ ] properties system
 - [ ] better game loop architecture
 - [ ] better error reporting system, plain english errors

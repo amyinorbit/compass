@@ -13,6 +13,7 @@
 #include <compass/core/string.hpp>
 
 namespace Compass {
+namespace Compiler {
     
     Sema::Sema() {
         declareVerb(VerbBuilder("go").past("went").participle("gone").infinitive("going").make(Verb::Go));
@@ -226,4 +227,5 @@ namespace Compass {
             return make_unexpected("I can't tell what thing or place you are talking about");
         return *current_;
     }
+}
 }

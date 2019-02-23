@@ -15,6 +15,7 @@
 #include <compass/core/string.hpp>
 
 namespace Compass {
+namespace Compiler {
     using namespace std::placeholders;
     
     void Parser::run() {
@@ -226,4 +227,5 @@ namespace Compass {
     bool Parser::haveDirection() const {
         return compiler().sema().isDirection(text());
     }
+}
 }
