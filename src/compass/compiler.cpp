@@ -28,14 +28,21 @@ namespace Compass {
         });
     }
     
-    bool Compiler::include(const std::string& path) {
-        return getFileContents(makeFileName(path)).map([this](const auto& source) {
+    bool Compiler::use(const std::string& libname) {
+        return getFileContents(libdir_ + makePath(libname)).map([this](const auto& source) {
             auto invocation = Parser(source, *this);
             invocation.run();
         }).has_value();
     }
     
-    std::string Compiler::makeFileName(const std::string& name) {
+    bool Compiler::include(const Path& path) {
+        return getFileContents(libdir_ + path).map([this](const auto& source) {
+            auto invocation = Parser(source, *this);
+            invocation.run();
+        }).has_value();
+    }
+    
+    Path Compiler::makePath(const std::string& name) {
         using namespace boost::adaptors;
         // TODO:    dear god please change that. We should at least tack on the root folder of the
         //          "invoked" file.
@@ -44,14 +51,14 @@ namespace Compass {
             name | transformed([](char c) { return c == ' ' ? '-' : c; }),
             std::back_inserter(path)
         );
-        return path + ".txt";
+        return Path(path + ".txt");
     }
     
-    result<std::string> Compiler::getFileContents(const std::string& path) {
-        std::cout << "compiling: " << path << "\n";
-        std::ifstream in(path);
+    result<std::string> Compiler::getFileContents(const Path& path) {
+        std::cout << "compiling: " << path.get() << "\n";
+        std::ifstream in(path.get());
         if(!in.is_open()) {
-            return make_unexpected("unable to open file '" + path + "'");
+            return make_unexpected("unable to open file '" + path.get() + "'");
         }
         return std::string(std::istreambuf_iterator<char>(in), {});
     }

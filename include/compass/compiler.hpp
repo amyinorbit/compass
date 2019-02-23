@@ -11,6 +11,7 @@
 #include <string>
 #include <compass/driver.hpp>
 #include <compass/grammar.hpp>
+#include <compass/path.hpp>
 #include <compass/sema.hpp>
 #include <compass/story.hpp>
 #include <compass/utils/functional.hpp>
@@ -21,11 +22,12 @@ namespace Compass {
     public:
         
         // TODO: provide a way to give a custom filename resolver here
-        Compiler() {}
+        Compiler(const Path& libdir): libdir_(libdir.canonical()) {}
         virtual ~Compiler() {}
         
         result<Story> compile(const std::string& path);
-        bool include(const std::string& path);
+        bool use(const std::string& libname);
+        bool include(const Path& path);
         
         Sema& sema() { return sema_; }
         const Sema& sema() const { return sema_; }
@@ -37,9 +39,10 @@ namespace Compass {
     private:
         using Error = std::string;
         // TODO: provide an override point here. Probably need some path/FS library, Boost?
-        std::string makeFileName(const std::string& name);
-        result<std::string> getFileContents(const std::string& path);
+        Path makePath(const std::string& name);
+        result<std::string> getFileContents(const Path& path);
         
+        Path            libdir_;
         BasicEnglish    grammar_;
         Sema            sema_;
         optional<Error> error_ = {};

@@ -11,5 +11,6 @@ add_library(Compass STATIC
 	sema.cpp
 	verb.cpp
 	compiler.cpp
+	path.cpp
 )
 target_include_directories(Compass INTERFACE ${PROJECT_SOURCE_DIR}/include)

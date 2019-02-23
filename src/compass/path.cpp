@@ -9,7 +9,7 @@
 //===--------------------------------------------------------------------------------------------===
 #include <vector>
 #include <sstream>
-#include "path.hpp"
+#include <compass/path.hpp>
 
 namespace Compass {
     
@@ -32,7 +32,10 @@ namespace Compass {
     
     Path& Path::operator+=(const Path& other) {
         // TODO: this probably isn't sufficient. What happens if you try to add /Users + /hello? 
-        path_ += Path::separator + other.path_;
+        if(path_.size())
+            path_ += Path::separator + other.path_;
+        else
+            path_ = other.path_;
         return *this;
     }
     

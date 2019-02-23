@@ -62,7 +62,7 @@ namespace Compass {
     void Parser::recImport() {
         expect("use");
         auto name = recWords();
-        compiler().include(name);
+        compiler().use(name);
     }
     
     // MARK: - Story Parsing system

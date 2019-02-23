@@ -1,0 +1,5 @@
+north is a direction, the opposite is south.
+east is a direction, the opposite is west.
+inside is a direction, the opposite is outside.
+up is a direction, the opposite is down.
+
