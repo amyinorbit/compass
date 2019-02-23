@@ -1,16 +1,5 @@
-add_library(Compass STATIC
-	lexer.cpp
-	utf8.c
-	grammar.cpp
-	rdparser.cpp
-	sentence.cpp
-	story.cpp
-	run.cpp
-	game.cpp
-	parser.cpp
-	sema.cpp
-	verb.cpp
-	compiler.cpp
-	path.cpp
-)
-target_include_directories(Compass INTERFACE ${PROJECT_SOURCE_DIR}/include)
+add_subdirectory(compiler)
+add_subdirectory(core)
+add_subdirectory(filesystem)
+add_subdirectory(language)
+add_subdirectory(runtime)

@@ -1,12 +1,9 @@
-#include <compass/story.hpp>
-#include <compass/grammar.hpp>
-#include <compass/game.hpp>
-#include <compass/iomanaging.hpp>
+#include <compass/compiler/compiler.hpp>
+#include <compass/core/story.hpp>
+#include <compass/runtime/game.hpp>
 #include <string>
 #include <fstream>
 #include <iostream>
-
-#include <compass/compiler.hpp>
 
 using namespace Compass;
 
