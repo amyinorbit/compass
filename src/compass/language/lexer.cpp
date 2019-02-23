@@ -29,6 +29,7 @@ std::string tokenNames__[] = {
 };
 
 namespace Compass {
+namespace Language {
     
     std::string Token::type() const {
         return tokenNames__[kind];
@@ -198,4 +199,5 @@ namespace Compass {
         }
         return makeToken(Token::End);
     }
+}
 }

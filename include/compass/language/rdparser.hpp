@@ -14,6 +14,7 @@
 #include <compass/language/lexer.hpp>
 
 namespace Compass {
+namespace Language {
     
     class RDParser {
     public:
@@ -48,4 +49,5 @@ namespace Compass {
     private:
         void skipUntil(Token::Kind kind);
     };
+}
 }

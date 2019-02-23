@@ -33,7 +33,7 @@ namespace Compass {
         if(!run_) return;
         auto& run = *run_;
         
-        BasicEnglish grammar;
+        Language::BasicEnglish grammar;
         auto phrase = io_.readLine();
         Sentence(story_, phrase, grammar).parse()
             .and_then(std::bind(&Game::check, this, _1))

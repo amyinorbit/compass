@@ -19,20 +19,20 @@
 namespace Compass {
 namespace Compiler {
     
-    class Compiler: public Driver {
+    class Compiler: public Language::Driver {
     public:
     
         // TODO: provide a way to give a custom filename resolver here
-        Compiler(const Path& libdir): libdir_(libdir.canonical()) {}
+        Compiler(const Filesystem::Path& libdir): libdir_(libdir.canonical()) {}
         virtual ~Compiler() {}
     
         result<Story> compile(const std::string& path);
         bool use(const std::string& libname);
-        bool include(const Path& path);
+        bool include(const Filesystem::Path& path);
     
         Sema& sema() { return sema_; }
         const Sema& sema() const { return sema_; }
-        virtual const Grammar& grammar() const { return grammar_; }
+        virtual const Language::Grammar& grammar() const { return grammar_; }
     
         virtual void error(const std::string& message);
         virtual bool isFailed() const { return error_.has_value(); }
@@ -40,13 +40,13 @@ namespace Compiler {
     private:
         using Error = std::string;
     
-        Path makePath(const std::string& name);
-        result<std::string> getFileContents(const Path& path);
+        Filesystem::Path makePath(const std::string& name);
+        result<std::string> getFileContents(const Filesystem::Path& path);
     
-        Path            libdir_;
-        BasicEnglish    grammar_;
-        Sema            sema_;
-        optional<Error> error_ = {};
+        Filesystem::Path        libdir_;
+        Language::BasicEnglish  grammar_;
+        Sema                    sema_;
+        optional<Error>         error_ = {};
     };
 }
 }

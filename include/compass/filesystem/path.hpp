@@ -11,6 +11,7 @@
 #include <string>
 
 namespace Compass {
+namespace Filesystem {
     
     class Path {
     public:
@@ -36,4 +37,5 @@ namespace Compass {
     private:
         std::string path_;
     };
+}
 }

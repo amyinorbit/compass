@@ -12,6 +12,7 @@
 #include <compass/core/utf8.h>
 
 namespace Compass {
+namespace Language {
     
     struct Token {
         enum Kind {
@@ -69,4 +70,5 @@ namespace Compass {
         codepoint_t current_;
         Token       currentToken_;
     };
+}
 }

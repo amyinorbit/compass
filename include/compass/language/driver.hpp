@@ -12,6 +12,7 @@
 #include <compass/language/grammar.hpp>
 
 namespace Compass {
+namespace Language {
     
     class Driver {
     public:
@@ -21,4 +22,5 @@ namespace Compass {
         virtual void error(const std::string& message) = 0;
         virtual bool isFailed() const = 0;
     };
+}
 }

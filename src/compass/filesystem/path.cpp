@@ -12,6 +12,7 @@
 #include <compass/filesystem/path.hpp>
 
 namespace Compass {
+namespace Filesystem {
     
     template <char D>
     class PathComponent : public std::string {};
@@ -68,4 +69,5 @@ namespace Compass {
             result += Path(c);
         return result;
     }
+}
 }

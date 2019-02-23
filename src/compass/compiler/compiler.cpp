@@ -14,7 +14,7 @@
 #include <boost/range/algorithm.hpp>
 
 namespace Compass {
-namespace Compiler{
+namespace Compiler {
     
     void Compiler::error(const std::string& message) {
         error_.emplace(message);
@@ -35,26 +35,25 @@ namespace Compiler{
         }).has_value();
     }
     
-    bool Compiler::include(const Path& path) {
+    bool Compiler::include(const Filesystem::Path& path) {
         return getFileContents(libdir_ + path).map([this](const auto& source) {
             auto invocation = Parser(source, *this);
             invocation.run();
         }).has_value();
     }
     
-    Path Compiler::makePath(const std::string& name) {
+    Filesystem::Path Compiler::makePath(const std::string& name) {
         using namespace boost::adaptors;
-        // TODO:    dear god please change that. We should at least tack on the root folder of the
-        //          "invoked" file.
+        
         std::string path;
         boost::copy(
             name | transformed([](char c) { return c == ' ' ? '-' : c; }),
             std::back_inserter(path)
         );
-        return Path(path + ".txt");
+        return Filesystem::Path(path + ".txt");
     }
     
-    result<std::string> Compiler::getFileContents(const Path& path) {
+    result<std::string> Compiler::getFileContents(const Filesystem::Path& path) {
         std::cout << "compiling: " << path.get() << "\n";
         std::ifstream in(path.get());
         if(!in.is_open()) {

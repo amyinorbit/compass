@@ -18,7 +18,7 @@
 #include <compass/core/story.hpp>
 
 namespace Compass {
-    class Sentence: public RDParser, public Driver {
+    class Sentence: public Language::RDParser, public Language::Driver {
     public:
         
         struct Command {
@@ -27,7 +27,7 @@ namespace Compass {
             std::string object;
         };
         
-        Sentence(const Story& story, const std::string& data, const Grammar& grammar);
+        Sentence(const Story& story, const std::string& data, const Language::Grammar& grammar);
         virtual ~Sentence() {}
         
         result<Command> parse();
@@ -35,10 +35,10 @@ namespace Compass {
     private:
         virtual void error(const std::string& message);
         
-        virtual const Grammar&  grammar() const { return grammar_; }
+        virtual const Language::Grammar&  grammar() const { return grammar_; }
         virtual bool isFailed() const { return error_.has_value(); }
         
-        const Grammar& grammar_;
+        const Language::Grammar& grammar_;
         const Story& story_;
         optional<std::string> error_;
     };

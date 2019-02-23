@@ -16,6 +16,8 @@
 
 namespace Compass {
 namespace Compiler {
+    
+    using namespace Compass::Language;
     using namespace std::placeholders;
     
     void Parser::run() {

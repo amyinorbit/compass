@@ -11,6 +11,8 @@
 #include <compass/runtime/sentence.hpp>
 
 namespace Compass {
+    using namespace Compass::Language;
+    
     Sentence::Sentence(const Story& story, const std::string& data, const Grammar& grammar)
         : story_(story), grammar_(grammar), RDParser(data, *this) {}
     

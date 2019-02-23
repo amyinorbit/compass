@@ -20,7 +20,7 @@ namespace Compiler {
     
     class Compiler;
     
-    class Parser: public RDParser {
+    class Parser: public Language::RDParser {
     public:
         Parser(const std::string& source, Compiler& driver)
             : RDParser(source, driver) {}
