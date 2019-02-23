@@ -33,28 +33,38 @@ namespace Compass {
     };
     
     struct Relation {
-        enum Kind { In, On, Under };
+        enum Kind: std::uint8_t {
+            In      = 0x01,
+            On      = 0x02,
+            Under   = 0x03
+        };
         
         Kind            kind;
         std::string     id;
     };
     
     struct Action {
-        enum Kind { Native, Bytecode };
+        enum Kind: std::uint8_t {
+            Native      = 0x01,
+            Bytecode    = 0x02
+        };
         
         Kind                    kind;
         std::string             verb;
-        std::uint32_t           bytecode[BYTECODE_MAX];
+        //std::uint32_t           bytecode[BYTECODE_MAX];
     };
     
     // MARK: - Entities
     
     struct Entity {
-        enum Kind { Place, Thing, Unknown };
+        enum Kind: std::uint8_t {
+            Place   = 0x01,
+            Thing   = 0x02
+        };
         
         using RelationList = std::map<std::string, Relation::Kind>;
         
-        Kind                    kind            = Unknown;
+        Kind                    kind            = Place;
         std::string             id              = "";
         
         bool                    isSeen          = false;
@@ -77,6 +87,11 @@ namespace Compass {
     // The story structure binds a whole thing together
     class Story {
     public:
+        
+        using StringPool = std::vector<std::string>;
+        using VerbTable = std::map<std::string, Verb::Kind>;
+        using DirectionTable = std::set<std::string>;
+        
         Story();
         
         std::string uniqueID(const std::string& name) const;
@@ -91,15 +106,19 @@ namespace Compass {
         StringID intern(const std::string& str) const;
         const std::string& string(StringID id) const;
         
-        Context                             prototype;
-        optional<std::string>               author;
-        optional<std::string>               title;
+        const StringPool& strings() const { return strings_; }
+        const DirectionTable& directions() const { return directions_; }
+        const VerbTable& verbs() const { return verbs_; }
+        
+        Context                 prototype;
+        optional<std::string>   author;
+        optional<std::string>   title;
     private:
         friend class Semantics;
         
         // The string pool is mutable to allow const-qualified intern
-        mutable std::vector<std::string>    strings_;
-        std::set<std::string>               directions_;
-        std::map<std::string, Verb::Kind>   verbs_;
+        mutable StringPool      strings_;
+        DirectionTable          directions_;
+        VerbTable               verbs_;
     };
 }

@@ -20,6 +20,6 @@ namespace Compass {
     //     const Story& story_;
     // };
     
-    std::ostream& operator<<(std::ostream& out, Story& writer);
+    void write(std::ostream& out, const Story& story);
 }
 

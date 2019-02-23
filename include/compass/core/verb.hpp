@@ -8,17 +8,21 @@
 // =^•.•^=
 //===--------------------------------------------------------------------------------------------===
 #pragma once
+#include <cstdint>
 #include <string>
 #include <compass/core/functional.hpp>
 
 namespace Compass {
     
     struct Verb {
-        enum Kind {
-            // Those are basic actions that any game gets by default. Dealt with by the engine.
-            Go, Look, Take, Drop, Inventory,
-            // These are custom actions, defined by the story and compiled to bytecode
-            StoryCode, CustomCode,
+        enum Kind: std::uint8_t  {
+            Go          = 0x01,
+            Look        = 0x02,
+            Take        = 0x03,
+            Drop        = 0x04,
+            Inventory   = 0x05,
+            StoryCode   = 0x06,
+            CustomCode  = 0x07,
         };
         
         Kind        kind;

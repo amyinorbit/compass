@@ -23,10 +23,35 @@ namespace Compass {
         Str     = 0b00100000,
         StrID   = 0b00100001,
         StrData = 0b00100010,
-        
-        Entity  = 0b01000000,
-        Thing   = 0b01000001,
-        Place   = 0b01000010,
     };
     
+    enum class Section: std::uint8_t {
+        Metadata    = 0x70,
+        StringPool  = 0x71,
+        Directions  = 0x72,
+        Verbs       = 0x73,
+        Entities    = 0x74,
+        Entity      = 0x75,
+        Container   = 0x76,
+        Things      = 0x77,
+        Links       = 0x78,
+        Actions     = 0x79,
+        
+        Start       = 0x7e,
+        End         = 0x7f,
+    };
+    
+    enum class Marker: std::uint8_t {
+        EntityKind  = 0x80,
+        RelationKind= 0x81,
+        ActionKind  = 0x82,
+        VerbKind    = 0x83,
+    };
+    
+    enum class Metadata: std::uint8_t {
+        Title       = 0x01,
+        Author      = 0x02,
+        ComVersion  = 0x03,
+        Date        = 0x04,
+    };
 }

@@ -1,5 +1,6 @@
 #include <compass/compiler/compiler.hpp>
 #include <compass/core/story.hpp>
+#include <compass/core/file.hpp>
 #include <compass/runtime/game.hpp>
 #include <string>
 #include <fstream>
@@ -34,6 +35,12 @@ result<Story> compile(const std::string& path) {
 }
 
 void runGame(Story story) {
+    std::ofstream out("out.compass", std::ios::binary);
+    //if(out.is_open()) write(out, story);
+        // out << story;
+    write(out, story);
+    out.flush();
+    
     Runtime::Game game(story, io);
     game.start();
     for(;;) game.update();
