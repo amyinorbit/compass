@@ -15,8 +15,7 @@
 #include <compass/language/grammar.hpp>
 #include <compass/language/rdparser.hpp>
 
-namespace Compass {
-namespace Compiler {
+namespace Compass::Compiler {
     
     class Compiler;
     
@@ -66,5 +65,4 @@ namespace Compiler {
         Compiler& compiler() { return reinterpret_cast<Compiler&>(driver); }
         const Compiler& compiler() const { return reinterpret_cast<const Compiler&>(driver); }
     };
-}
 }

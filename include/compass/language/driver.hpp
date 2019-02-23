@@ -11,8 +11,7 @@
 #include <compass/core/functional.hpp>
 #include <compass/language/grammar.hpp>
 
-namespace Compass {
-namespace Language {
+namespace Compass::Language {
     
     class Driver {
     public:
@@ -22,5 +21,4 @@ namespace Language {
         virtual void error(const std::string& message) = 0;
         virtual bool isFailed() const = 0;
     };
-}
 }

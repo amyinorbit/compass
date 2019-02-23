@@ -11,8 +11,7 @@
 #include <compass/language/driver.hpp>
 #include <compass/language/rdparser.hpp>
 
-namespace Compass {
-namespace Language {
+namespace Compass::Language {
     
     RDParser::RDParser(const std::string& data, Driver& driver)
         : lexer(data), driver(driver) {}
@@ -104,5 +103,4 @@ namespace Language {
         while(have(Token::Word) && !haveBeing() && !have(stop)) str += " " + eat();
         return str;
     }
-}
 }

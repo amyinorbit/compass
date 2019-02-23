@@ -14,8 +14,7 @@
 #include <compass/compiler/sema.hpp>
 #include <compass/core/string.hpp>
 
-namespace Compass {
-namespace Compiler {
+namespace Compass::Compiler {
     
     using namespace Compass::Language;
     using namespace std::placeholders;
@@ -229,5 +228,4 @@ namespace Compiler {
     bool Parser::haveDirection() const {
         return compiler().sema().isDirection(text());
     }
-}
 }

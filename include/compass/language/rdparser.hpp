@@ -13,8 +13,7 @@
 #include <compass/language/grammar.hpp>
 #include <compass/language/lexer.hpp>
 
-namespace Compass {
-namespace Language {
+namespace Compass::Language {
     
     class RDParser {
     public:
@@ -49,5 +48,4 @@ namespace Language {
     private:
         void skipUntil(Token::Kind kind);
     };
-}
 }

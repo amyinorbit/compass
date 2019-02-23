@@ -10,8 +10,7 @@
 #pragma once
 #include <string>
 
-namespace Compass {
-namespace Filesystem {
+namespace Compass::Filesystem {
     
     class Path {
     public:
@@ -37,5 +36,4 @@ namespace Filesystem {
     private:
         std::string path_;
     };
-}
 }

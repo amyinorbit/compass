@@ -12,8 +12,7 @@
 #include <compass/core/story.hpp>
 #include <compass/core/verb.hpp>
 
-namespace Compass {
-namespace Compiler{
+namespace Compass::Compiler {
     
     struct Noun {
         optional<std::string> article;
@@ -72,5 +71,4 @@ namespace Compiler{
         Story                           story_;
         
     };
-}
 }

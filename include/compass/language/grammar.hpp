@@ -11,8 +11,7 @@
 #include <string>
 #include <set>
 
-namespace Compass {
-namespace Language {
+namespace Compass::Language {
     
     class Grammar {
     public:
@@ -46,5 +45,4 @@ namespace Language {
         static const std::set<std::string> prepositions_;
         static const std::set<std::string> conjunctions_;
     };
-}
 }

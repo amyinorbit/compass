@@ -13,8 +13,7 @@
 #include <boost/range/adaptors.hpp>
 #include <boost/range/algorithm.hpp>
 
-namespace Compass {
-namespace Compiler {
+namespace Compass::Compiler {
     
     void Compiler::error(const std::string& message) {
         error_.emplace(message);
@@ -61,5 +60,4 @@ namespace Compiler {
         }
         return std::string(std::istreambuf_iterator<char>(in), {});
     }
-}
 }

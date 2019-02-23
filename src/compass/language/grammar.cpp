@@ -11,8 +11,7 @@
 #include <compass/core/string.hpp>
 #include <compass/language/grammar.hpp>
 
-namespace Compass {
-namespace Language {
+namespace Compass::Language {
      
      template <typename T>
      bool contains(const std::set<T>& set, const T& key) {
@@ -79,5 +78,4 @@ namespace Language {
         }
         return false;
     }
-}
 }

@@ -16,8 +16,7 @@
 #include <compass/language/grammar.hpp>
 #include <compass/filesystem/path.hpp>
 
-namespace Compass {
-namespace Compiler {
+namespace Compass::Compiler {
     
     class Compiler: public Language::Driver {
     public:
@@ -48,5 +47,4 @@ namespace Compiler {
         Sema                    sema_;
         optional<Error>         error_ = {};
     };
-}
 }
