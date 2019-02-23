@@ -9,11 +9,10 @@
 //===--------------------------------------------------------------------------------------------===
 #include <algorithm>
 #include <compass/runtime/game.hpp>
-//#include <compass/language/grammar.hpp>
 #include <boost/range/adaptors.hpp>
 #include <boost/range/algorithm.hpp>
 
-namespace Compass {
+namespace Compass::Runtime {
     
     void Game::start() {
         run_.emplace(story_);

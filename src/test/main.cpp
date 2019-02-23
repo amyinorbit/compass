@@ -34,7 +34,7 @@ result<Story> compile(const std::string& path) {
 }
 
 void runGame(Story story) {
-    Game game(story, io);
+    Runtime::Game game(story, io);
     game.start();
     for(;;) game.update();
 }

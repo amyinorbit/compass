@@ -14,7 +14,7 @@
 #include <compass/runtime/run.hpp>
 #include <compass/runtime/sentence.hpp>
 
-namespace Compass {
+namespace Compass::Runtime {
     
     class Game {
     public:

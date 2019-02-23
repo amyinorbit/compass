@@ -17,7 +17,7 @@
 #include <compass/core/functional.hpp>
 #include <compass/core/story.hpp>
 
-namespace Compass {
+namespace Compass::Runtime {
     class Sentence: public Language::RDParser, public Language::Driver {
     public:
         

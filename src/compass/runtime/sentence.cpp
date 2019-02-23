@@ -10,7 +10,7 @@
 #include <iostream>
 #include <compass/runtime/sentence.hpp>
 
-namespace Compass {
+namespace Compass::Runtime {
     using namespace Compass::Language;
     
     Sentence::Sentence(const Story& story, const std::string& data, const Grammar& grammar)

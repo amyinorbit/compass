@@ -10,7 +10,7 @@
 #pragma once
 #include <compass/core/story.hpp>
 
-namespace Compass {
+namespace Compass::Runtime {
     class Run {
     public:
         Run(const Story& story);

@@ -11,7 +11,7 @@
 #include <cassert>
 #include <compass/runtime/run.hpp>
 
-namespace Compass {
+namespace Compass::Runtime {
     
     Run::Run(const Story& story) : story_(story) {
         ctx_ = story.prototype;
