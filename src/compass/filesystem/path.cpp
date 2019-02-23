@@ -9,6 +9,7 @@
 //===--------------------------------------------------------------------------------------------===
 #include <vector>
 #include <sstream>
+#include <iterator>
 #include <compass/filesystem/path.hpp>
 
 namespace Compass::Filesystem {
@@ -30,7 +31,7 @@ namespace Compass::Filesystem {
         return *this;
     }
     
-    Path& Path::operator+=(const Path& other) {
+    Path& Path::operator/=(const Path& other) {
         // TODO: this probably isn't sufficient. What happens if you try to add /Users + /hello? 
         if(path_.size())
             path_ += Path::separator + other.path_;
@@ -39,8 +40,8 @@ namespace Compass::Filesystem {
         return *this;
     }
     
-    const Path Path::operator+(const Path& other) {
-        return Path(*this) += other;
+    const Path Path::operator/(const Path& other) {
+        return Path(*this) /= other;
     }
     
     Path Path::canonical() const {
@@ -65,7 +66,7 @@ namespace Compass::Filesystem {
         
         Path result;
         for(const auto& c: components)
-            result += Path(c);
+            result /= Path(c);
         return result;
     }
 }

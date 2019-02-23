@@ -27,8 +27,8 @@ namespace Compass::Filesystem {
         Path& operator=(const Path& other);
         
         // MARK: - Path combination
-        Path& operator+=(const Path& other);
-        const Path operator+(const Path& other);
+        Path& operator/=(const Path& other);
+        const Path operator/(const Path& other);
         
         Path canonical() const;
         

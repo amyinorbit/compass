@@ -28,14 +28,14 @@ namespace Compass::Compiler {
     }
     
     bool Compiler::use(const std::string& libname) {
-        return getFileContents(libdir_ + makePath(libname)).map([this](const auto& source) {
+        return getFileContents(libdir_/makePath(libname)).map([this](const auto& source) {
             auto invocation = Parser(source, *this);
             invocation.run();
         }).has_value();
     }
     
     bool Compiler::include(const Filesystem::Path& path) {
-        return getFileContents(libdir_ + path).map([this](const auto& source) {
+        return getFileContents(libdir_/path).map([this](const auto& source) {
             auto invocation = Parser(source, *this);
             invocation.run();
         }).has_value();
