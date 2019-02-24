@@ -9,17 +9,12 @@
 //===--------------------------------------------------------------------------------------------===
 #pragma once
 #include <iostream>
+#include <compass/core/functional.hpp>
 #include <compass/core/story.hpp>
 
 namespace Compass {
     
-    // struct StoryWriter {
-    //     StoryWriter(const Story& story) : story_(story) {}
-    //     friend std::ostream& operator<<(std::ostream& out, StoryWriter& writer);
-    // private:
-    //     const Story& story_;
-    // };
-    
+    result<Story> load(std::istream& in);
     void write(std::ostream& out, const Story& story);
+    
 }
-

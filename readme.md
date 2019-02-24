@@ -11,8 +11,7 @@ Compass is an experimental engine for interactive fiction. It's heavily inspired
 - [x] project structure overhaul
 - [ ] compilation/loader system
 	- [x] basic types writing
-	- [ ] overhaul id/link system for something more stable (handles?)
-	- [ ] file writing
+	- [x] file writing
 	- [ ] file reading
 - [ ] properties system
 - [ ] better game loop architecture

@@ -115,6 +115,7 @@ namespace Compass {
         optional<std::string>   title;
     private:
         friend class Semantics;
+        friend class Loader;
         
         // The string pool is mutable to allow const-qualified intern
         mutable StringPool      strings_;

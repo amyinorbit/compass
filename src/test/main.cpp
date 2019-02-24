@@ -35,11 +35,19 @@ result<Story> compile(const std::string& path) {
 }
 
 void runGame(Story story) {
-    std::ofstream out("out.compass", std::ios::binary);
-    //if(out.is_open()) write(out, story);
-        // out << story;
-    write(out, story);
-    out.flush();
+    {
+        std::ofstream out("out.compass", std::ios::binary);
+        write(out, story);
+    }
+    
+    {
+        std::ifstream in("out.compass", std::ios::binary);
+        load(in).map([](auto story2) {
+            std::cout << *story2.title << " by " << *story2.author << "\n";
+        }).map_error([](auto e){
+            std::cout << "loader error: " << e << "\n";
+        });
+    }
     
     Runtime::Game game(story, io);
     game.start();
