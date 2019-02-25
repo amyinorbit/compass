@@ -187,10 +187,16 @@ namespace Compass {
     }
     
     result<Entity> Loader::recEntity() {
-        if(!match(Section::Entity)) return make_unexpected("missing entity record");
-        if(!match(Section::Start)) return make_unexpected("malformed entity record");
-        
         Entity e;
+        
+        if(match(Section::Place))
+            e.kind = Entity::Place;
+        else if(match(Section::Thing))
+            e.kind = Entity::Thing;
+        else
+            return make_unexpected("missing entity record");
+        
+        if(!match(Section::Start)) return make_unexpected("malformed entity record");
         
         if(!assign(e.id, readString())) return make_unexpected("unable to read id");
         if(!assign(e.article, readStringID()))  return make_unexpected("unable to read article");
@@ -206,7 +212,6 @@ namespace Compass {
             e.container = {};
         }
         
-        std::cout << "[Read in: " << e.id << "]\n";
         // Read things
         {
             if(!match(Section::Things)) return make_unexpected("missing things table");
@@ -236,6 +241,7 @@ namespace Compass {
             }
 
             if(!match(Section::End)) return make_unexpected("malformed actions table");
+            std::cout << "[read in: " << e.id << "]\n";
         }
         
         // Read links

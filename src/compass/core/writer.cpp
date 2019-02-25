@@ -103,7 +103,11 @@ namespace Compass {
     }
     
     static void write(std::ostream& out, const Entity& e) {
-        startSection(out, Section::Entity);
+        switch(e.kind) {
+            case Entity::Thing: startSection(out, Section::Thing); break;
+            case Entity::Place: startSection(out, Section::Place); break;
+        }
+        
         writeString(out, e.id);
         writeStringID(out, e.article);
         writeStringID(out, e.name);

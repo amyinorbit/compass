@@ -64,7 +64,10 @@ namespace Compass {
             if(failed()) return false;
             char test;
             if(!in_.get(test)) return false;
-            return static_cast<T>(test) == tag;
+            auto v = static_cast<T>(test);
+            if(v == tag) return true;
+            in_.putback(test);
+            return false;
         }
         
         void error(const std::string& msg) { error_ = msg; }
