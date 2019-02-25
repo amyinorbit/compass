@@ -14,7 +14,7 @@
 
 namespace Compass {
     
-    result<Story> load(std::istream& in);
-    void write(std::ostream& out, const Story& story);
+    result<Story> loadStory(std::istream& in);
+    void writeStory(std::ostream& out, const Story& story);
     
 }

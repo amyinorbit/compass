@@ -242,7 +242,6 @@ namespace Compass {
             }
 
             if(!match(Section::End)) return make_unexpected("malformed actions table");
-            std::cout << "[read in: " << e.id << "]\n";
         }
         
         // Read links
@@ -317,7 +316,7 @@ namespace Compass {
         return story_;
     }
     
-    result<Story> load(std::istream& in) {
+    result<Story> loadStory(std::istream& in) {
         return Loader(in).load();
     }
 }

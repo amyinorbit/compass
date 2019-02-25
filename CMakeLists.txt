@@ -6,7 +6,7 @@ set(CMAKE_CXX_STANDARD_REQUIRED ON)
 set(CMAKE_C_STANDARD 99)
 set(CMAKE_C_STANDARD_REQUIRED ON)
 
-set(DEV_VERSION_POSTFIX "dr8")
+set(DEV_VERSION_POSTFIX "dr9")
 set(REL_VERSION_POSTFIX "r1")
 
 set(PRODUCT_DIR "${CMAKE_SOURCE_DIR}/product")
@@ -28,7 +28,9 @@ configure_file(${VERSION_TPL} ${VERSION_OUT})
 
 find_package(Boost REQUIRED)
 include_directories(${PROJECT_SOURCE_DIR}/include ${Boost_INCLUDE_DIRS})
-add_subdirectory(src)
+
+add_subdirectory(lib)
+add_subdirectory(bin)
 
 add_custom_target(run
     COMMAND compass-run

@@ -30,6 +30,7 @@ namespace Compass::Filesystem {
         Path& operator/=(const Path& other);
         const Path operator/(const Path& other);
         
+        Path directory() const;
         Path canonical() const;
         
         const std::string& get() const { return path_; }

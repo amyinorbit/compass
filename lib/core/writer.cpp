@@ -150,7 +150,7 @@ namespace Compass {
         endSection(out);
     }
     
-    void write(std::ostream& out, const Story& story) {
+    void writeStory(std::ostream& out, const Story& story) {
         const char signature[] = "AAPCMPS";
         out.write(signature, 7);
         

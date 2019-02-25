@@ -1,0 +1,5 @@
+{
+    "story_source": "example.txt",
+    "libraries_dir": "libraries",
+    "output": "example.compass"
+}

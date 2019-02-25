@@ -44,6 +44,33 @@ namespace Compass::Filesystem {
         return Path(*this) /= other;
     }
     
+    Path Path::directory() const {
+        std::istringstream iss(path_);
+        auto current = std::istream_iterator<PathComponent<separator>>(iss);
+        auto end = std::istream_iterator<PathComponent<separator>>();
+        
+        std::vector<std::string> components;
+        
+        for(;;) {
+            const auto& component = *(current++);
+            if(current == end) break;
+            
+            if(!component.size()) continue;
+            if(component == ".") continue;
+            if(component == "..") {
+                if(components.size()) components.pop_back();
+                continue;
+            }
+            
+            components.push_back(component);
+        }
+        
+        Path result;
+        for(const auto& c: components)
+            result /= Path(c);
+        return result;
+    }
+    
     Path Path::canonical() const {
         std::istringstream iss(path_);
         auto current = std::istream_iterator<PathComponent<separator>>(iss);
