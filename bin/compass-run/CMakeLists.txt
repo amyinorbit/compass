@@ -1,5 +1,5 @@
 add_executable(compass-run main.cpp)
-target_link_libraries(compass-run CompassCore CompassLanguage CompassRuntime)
+target_link_libraries(compass-run CompassCore CompassRuntime)
 
 install(TARGETS compass-run DESTINATION ${CMAKE_SYSTEM_NAME})
 #install(FILES "${EXAMPLE_ASSET}" DESTINATION "${CMAKE_INSTALL_PREFIX}/${CMAKE_SYSTEM_NAME}")
