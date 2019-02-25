@@ -15,14 +15,6 @@ result<std::string> getPath(StreamIO& io) {
     return path;
 }
 
-result<std::string> readSource(const std::string& path) {
-    std::ifstream in(path);
-    if(!in.is_open()) {
-        return make_unexpected("unable to open file '" + path + "'");
-    }
-    return std::string(std::istreambuf_iterator<char>(in), {});
-}
-
 result<Story> loadFile(const std::string& path) {
     std::ifstream in(path, std::ios::binary);
     if(!in.is_open()) return make_unexpected("cannot open story file " + path);
@@ -41,6 +33,6 @@ int main(int argc, const char** args) {
         .and_then(loadFile)
         .map(runGame)
         .map_error([](const auto& error) -> void {
-            std::cerr << "error: " << error << "\n";
+            io.println("error: " + error + "\n");
         });
 }
