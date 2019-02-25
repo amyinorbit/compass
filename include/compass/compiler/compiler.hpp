@@ -18,11 +18,15 @@
 
 namespace Compass::Compiler {
     
+    using Language::Diagnostic;
+    using Language::DiagnosticsConsumer;
+    
     class Compiler: public Language::Driver {
     public:
     
         // TODO: provide a way to give a custom filename resolver here
-        Compiler(const Filesystem::Path& libdir): libdir_(libdir.canonical()) {}
+        Compiler(const Filesystem::Path& libdir, DiagnosticsConsumer consumer)
+            : libdir_(libdir.canonical()), consumer_(consumer), sema_(*this) {}
         virtual ~Compiler() {}
     
         result<Story> compile(const std::string& path);
@@ -34,6 +38,7 @@ namespace Compass::Compiler {
         virtual const Language::Grammar& grammar() const { return grammar_; }
     
         virtual void error(const std::string& message);
+        virtual void diagnostic(const Language::Diagnostic& diag);
         virtual bool isFailed() const { return error_.has_value(); }
     
     private:
@@ -41,8 +46,9 @@ namespace Compass::Compiler {
     
         Filesystem::Path makePath(const std::string& name);
         result<std::string> getFileContents(const Filesystem::Path& path);
-    
+        
         Filesystem::Path        libdir_;
+        DiagnosticsConsumer     consumer_;
         Language::BasicEnglish  grammar_;
         Sema                    sema_;
         optional<Error>         error_ = {};

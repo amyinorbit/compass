@@ -11,8 +11,12 @@
 #include <compass/core/functional.hpp>
 #include <compass/core/story.hpp>
 #include <compass/core/verb.hpp>
+#include <compass/language/driver.hpp>
 
 namespace Compass::Compiler {
+    
+    using Language::Diagnostic;
+    using Language::Driver;
     
     struct Noun {
         optional<std::string> article;
@@ -26,7 +30,7 @@ namespace Compass::Compiler {
         
         enum Property { Locked, None };
         
-        Sema();
+        Sema(Driver& driver);
         
         void setTitle(const string& title);
         void setAuthor(const string& author);
@@ -56,6 +60,8 @@ namespace Compass::Compiler {
         struct FutureLink { string from, to, direction; };
         struct Direction { string direction; optional<string> opposite; };
         
+        void info(const string& message);
+        void progress(const string& message);
         void error(const string& message);
         
         result<string> get(optional<string> entity);
@@ -69,6 +75,8 @@ namespace Compass::Compiler {
         std::map<std::string, Verb>     verbs_;
         
         Story                           story_;
+        
+        Driver&                         driver_;
         
     };
 }

@@ -29,13 +29,20 @@ namespace Compass {
         return *this;
     }
     
+    std::string pastOf(const std::string& root) {
+        if(!root.size()) return "";
+        if(root.back() == 'e')
+            return root + "d";
+        return root + "ed";
+    }
+    
     Verb VerbBuilder::make(Verb::Kind kind) {
         Verb verb;
         verb.kind = kind;
         verb.present = present_;
         
-        verb.past = *past_.disjunction(present_ + "ed");
-        verb.participle = *participle_.disjunction(present_ + "ed");
+        verb.past = *past_.disjunction(pastOf(present_));
+        verb.participle = *participle_.disjunction(pastOf(present_));
         verb.infinitive = *infinitive_.disjunction(present_ + "ing");
         
         return verb;

@@ -9,6 +9,7 @@
 //===--------------------------------------------------------------------------------------------===
 #pragma once
 #include <compass/core/functional.hpp>
+#include <compass/language/diagnostics.hpp>
 #include <compass/language/grammar.hpp>
 
 namespace Compass::Language {
@@ -18,6 +19,7 @@ namespace Compass::Language {
         virtual ~Driver() {}
         
         virtual const Grammar& grammar() const = 0;
+        virtual void diagnostic(const Diagnostic& diag) = 0;
         virtual void error(const std::string& message) = 0;
         virtual bool isFailed() const = 0;
     };

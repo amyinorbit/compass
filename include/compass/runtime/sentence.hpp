@@ -18,6 +18,8 @@
 #include <compass/core/story.hpp>
 
 namespace Compass::Runtime {
+    using Language::Diagnostic;
+    
     class Sentence: public Language::RDParser, public Language::Driver {
     public:
         
@@ -34,6 +36,7 @@ namespace Compass::Runtime {
         
     private:
         virtual void error(const std::string& message);
+        virtual void diagnostic(const Diagnostic& diag) {}
         
         virtual const Language::Grammar&  grammar() const { return grammar_; }
         virtual bool isFailed() const { return error_.has_value(); }

@@ -41,6 +41,29 @@ bool assign(const json& manifest, Filesystem::Path& v, const std::string& key) {
     return true;
 }
 
+using Language::Diagnostic;
+
+void printDiagnostics(const Diagnostic& diag) {
+    switch(diag.level()) {
+    case Diagnostic::Progress:
+        std::cout << "[" << diag.title() << "]" << std::endl;
+        break;
+        
+    case Diagnostic::Info:
+        std::cout << " * " << diag.title() << std::endl;
+        break;
+        
+    case Diagnostic::Error:
+        std::cout << "***" << std::endl;
+        std::cout << "[error: " << diag.title() << "]" << std::endl;
+        if(diag.message()) {
+            std::cout << "***" << std::endl;
+            std::cout << *diag.message() << std::endl;
+        }
+        break;
+    }
+}
+
 result<Params> getParams(int argc, const char** argv) {
     if(argc != 2) return make_unexpected("invalid parameters");
     
@@ -69,7 +92,7 @@ result<Params> getParams(int argc, const char** argv) {
 }
 
 result<Output> compile(Params params) {
-    Compiler::Compiler compiler(params.lib);
+    Compiler::Compiler compiler(params.lib, &printDiagnostics);
     compiler.include(Filesystem::Path("standard.txt"));
     return compiler.compile(params.in.get()).map([&](const auto& story) {
         return Output{story, params.out};

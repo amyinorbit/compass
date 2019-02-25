@@ -14,7 +14,9 @@
 
 namespace Compass::Compiler {
     
-    Sema::Sema() {
+    using Language::Diagnostic;
+    
+    Sema::Sema(Driver& driver) : driver_(driver) {
         declareVerb(VerbBuilder("go").past("went").participle("gone").infinitive("going").make(Verb::Go));
         declareVerb(VerbBuilder("walk").make(Verb::Go));
         declareVerb(VerbBuilder("look").make(Verb::Look));
@@ -88,7 +90,7 @@ namespace Compass::Compiler {
             e.actions.push_back(action);
             
         }).map_error([this](auto msg) {
-            this->error("ADD_VERB/" + msg);
+            error(msg);
         });
     }
     
@@ -113,7 +115,7 @@ namespace Compass::Compiler {
         entities_[id] = e;
         
         current_ = id;
-        std::cout << "* declared: " << name.text << "\n";
+        info(name.text + (e.kind == Entity::Place ? "(room)" : "(thing)"));
     }
     
     void Sema::setDescription(const string& text) {
@@ -122,7 +124,7 @@ namespace Compass::Compiler {
             e.description = story_.intern(text);
             
         }).map_error([this,&text](auto msg) {
-            this->error("SET_DESCRIPTION/" + msg);
+            error(msg);
         });
     }
     
@@ -138,7 +140,7 @@ namespace Compass::Compiler {
             });
             
         }).map_error([this,&to](auto msg) {
-            this->error("ADD_LOCATION/" + msg);
+            error(msg);
         });
     }
     
@@ -149,62 +151,70 @@ namespace Compass::Compiler {
             e.container = Relation{where, story_.uniqueID(container)};
             
         }).map_error([this,&container](auto msg) {
-            this->error("SET_CONTAINER/" + msg);
+            error(msg);
         });
     }
     
     result<Story> Sema::resolve() {
         if(!start_) return make_unexpected("I need at least one room to make a story");
-        
+        progress("checking room relationships");
         for(const auto& link: links_) {
         
             const auto fromIt = entities_.find(link.from);
             const auto toIt = entities_.find(link.to);
             
             if(fromIt == entities_.end()) {
-                return make_unexpected(
-                    "I can't make a link from " + link.from + " to " + link.to
-                    + " because " + link.from + " isn't a room"
-                );
+                std::string e = "I can't make a link from " + link.from + " to " + link.to
+                                + " because " + link.from + " isn't a room";
+                error(e);
+                return make_unexpected(e);
             }
             
             if(fromIt->second.kind != Entity::Place)
                 return make_unexpected(fromIt->second.id + " is a thing, not a place");
             
             if(toIt == entities_.end()) {
-                return make_unexpected(
-                    "I can't make a link from " + link.from + " to " + link.to
-                    + " because " + link.to + " isn't a room"
-                );
+                std::string e = "I can't make a link from " + link.from + " to " + link.to
+                                + " because " + link.to + " isn't a room";
+                error(e);
+                return make_unexpected(e);
             }
             
-            if(toIt->second.kind != Entity::Place)
+            if(toIt->second.kind != Entity::Place) {
+                error(fromIt->second.id + " is a thing, not a place");
                 return make_unexpected(fromIt->second.id + " is a thing, not a place");
+            }
             
             entities_.at(link.from).links.push_back(Link{link.to, link.direction});
             if(!hasOppositeDirection(link.direction)) continue;
             entities_.at(link.to).links.push_back(Link{link.from, oppositeDirection(link.direction)});
         }
         
+        progress("building container relationships");
         for(const auto& pair: entities_) {
             if(pair.second.kind != Entity::Thing) continue;
-            if(!pair.second.container)
+            if(!pair.second.container) {
+                error(pair.second.id + " does not have a container");
                 return make_unexpected(pair.second.id + " does not have a container");
+            }
+                
             
             const auto& thing = pair.second;
             
             auto it = entities_.find(thing.container->id);
-            std::cout << " * contain: " << thing.container->id << "<-" << thing.id << "\n";
-            if(it == entities_.end())
+            
+            info(thing.container->id + " <- " + thing.id);
+            if(it == entities_.end()) {
+                error("cannot put " +thing.id + " in a container that does not exist");
                 return make_unexpected("cannot put thing in a container that does not exist");
+            }
+               
             //it->second.things.insert(thing.id);
             it->second.things[thing.id] = thing.container->kind;
         }
         
         for(const auto& pair: verbs_) {
-            std::cout << "~ " << pair.second.present;
-            std::cout << ", " << pair.second.past;
-            std::cout << ", " << pair.second.participle << "\n";
+            info("verb: " + pair.second.present + ", " + pair.second.past + ", " + pair.second.participle);
             story_.addVerb(pair.second.present, pair.second.kind);
         }
         
@@ -213,8 +223,16 @@ namespace Compass::Compiler {
         return story_;
     }
     
+    void Sema::info(const string& message) {
+        driver_.diagnostic(Diagnostic(Diagnostic::Info, message));
+    }
+    
+    void Sema::progress(const string& message) {
+        driver_.diagnostic(Diagnostic(Diagnostic::Progress, message));
+    }
+    
     void Sema::error(const string& message) {
-        std::cerr << "[SEMA]: " << message << "\n";
+        driver_.diagnostic(Diagnostic(Diagnostic::Error, message));
     }
     
     result<Sema::string> Sema::get(optional<string> entity) {

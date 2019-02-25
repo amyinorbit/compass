@@ -149,7 +149,7 @@ namespace Compass::Runtime {
         
         const auto& place = run.current();
         
-        text += "# " + story_.string(place.name) + "\n";
+        text += "[" + story_.string(place.name) + "]\n";
         text += story_.string(place.description) + "\n";
         
         if(!detailed) return text;

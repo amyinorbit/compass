@@ -17,9 +17,15 @@ namespace Compass::Compiler {
     
     void Compiler::error(const std::string& message) {
         error_.emplace(message);
+        diagnostic(Diagnostic(Diagnostic::Error, message));
+    }
+    
+    void Compiler::diagnostic(const Diagnostic& diag) {
+        consumer_(diag);
     }
     
     result<Story> Compiler::compile(const std::string& path) {
+        consumer_(Diagnostic(Diagnostic::Progress, "compiling '" + path + "'"));
         return getFileContents(path).and_then([this](const auto& source) {
             auto invocation = Parser(source, *this);
             invocation.run();
@@ -28,13 +34,11 @@ namespace Compass::Compiler {
     }
     
     bool Compiler::use(const std::string& libname) {
-        return getFileContents(libdir_/makePath(libname)).map([this](const auto& source) {
-            auto invocation = Parser(source, *this);
-            invocation.run();
-        }).has_value();
+        return include(libdir_/makePath(libname));
     }
     
     bool Compiler::include(const Filesystem::Path& path) {
+        consumer_(Diagnostic(Diagnostic::Progress, "compiling '" + path.get() + "'"));
         return getFileContents(libdir_/path).map([this](const auto& source) {
             auto invocation = Parser(source, *this);
             invocation.run();
@@ -53,7 +57,6 @@ namespace Compass::Compiler {
     }
     
     result<std::string> Compiler::getFileContents(const Filesystem::Path& path) {
-        std::cout << "compiling: " << path.get() << "\n";
         std::ifstream in(path.get());
         if(!in.is_open()) {
             return make_unexpected("unable to open file '" + path.get() + "'");
