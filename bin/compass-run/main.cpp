@@ -36,7 +36,7 @@ void runGame(const Story& story) {
 }
 
 int main(int argc, const char** args) {
-    io.println("Compass Runtime " COMPASS_VERSION_STRING " by Amy Alex Parent Parent");
+    io.println("Compass Runtime " COMPASS_VERSION_STRING " by Amy Alex Parent");
     getPath(io)
         .and_then(loadFile)
         .map(runGame)

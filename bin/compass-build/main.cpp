@@ -85,7 +85,7 @@ result<void> writeResults(Output out) {
 
 
 int main(int argc, const char** argv) {
-    io.println("Compass Compiler " COMPASS_VERSION_STRING " by Amy Alex Parent Parent");
+    io.println("Compass Compiler " COMPASS_VERSION_STRING " by Amy Alex Parent");
     getParams(argc, argv)
         .and_then(compile)
         .and_then(writeResults)
