@@ -74,7 +74,7 @@ namespace Compass::Compiler {
     void Parser::recThereSentence() {
         expect("there");
         expectBeing();
-        auto thing = recNoun();
+        auto thing = recNoun({"in", "on", "under"});
         compiler().sema().declare(Entity::Thing, thing);
         recRelRelation();
     }
@@ -213,13 +213,30 @@ namespace Compass::Compiler {
     
     Noun Parser::recNoun() {
         Noun noun{{}, ""};
-        if(have(Grammar::Definite) | have(Grammar::Indefinite)) {
+        if(have(Grammar::Definite) || have(Grammar::Indefinite)) {
             noun.article = String::toLower(eat());
         }
         noun.text = text();
         expect(Token::Word);
         
-        while(have(Token::Word) && !haveBeing() && !have(Grammar::Preposition) && !have("and")) {
+        while(have(Token::Word) && !haveBeing() && !have("and")) {
+            noun.text += " " + eat();
+        }
+        return noun;
+    }
+
+    Noun Parser::recNoun(const std::set<std::string>& stops) {
+        Noun noun{{}, ""};
+        if(have(Grammar::Definite) || have(Grammar::Indefinite)) {
+            noun.article = String::toLower(eat());
+        }
+        noun.text = text();
+        expect(Token::Word);
+        
+        while(have(Token::Word)
+           && !haveBeing()
+           && !have("and")
+           && stops.find(text()) == stops.end()) {
             noun.text += " " + eat();
         }
         return noun;

@@ -13,11 +13,15 @@ Compass is an experimental engine for interactive fiction. It's heavily inspired
 	- [x] basic types writing
 	- [x] file writing
 	- [x] file reading
-- [ ] compiler / runtime architecture switch
-- [ ] properties system
+- [x] compiler / runtime architecture switch
+- [x] better name recognition (don't fail on preposition in the middle of names)
+- [ ] make objects unique per container, "allow sofa to appear in different places"
+- [ ] better compiler messaging
+- [ ] compiler qt gui?
+- [ ] properties system (move to bytecode later?)
+	- [ ] lock support
+- [ ] adjectives system
 - [ ] better game loop architecture
 - [ ] better error reporting system, plain english errors
 - [ ] better object/object matching system
-- [ ] lock support (move to bytecode later?)
 - [ ] custom actions & bytecode support
-- [ ] basic adjectives recognition

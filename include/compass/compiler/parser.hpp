@@ -60,6 +60,7 @@ namespace Compass::Compiler {
         void recDescription();
         Entity::Kind recClass();
         Noun recNoun();
+        Noun recNoun(const std::set<std::string>& stops);
         
         bool haveDirection() const;
         Compiler& compiler() { return reinterpret_cast<Compiler&>(driver); }
