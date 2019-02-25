@@ -76,6 +76,14 @@ namespace Compass {
         if(static_cast<Tag>(marker) != Tag::StrID) return {};
         return readU32();
     }
+
+    
+    template <typename T>
+    bool assign(T& target, const optional<T>& v) {
+        if(!v) return false;
+        target = *v;
+        return true;
+    }
     
     void Loader::recSignature() {
         char signature[7];
@@ -92,14 +100,14 @@ namespace Compass {
         if(!match(Section::Metadata)) { error("missing metadata section"); return; }
         if(!match(Section::Start)) { error("malformed metadata section"); return; }
         
-        if(have(Tag::StrData)) {
-            auto title = readString();
-            if(!title) { error("can't read title"); return; }
-            story_.title.emplace(*title);
-            auto author = readString();
-            if(!author) { error("can't read title"); return; }
-            story_.author.emplace(*author);
-        }
+        
+        auto title = readString();
+        if(!title) { error("can't read title"); return; }
+        story_.title.emplace(*title);
+        auto author = readString();
+        if(!author) { error("can't read title"); return; }
+        story_.author.emplace(*author);
+        if(!assign(story_.prototype.startID, readString())) { error("missing start room ID"); return; }
         
         if(!match(Section::End)) { error("malformed metadata section"); return; }
     }
@@ -177,13 +185,6 @@ namespace Compass {
         }
         
         if(!match(Section::End)) { error("malformed entities section"); return; }
-    }
-    
-    template <typename T>
-    bool assign(T& target, const optional<T>& v) {
-        if(!v) return false;
-        target = *v;
-        return true;
     }
     
     result<Entity> Loader::recEntity() {

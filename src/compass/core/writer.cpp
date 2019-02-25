@@ -160,10 +160,9 @@ namespace Compass {
         // Metadata (title, author)
         // TODO: have some sort of markers for these
         startSection(out, Section::Metadata);
-        if(story.title && story.author) {
-            writeString(out, *story.title);
-            writeString(out, *story.author);
-        }
+        writeString(out, *story.title.disjunction(""));
+        writeString(out, *story.author.disjunction(""));
+        writeString(out, story.prototype.startID);
         endSection(out);
         
         // String Pool

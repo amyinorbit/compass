@@ -42,16 +42,17 @@ void runGame(Story story) {
     
     {
         std::ifstream in("out.compass", std::ios::binary);
-        load(in).map([](auto story2) {
+        load(in).map([&](auto story2) {
             std::cout << *story2.title << " by " << *story2.author << "\n";
+            Runtime::Game game(story2, io);
+            game.start();
+            for(;;) game.update();
         }).map_error([](auto e){
             std::cout << "loader error: " << e << "\n";
         });
     }
     
-    Runtime::Game game(story, io);
-    game.start();
-    for(;;) game.update();
+    
 }
 
 int main(int argc, const char** args) {
