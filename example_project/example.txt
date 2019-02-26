@@ -1,6 +1,5 @@
 "ISS Exploration" by Amy Parent.
 
-!use ship directions.
 port is a direction, the opposite is starboard.
 up is a direction, the opposite is down.
 aft is a direction, the opposite is forward.
