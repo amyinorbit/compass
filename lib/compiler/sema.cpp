@@ -65,6 +65,18 @@ namespace Compass::Compiler {
         return *it->second.opposite;
     }
     
+    void Sema::declareSynonym(const std::string& synonym, const std::string& canonical) {
+        const auto can = String::toLower(canonical);
+        const auto syn = String::toLower(synonym);
+        const auto it = synonyms_.find(syn);
+        if(it != synonyms_.end()) {
+            error("you are trying to say that " + syn + " means " + can + " and also " + it->second);
+            return;
+        }
+        // TODO: we should probably check that the synonym isn't also an entity?
+        synonyms_[syn] = can;
+    }
+    
     void Sema::declareVerb(const Verb& verb) {
         verbs_[verb.present] = verb;
     }
@@ -197,10 +209,8 @@ namespace Compass::Compiler {
                 error(pair.second.id + " does not have a container");
                 return make_unexpected(pair.second.id + " does not have a container");
             }
-                
             
             const auto& thing = pair.second;
-            
             auto it = entities_.find(thing.container->id);
             
             info(thing.container->id + " <- " + thing.id);
@@ -218,6 +228,7 @@ namespace Compass::Compiler {
             story_.addVerb(pair.second.present, pair.second.kind);
         }
         
+        story_.synonyms_ = synonyms_;
         story_.prototype.startID = *start_;
         story_.prototype.entities = entities_;
         return story_;

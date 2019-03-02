@@ -19,12 +19,13 @@ Compass is an experimental engine for interactive fiction. It's heavily inspired
 - [ ] add support for defining synonyms
 	- [ ] support for synonyms for things
 	- [ ] support for verb synonyms
+- [ ] add support for classes/kind/properties
+    - [ ] overhaul object/value system
+    - [ ] introduce classes
+    - [ ] properties system
 - [ ] add support for adjectives (makes synonyms required less often)
 - [ ] compiler gui? QT?
 - [ ] replace json project manifest with custom syntax?
-- [ ] properties system (move to bytecode later?)
-	- [ ] lock support
-- [ ] adjectives system
 - [ ] better game loop architecture
 - [ ] better error reporting system, plain english errors
 - [ ] better object/object matching system

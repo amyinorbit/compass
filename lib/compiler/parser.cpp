@@ -22,13 +22,16 @@ namespace Compass::Compiler {
     void Parser::run() {
         eat();
         
-        if(have(Token::QuotedString)) {
+        if(have(Token::QuotedString))
             recTitleAndAuthor();
-        }
         
         while(!have(Token::End) && !driver.isFailed()) {
             if(have("there")) {
                 recThereSentence();
+                expect(Token::Period);
+            }
+            else if(have("you")) {
+                recYouSentence();
                 expect(Token::Period);
             }
             else if(have(Token::QuotedString)) {
@@ -70,6 +73,18 @@ namespace Compass::Compiler {
     // MARK: - Story Parsing system
     // MARK: - There-decl
     
+    // you-synonym     = "you", "can", "say", noun, "instead", "of", noun;
+    void Parser::recYouSentence() {
+        expect("you");
+        expect("can");
+        expect("say");
+        auto synonym = recNoun({"instead"});
+        expect("instead");
+        expect("of");
+        auto canonical = recNoun();
+        compiler().sema().declareSynonym(synonym.text, canonical.text);
+    }
+    
     // there-sentence  = "there", present-being, noun, container-rel ;
     void Parser::recThereSentence() {
         expect("there");
@@ -88,6 +103,8 @@ namespace Compass::Compiler {
             recBeSentence(subject);
         else if(have("can"))
             recCanSentence(subject);
+        else if(have("means"))
+            recMeansSentence(subject);
         else
             driver.error("<must have either 'can' or 'be'>");
     }
@@ -114,6 +131,17 @@ namespace Compass::Compiler {
             participle = text();
             expect(Token::Word);
             compiler().sema().addVerb(name, participle);
+        }
+    }
+    
+    // means-synonym   = noun, "means", noun;
+    void Parser::recMeansSentence(const optional<Noun>& subject) {
+        expect("means");
+        auto canonical = recNoun();
+        if(subject) {
+            compiler().sema().declareSynonym(subject->text, canonical.text);
+        } else {
+            driver.error("you can't declare a pronoun as a synonym of a word");
         }
     }
     
@@ -195,7 +223,7 @@ namespace Compass::Compiler {
     optional<Noun> Parser::recSubject() {
         if(match(Grammar::Subjective))
             return {};
-        return recNoun();
+        return recNoun({"can", "is", "are", "means"});
     }
     
     void Parser::recDescription() {
@@ -224,7 +252,7 @@ namespace Compass::Compiler {
         }
         return noun;
     }
-
+    
     Noun Parser::recNoun(const std::set<std::string>& stops) {
         Noun noun{{}, ""};
         if(have(Grammar::Definite) || have(Grammar::Indefinite)) {

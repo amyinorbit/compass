@@ -34,14 +34,15 @@ namespace Compass::Compiler {
 
         void recImport();
         
-        // MARK: - there sentence parsing
+        // MARK: - Sentence parsing
         
         void recThereSentence();
-        
-        // MARK: - active sentence parsing
+        void recYouSentence();
         
         void recActiveSentence();
         void recBeSentence(const optional<Noun>& subject);
+        void recMeansSentence(const optional<Noun>& subject);
+        
         void recCanSentence(const optional<Noun>& subject);
         
         void recBeDecl(const optional<Noun>& subject);

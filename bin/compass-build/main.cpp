@@ -60,6 +60,7 @@ void printDiagnostics(const Diagnostic& diag) {
             std::cout << "***" << std::endl;
             std::cout << *diag.message() << std::endl;
         }
+        abort();
         break;
     }
 }
@@ -87,6 +88,9 @@ result<Params> getParams(int argc, const char** argv) {
     if(!assign(manifest, params.out, "output"))
         return make_unexpected("missing 'story_source' in project file");
     
+    params.in = projectPath / params.in;
+    params.out = projectPath / params.out;
+    params.lib = projectPath / params.lib;
     
     return params;
 }
@@ -105,7 +109,6 @@ result<void> writeResults(Output out) {
     writeStory(file, out.story);
     return {};
 }
-
 
 int main(int argc, const char** argv) {
     io.println("Compass Compiler " COMPASS_VERSION_STRING " by Amy Alex Parent");

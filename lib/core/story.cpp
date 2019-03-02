@@ -50,6 +50,14 @@ namespace Compass {
         return it->second;
     }
     
+    std::string Story::canonicalName(const std::string& synonym) const {
+        std::cout << "searching for synonym of " << synonym << "\n";
+        const auto it = synonyms_.find(synonym);
+        if(it == synonyms_.end()) return synonym;
+        std::cout << "synonym was found\n";
+        return it->second;
+    }
+    
     std::string Story::uniqueID(const std::string& name) const {
         const auto id = String::toLower(name);// TODO: there's probably some sanitising to do here.
         return id;

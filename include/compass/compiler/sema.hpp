@@ -41,6 +41,7 @@ namespace Compass::Compiler {
         bool hasOppositeDirection(const std::string& direction) const;
         string oppositeDirection(const std::string& direction) const;
         
+        void declareSynonym(const std::string& synonym, const std::string& canonical);
         
         void declareVerb(const Verb& verb);
         void addVerb(optional<string> entity, const string& participle);
@@ -73,6 +74,7 @@ namespace Compass::Compiler {
         std::vector<FutureLink>         links_;
         std::map<string, Entity>        entities_;
         std::map<std::string, Verb>     verbs_;
+        Story::SynonymsTable            synonyms_;
         
         Story                           story_;
         

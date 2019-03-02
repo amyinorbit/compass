@@ -21,6 +21,10 @@
 
 namespace Compass {
     
+    namespace Compiler {
+        class Sema;
+    }
+    
     class Story;
     class Place;
     class Thing;
@@ -85,12 +89,15 @@ namespace Compass {
     };
     
     // The story structure binds a whole thing together
+    // TODO: we should probably not have eveeeeeery thing in there? or at least
+    //          clean up the architecture a bit.
     class Story {
     public:
         
         using StringPool = std::vector<std::string>;
         using VerbTable = std::map<std::string, Verb::Kind>;
         using DirectionTable = std::set<std::string>;
+        using SynonymsTable = std::map<std::string, std::string>;
         
         Story();
         
@@ -101,6 +108,8 @@ namespace Compass {
         
         void addVerb(const std::string& present, Verb::Kind kind);
         optional<Verb::Kind> verb(const std::string& verb) const;
+        
+        std::string canonicalName(const std::string& synonym) const;
         
         // MARK: - Strings management
         StringID intern(const std::string& str) const;
@@ -114,12 +123,14 @@ namespace Compass {
         optional<std::string>   author;
         optional<std::string>   title;
     private:
-        friend class Semantics;
+        
+        friend class Compiler::Sema;
         friend class Loader;
         
         // The string pool is mutable to allow const-qualified intern
         mutable StringPool      strings_;
         DirectionTable          directions_;
         VerbTable               verbs_;
+        SynonymsTable           synonyms_;
     };
 }

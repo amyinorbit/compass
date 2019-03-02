@@ -45,7 +45,7 @@ namespace Compass::Runtime {
         auto action = story_.verb(cmd.verb);
         if(!action)
             return make_unexpected("I don't know the verb " + cmd.verb);
-        return PlayerAction { *action, cmd.object };
+        return PlayerAction { *action, story_.canonicalName(cmd.object) };
     }
     
     result<std::string> Game::execute(PlayerAction action) {

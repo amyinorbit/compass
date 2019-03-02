@@ -38,8 +38,9 @@ namespace Compass::Compiler {
     }
     
     bool Compiler::include(const Filesystem::Path& path) {
-        consumer_(Diagnostic(Diagnostic::Progress, "compiling '" + path.get() + "'"));
-        return getFileContents(libdir_/path).map([this](const auto& source) {
+        const auto fullPath = libdir_/path;
+        consumer_(Diagnostic(Diagnostic::Progress, "compiling '" + fullPath.get() + "'"));
+        return getFileContents(fullPath).map([this](const auto& source) {
             auto invocation = Parser(source, *this);
             invocation.run();
         }).has_value();
