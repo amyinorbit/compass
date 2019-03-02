@@ -28,6 +28,7 @@ namespace Compass {
         void recStringPool();
         void recDirections();
         void recVerbs();
+        void recSynonyms();
         
         void recEntities();
         result<Entity> recEntity();

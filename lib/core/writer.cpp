@@ -189,6 +189,16 @@ namespace Compass {
         }
         endSection(out);
         
+        // Synonyms
+        startSection(out, Section::Synonyms);
+        const auto& synonyms = story.synonyms();
+        writeSize(out, synonyms.size());
+        for(const auto& [key, value]: synonyms) {
+            writeString(out, key);
+            writeString(out, value);
+        }
+        endSection(out);
+        
         // Entities
         startSection(out, Section::Entities);
         writeSize(out, story.prototype.entities.size());

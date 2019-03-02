@@ -167,6 +167,26 @@ namespace Compass {
         if(!match(Section::End)) { error("malformed verbs section"); return; }
     }
     
+    void Loader::recSynonyms() {
+        if(failed()) return;
+        if(!match(Section::Synonyms)) { error("missing synonyms section"); return; }
+        if(!match(Section::Start)) { error("malformed synonyms section"); return; }
+        
+        auto count = readU64();
+        if(!count) { error("unable to read synonym table size"); return; }
+        
+        for(std::size_t i = 0; i < *count; ++i) {
+            auto synonym = readString();
+            if(!synonym) { error("unable to read synonym"); return; }
+            
+            auto canonical = readString();
+            if(!canonical) { error("unable to read synonym's name"); return; }
+            story_.synonyms_[*synonym] = *canonical;
+        }
+        
+        if(!match(Section::End)) { error("malformed verbs section"); return; }
+    }
+    
     void Loader::recEntities() {
         if(failed()) return;
         
@@ -310,6 +330,7 @@ namespace Compass {
         recStringPool();
         recDirections();
         recVerbs();
+        recSynonyms();
         recEntities();
         
         if(error_) return make_unexpected(*error_);

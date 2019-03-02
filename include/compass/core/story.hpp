@@ -118,6 +118,7 @@ namespace Compass {
         const StringPool& strings() const { return strings_; }
         const DirectionTable& directions() const { return directions_; }
         const VerbTable& verbs() const { return verbs_; }
+        const SynonymsTable synonyms() const { return synonyms_; }
         
         Context                 prototype;
         optional<std::string>   author;
