@@ -16,9 +16,7 @@ Compass is an experimental engine for interactive fiction. It's heavily inspired
 - [x] compiler / runtime architecture switch
 - [x] better name recognition (don't fail on preposition in the middle of names)
 - [x] better compiler messaging
-- [ ] add support for defining synonyms
-	- [ ] support for synonyms for things
-	- [ ] support for verb synonyms
+- [x] add support for defining synonyms
 - [ ] add support for classes/kind/properties
     - [ ] overhaul object/value system
     - [ ] introduce classes
