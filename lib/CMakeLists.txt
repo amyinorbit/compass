@@ -1,3 +1,4 @@
+add_subdirectory(type)
 add_subdirectory(core)
 add_subdirectory(filesystem)
 add_subdirectory(language)
