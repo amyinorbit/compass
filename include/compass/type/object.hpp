@@ -37,10 +37,10 @@ namespace Compass::Type {
     private:
         friend class Context;
         
-        bool            mark_   = false;
-        Object*         next_   = nullptr;
-        const Kind*     kind_   = nullptr;
+        mutable bool    mark_   = false;
+        mutable Object* next_   = nullptr;
         
+        const Kind*     kind_   = nullptr;
         const UInt16    size_   = 0;
         Value*          fields_ = nullptr;
     };

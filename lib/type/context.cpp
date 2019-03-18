@@ -19,6 +19,8 @@ namespace Compass::Type {
         objKind->addField("description");
         objKind->addField("name");
         objKind->addField("article");
+        objKind->addField("parent");
+        objKind->addField("children");
         
         kinds_["Object"] = std::move(objKind);
         
@@ -27,12 +29,18 @@ namespace Compass::Type {
         kinds_["Room"] = std::move(roomKind);
     }
     
-    Value Context::makeObject(const Kind* kind) {
+    Value Context::allocate(const Kind* kind) const {
         assert(kind && "Kind must be non-null");
+        allocated_ += sizeof(Object);
+        if(allocated_ >= nextGC_) collect();
         auto* obj = new Object(kind);
         obj->next_ = gcHead_;
         gcHead_ = obj;
         return obj;
+    }
+    
+    Value Context::allocate(const String& name) const {
+        return allocate(kind(name));
     }
     
     const Kind* Context::kind(const String& name) const {
@@ -41,16 +49,42 @@ namespace Compass::Type {
         return it->second.get();
     }
     
-    void Context::collect() {
-        
+    void Context::deallocate(Object* obj) const {
+        delete obj;
     }
     
-    void Context::markObject(Object* object) {
+    void Context::collect() const {
+        allocated_ = 0;
+        for(const auto* obj: roots_) {
+            markObject(obj);
+        }
+        
+        auto** ptr = &gcHead_;
+        while(*ptr) {
+            if(!(*ptr)->mark_) {
+                auto* garbage = *ptr;
+                *ptr = garbage->next_;
+                deallocate(garbage);
+            } else {
+                (*ptr)->mark_ = false;
+                ptr = &(*ptr)->next_;
+            }
+        }
+        
+        nextGC_ = allocated_ * 2;
+    }
+    
+    void Context::markObject(const Object* object) const {
         if(object->mark_) return;
         
+        allocated_ += sizeof(Object);
         object->mark_ = true;
         for(UInt16 i = 0; i < object->size_; ++i) {
-            object->property(i) | match<Object*>([this](auto obj) { markObject(obj); });
+            object->property(i)
+                | match<Object*>([this](auto obj) { markObject(obj); })
+                | match<Array<Object*>>([this](const auto& array){
+                    for(auto* obj: array) markObject(obj);
+                });
         }
     }
 }

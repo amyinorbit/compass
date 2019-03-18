@@ -28,7 +28,6 @@ namespace Compass::Type {
     }
     
     optional<UInt16> Kind::field(const String& name) const {
-        // TODO: we need to somehow do a recursive search through the class inheritance diagram
         UInt16 offset = super_ ? super_->size() : 0;
         
         for(UInt16 i = 0; i < fields_.size(); ++i) {

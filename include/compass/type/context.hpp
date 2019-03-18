@@ -19,21 +19,24 @@ namespace Compass::Type {
         
         Context();
         
-        void collect();
+        void collect() const;
         
-        Value makeObject(const Kind* kind);
-        Value makeObject(const String& kind);
+        Value allocate(const Kind* kind) const;
+        Value allocate(const String& kind) const;
+        
+        void deallocate(Object* obj) const;
         
         const Kind* kind(const String& name) const;
         
     private:
         
-        void markObject(Object* object);
+        void markObject(const Object* object) const;
         
-        Object*     gcHead_     = nullptr;
-        std::size_t nextGC_     = 0;
-        std::size_t allocated_  = 0;
+        mutable Object*         gcHead_     = nullptr;
+        mutable std::size_t     nextGC_     = 0;
+        mutable std::size_t     allocated_  = 0;
         
-        Map<String, std::unique_ptr<Kind>> kinds_;
+        Map<String, std::unique_ptr<Kind>>  kinds_;
+        Array<Object*>                      roots_;
     };
 }

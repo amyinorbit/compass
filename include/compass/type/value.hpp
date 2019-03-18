@@ -14,14 +14,15 @@
 namespace Compass::Type {
     
     class Object;
-    using Value = std::variant<Int, Float, String, Object*>;
+    
+    using Value = std::variant<bool, double, String, Object*, Array<Object*>>;
     
     template <typename T>
     struct match {
         match(std::function<void(T)> fn) : fn(fn) {}
         std::function<void(T)> fn;
     };
-
+    
     template <typename T>
     const Value& operator|(const Value& lhs, const match<T>& rhs) {
         if(std::holds_alternative<T>(lhs)) rhs.fn(std::get<T>(lhs));
