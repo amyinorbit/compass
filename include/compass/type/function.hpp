@@ -26,7 +26,7 @@ namespace Compass::Type {
         enum class Kind { Foreign, Bytecode };
 
         Function(ForeignTag tag, ForeignImpl fn);
-        Function(BytecodeTag tag, UInt64 size);
+        Function(BytecodeTag tag, u64 size);
 
         Function(const Function&) = delete;
         Function(Function&&) = delete;
@@ -40,7 +40,7 @@ namespace Compass::Type {
     private:
         Kind kind_;
         union {
-            std::vector<UInt16> bytecode_;
+            std::vector<u16> bytecode_;
             ForeignImpl         foreign_;
         };
     };

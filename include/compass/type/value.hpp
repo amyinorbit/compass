@@ -12,21 +12,22 @@
 #include <compass/type/primitives.hpp>
 
 namespace Compass::Type {
-    
+
     class Object;
-    
-    using Value = std::variant<bool, double, String, Object*, Array<Object*>>;
-    
+    struct nil_t {} nil;
+
+    using Value = std::variant<nil_t, bool, double, string, Object*, vector<Object*>>;
+
     template <typename T>
     struct match {
-        match(std::function<void(T)> fn) : fn(fn) {}
-        std::function<void(T)> fn;
+        match(std::function<void(const T&)> fn) : fn(fn) {}
+        std::function<void(const T&)> fn;
     };
-    
+
     template <typename T>
     const Value& operator|(const Value& lhs, const match<T>& rhs) {
         if(std::holds_alternative<T>(lhs)) rhs.fn(std::get<T>(lhs));
         return lhs;
     }
-    
+
 }

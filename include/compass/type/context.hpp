@@ -9,6 +9,7 @@
 //===--------------------------------------------------------------------------------------------===
 #pragma once
 #include <memory>
+#include <compass/type/function.hpp>
 #include <compass/type/object.hpp>
 #include <compass/type/primitives.hpp>
 #include <compass/type/value.hpp>
@@ -16,27 +17,26 @@
 namespace Compass::Type {
     class Context {
     public:
-        
+
         Context();
-        
         void collect() const;
-        
-        Value allocate(const Kind* kind) const;
-        Value allocate(const String& kind) const;
-        
+
+        Object* allocate(const string& kind) const;
+        Object* allocate(const string& kind, const Object* prototype) const;
+        Object* allocate(const string& kind, const string& prototype) const;
+        const Object* prototype(const string& name) const { return prototypes_.at(name); }
         void deallocate(Object* obj) const;
-        
-        const Kind* kind(const String& name) const;
-        
+
     private:
-        
+
         void markObject(const Object* object) const;
-        
+
         mutable Object*         gcHead_     = nullptr;
-        mutable std::size_t     nextGC_     = 0;
-        mutable std::size_t     allocated_  = 0;
-        
-        Map<String, std::unique_ptr<Kind>>  kinds_;
-        Array<Object*>                      roots_;
+        mutable u64             nextGC_     = 0;
+        mutable u64             allocated_  = 0;
+
+        map<string, Function>               functions_;
+        map<string, Object*>                prototypes_;
+        vector<Object*>                     roots_;
     };
 }

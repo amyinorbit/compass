@@ -12,84 +12,70 @@
 #include <compass/type/object.hpp>
 
 namespace Compass::Type {
-    
+
     Context::Context() {
-        // TODO: register basic kinds (thing, place)
-        auto objKind = std::make_unique<Kind>("Object");
-        objKind->addField("description");
-        objKind->addField("name");
-        objKind->addField("article");
-        objKind->addField("parent");
-        objKind->addField("children");
-        
-        kinds_["Object"] = std::move(objKind);
-        
-        auto roomKind = std::make_unique<Kind>("Room", objKind.get());
-        roomKind->addField("visited");
-        kinds_["Room"] = std::move(roomKind);
-        
-        // We don't need an extra `in` array here -- the children array is already that,
-        // and the containment relationship is just marked by the class itself
-        auto containerKind = std::make_unique<Kind>("Container", objKind.get());
-        kinds_["Container"] = std::move(containerKind);
+        auto obj = allocate("Object");
+        obj->addField<string>("description");
+        obj->addField<string>("name");
+        obj->addField<string>("article");
+        obj->addField<Object*>("parent", nullptr);
+        obj->addField<vector<Object*>>("children");
+        prototypes_["Object"] = obj;
+
+        auto room = allocate("Room", obj);
+        room->addField<bool>("visited");
+        prototypes_["Room"] = room;
+
+        prototypes_["Thing"] = allocate("Thing", obj);
+        prototypes_["Container"] = allocate("Container", prototype("Thing"));
     }
-    
-    Value Context::allocate(const Kind* kind) const {
-        assert(kind && "Kind must be non-null");
-        allocated_ += sizeof(Object);
+
+    Object* Context::allocate(const string& kind) const {
+        allocated_ += 1;
         if(allocated_ >= nextGC_) collect();
+
         auto* obj = new Object(kind);
         obj->next_ = gcHead_;
         gcHead_ = obj;
         return obj;
     }
-    
-    Value Context::allocate(const String& name) const {
-        return allocate(kind(name));
+
+    Object* Context::allocate(const string& kind, const Object* prototype) const {
+        allocated_ += 1;
+        if(allocated_ >= nextGC_) collect();
+
+        auto* obj = new Object(kind, prototype);
+        obj->next_ = gcHead_;
+        gcHead_ = obj;
+        return obj;
     }
-    
-    const Kind* Context::kind(const String& name) const {
-        const auto it = kinds_.find(name);
-        assert(it != kinds_.end() && "No kind with that name");
-        return it->second.get();
+
+    Object* Context::allocate(const string& kind, const string& name) const {
+        return allocate(kind, prototype(name));
     }
-    
-    void Context::deallocate(Object* obj) const {
-        delete obj;
-    }
-    
+
     void Context::collect() const {
         allocated_ = 0;
         for(const auto* obj: roots_) {
-            markObject(obj);
+            allocated_ += obj->mark();
         }
-        
+
+        for(const auto& [_, obj]: prototypes_) {
+            allocated_ += obj->mark();
+        }
+
         auto** ptr = &gcHead_;
         while(*ptr) {
             if(!(*ptr)->mark_) {
                 auto* garbage = *ptr;
                 *ptr = garbage->next_;
-                deallocate(garbage);
+                delete garbage;
             } else {
                 (*ptr)->mark_ = false;
                 ptr = &(*ptr)->next_;
             }
         }
-        
+
         nextGC_ = allocated_ * 2;
-    }
-    
-    void Context::markObject(const Object* object) const {
-        if(object->mark_) return;
-        
-        allocated_ += sizeof(Object);
-        object->mark_ = true;
-        for(UInt16 i = 0; i < object->size_; ++i) {
-            object->property(i)
-                | match<Object*>([this](auto obj) { markObject(obj); })
-                | match<Array<Object*>>([this](const auto& array){
-                    for(auto* obj: array) markObject(obj);
-                });
-        }
     }
 }

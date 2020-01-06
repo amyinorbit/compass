@@ -11,35 +11,50 @@
 #include <compass/type/object.hpp>
 
 namespace Compass::Type {
-    
-    Object::Object(const Kind* kind) : kind_(kind), size_(kind->size()) {
-        fields_ = new Value[size_];
+
+    template <typename T>
+    inline bool is(const Value& v) {
+        return std::holds_alternative<T>(v);
     }
-    
-    Object::~Object() {
-        if(fields_)
-            delete [] fields_;
+
+    template <typename T>
+    inline const T& as(const Value& v) {
+        return std::get<T>(v);
     }
-    
-    Value& Object::property(UInt16 index) {
-        assert(index < size_ && "Invalid field access");
-        return fields_[index];
+
+    template <typename T>
+    inline T& as(Value& v) {
+        return std::get<T>(v);
     }
-    
-    const Value& Object::property(UInt16 index) const {
-        assert(index < size_ && "Invalid field access");
-        return fields_[index];
+
+    int Object::mark() const {
+        using Array = vector<Object*>;
+        if(mark_) return 0;
+        int allocated = 1;
+
+        for(const auto& [_, p]: properties_) {
+            if(is<Object*>(p)) {
+                allocated += as<Object*>(p)->mark();
+            }
+            else if(is<Array>(p)) {
+                for(const auto* obj: as<Array>(p)) {
+                    allocated += obj->mark();
+                }
+            }
+        }
+
+        if(prototype_) {
+            allocated += prototype_->mark();
+        }
+        return allocated;
     }
-    
-    Value& Object::property(const String& name) {
-        auto index = kind_->field(name);
-        assert(index && "Invalid field name");
-        return property(*index);
-    }
-    
-    const Value& Object::property(const String& name) const {
-        auto index = kind_->field(name);
-        assert(index && "Invalid field name");
-        return property(*index);
+
+    bool Object::isa(const string& kind) const {
+        const Object* obj = this;
+        while(obj) {
+            if(obj->kind_ == kind) return true;
+            obj = obj->prototype_;
+        }
+        return false;
     }
 }

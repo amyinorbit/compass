@@ -12,6 +12,7 @@
 #include <string>
 #include <vector>
 #include <unordered_map>
+#include <unordered_set>
 #include <compass/type/optional.hpp>
 #include <compass/type/expected.hpp>
 
@@ -22,35 +23,36 @@ namespace Compass {
     template <typename T>
     using result = expected<T, std::string>;
 
-    using Int8 = std::int8_t;
-    using UInt8 = std::uint8_t;
+    using i8 = std::int8_t;
+    using u8 = std::uint8_t;
 
-    using Int16 = std::int16_t;
-    using UInt16 = std::uint16_t;
+    using i16 = std::int16_t;
+    using u16 = std::uint16_t;
 
-    using Int32 = std::int32_t;
-    using UInt32 = std::uint32_t;
+    using i32 = std::int32_t;
+    using u32 = std::uint32_t;
 
-    using Int64 = std::int64_t;
-    using UInt64 = std::uint64_t;
+    using i64 = std::int64_t;
+    using u64 = std::uint64_t;
 
-    using UInt = std::uint32_t;
-    using Int = std::int32_t;
-    using Float = float;
-    using String = std::string;
+    using uint = std::uint32_t;
+    using string = std::string;
 
     template <typename T>
-    using Array = std::vector<T>;
+    using vector = std::vector<T>;
 
     template <typename K, typename V>
-    using Map = std::unordered_map<K, V>;
-    
+    using map = std::unordered_map<K, V>;
+
+    template <typename V>
+    using set = std::unordered_set<V>;
+
     struct NonCopyable {
         NonCopyable() {}
         NonCopyable(const NonCopyable&) = delete;
         NonCopyable& operator=(const NonCopyable&) = delete;
     };
-    
+
     struct NonMovable {
         NonMovable() {}
         NonMovable(NonMovable&&) = delete;
