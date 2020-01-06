@@ -15,14 +15,14 @@
 #include <compass/runtime/sentence.hpp>
 
 namespace Compass::Runtime {
-    
+
     class Game {
     public:
         Game(const Story& story, IOManaging& io) : story_(story), io_(io) {}
-        
+
         void start();
         void update();
-        
+
     private:
         struct PlayerAction {
             Verb::Kind action;
@@ -35,20 +35,20 @@ namespace Compass::Runtime {
         result<std::string> handleTake(const std::string& object);
         result<std::string> handleDrop(const std::string& object);
         result<std::string> handleInventory(const std::string& object);
-        
+
         result<PlayerAction> check(Sentence::Command cmd);
         void display(const std::string& room);
         void displayError(const std::string& error);
-        
+
 
         std::string describeCurrent(bool detailed = false);
         std::string describe(const std::string& id, int depth = 1);
         std::string describe(
-            const Entity::RelationList& things, 
+            const Entity::RelationList& things,
             Relation::Kind kind = Relation::In,
             std::string itHere = "here"
         );
-        
+
         optional<Run>   run_;
         const Story&    story_;
         IOManaging&     io_;
