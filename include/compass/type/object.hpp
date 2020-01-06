@@ -16,15 +16,10 @@ namespace Compass::Type {
     
     // TODO: we also need to have relationships handled in the C++ world, for simplicity
     // TODO: we probably need to merge the unique ID system in there?
-    class Object {
+    class Object: NonMovable, NonCopyable {
     public:
         Object(const Kind* kind);
         ~Object();
-        
-        Object(const Object&) = delete;
-        Object(Object&&) = delete;
-        Object& operator=(const Object&) = delete;
-        Object& operator=(Object&&) = delete;
         
         Value& property(UInt16 index);
         const Value& property(UInt16 index) const;

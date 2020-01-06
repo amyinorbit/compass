@@ -38,4 +38,16 @@ namespace Compass {
     
     template <typename K, typename V>
     using Map = std::unordered_map<K, V>;
+    
+    struct NonCopyable {
+        NonCopyable() {}
+        NonCopyable(const NonCopyable&) = delete;
+        NonCopyable& operator=(const NonCopyable&) = delete;
+    };
+    
+    struct NonMovable {
+        NonMovable() {}
+        NonMovable(NonMovable&&) = delete;
+        NonMovable& operator=(NonMovable&&) = delete;
+    };
 }

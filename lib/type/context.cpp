@@ -27,6 +27,11 @@ namespace Compass::Type {
         auto roomKind = std::make_unique<Kind>("Room", objKind.get());
         roomKind->addField("visited");
         kinds_["Room"] = std::move(roomKind);
+        
+        // We don't need an extra `in` array here -- the children array is already that,
+        // and the containment relationship is just marked by the class itself
+        auto containerKind = std::make_unique<Kind>("Container", objKind.get());
+        kinds_["Container"] = std::move(containerKind);
     }
     
     Value Context::allocate(const Kind* kind) const {
