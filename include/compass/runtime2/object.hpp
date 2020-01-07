@@ -8,10 +8,10 @@
 // =^•.•^=
 //===--------------------------------------------------------------------------------------------===
 #pragma once
-#include <compass/type/primitives.hpp>
-#include <compass/type/value.hpp>
+#include <compass/runtime2/primitives.hpp>
+#include <compass/runtime2/value.hpp>
 
-namespace Compass::Type {
+namespace Compass::rt2 {
 
     class Object;
 

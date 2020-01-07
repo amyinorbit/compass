@@ -8,9 +8,9 @@
 // =^•.•^=
 //===--------------------------------------------------------------------------------------------===
 #include <cassert>
-#include <compass/type/object.hpp>
+#include <compass/runtime2/object.hpp>
 
-namespace Compass::Type {
+namespace Compass::rt2 {
 
     template <typename T>
     inline bool is(const Value& v) {

@@ -11,7 +11,7 @@
 // We use the x-macro pattern here for convenience
 
 #ifndef OPCODE
-#define OPCODE(name, _, __) name,
+#define OPCODE(name, _, __)
 #endif
 
 OPCODE(halt,            0,   0)
@@ -23,7 +23,7 @@ OPCODE(push_prop,       1,  +1)
 OPCODE(push_current,    0,  +1)
 
 OPCODE(store_prop,      1,  -2)
-OPCODE(store_current    0,  -1)
+OPCODE(store_current,   0,  -1)
 
 OPCODE(pop,             0,  -1)
 OPCODE(swap,            0,   0)

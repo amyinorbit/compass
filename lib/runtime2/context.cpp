@@ -8,10 +8,10 @@
 // =^•.•^=
 //===--------------------------------------------------------------------------------------------===
 #include <cassert>
-#include <compass/type/context.hpp>
-#include <compass/type/object.hpp>
+#include <compass/runtime2/context.hpp>
+#include <compass/runtime2/object.hpp>
 
-namespace Compass::Type {
+namespace Compass::rt2 {
 
     Context::Context() {
         auto obj = allocate("Object");

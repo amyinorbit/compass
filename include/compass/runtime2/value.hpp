@@ -9,9 +9,9 @@
 //===--------------------------------------------------------------------------------------------===
 #pragma once
 #include <variant>
-#include <compass/type/primitives.hpp>
+#include <compass/runtime2/primitives.hpp>
 
-namespace Compass::Type {
+namespace Compass::rt2 {
 
     class Object;
     struct nil_t {} nil;

@@ -13,8 +13,8 @@
 #include <vector>
 #include <unordered_map>
 #include <unordered_set>
-#include <compass/type/optional.hpp>
-#include <compass/type/expected.hpp>
+#include <compass/runtime2/optional.hpp>
+#include <compass/runtime2/expected.hpp>
 
 namespace Compass {
 

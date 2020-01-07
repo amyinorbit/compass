@@ -9,12 +9,12 @@
 //===--------------------------------------------------------------------------------------------===
 #pragma once
 #include <memory>
-#include <compass/type/function.hpp>
-#include <compass/type/object.hpp>
-#include <compass/type/primitives.hpp>
-#include <compass/type/value.hpp>
+#include <compass/runtime2/function.hpp>
+#include <compass/runtime2/object.hpp>
+#include <compass/runtime2/primitives.hpp>
+#include <compass/runtime2/value.hpp>
 
-namespace Compass::Type {
+namespace Compass::rt2 {
     class Context {
     public:
 

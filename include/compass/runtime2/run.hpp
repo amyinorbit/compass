@@ -7,8 +7,8 @@
 // =^•.•^=
 //===--------------------------------------------------------------------------------------------===
 #pragma once
-#include <compass/type/context.hpp>
-#include <compass/type/primitives.hpp>
+#include <compass/runtime2/context.hpp>
+#include <compass/runtime2/primitives.hpp>
 
 namespace Compass::rt2 {
     using namespace Type;

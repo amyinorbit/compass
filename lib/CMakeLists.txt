@@ -1,4 +1,4 @@
-add_subdirectory(type)
+add_subdirectory(runtime2)
 add_subdirectory(core)
 add_subdirectory(filesystem)
 add_subdirectory(language)
