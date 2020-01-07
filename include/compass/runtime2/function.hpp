@@ -17,7 +17,7 @@ namespace Compass::rt2 {
     static constexpr struct ForeignTag {} foreign;
     static constexpr struct BytecodeTag {} bytecode;
 
-    class Function {
+    class Function : NonCopyable, NonMovable {
     public:
 
         using ForeignImpl = std::function<void(Object*, Context&)>;
@@ -27,11 +27,6 @@ namespace Compass::rt2 {
         Function(ForeignTag tag, ForeignImpl fn);
         Function(BytecodeTag tag, u64 size);
 
-        Function(const Function&) = delete;
-        Function(Function&&) = delete;
-        Function& operator=(const Function&) = delete;
-        Function& operator=(Function&&) = delete;
-
         ~Function();
 
         Kind kind() const { return kind_; }
@@ -40,7 +35,7 @@ namespace Compass::rt2 {
         Kind kind_;
         union {
             std::vector<u16> bytecode_;
-            ForeignImpl         foreign_;
+            ForeignImpl      foreign_;
         };
     };
 }

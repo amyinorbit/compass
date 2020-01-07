@@ -48,14 +48,18 @@ namespace Compass {
     using set = std::unordered_set<V>;
 
     struct NonCopyable {
-        NonCopyable() {}
+        NonCopyable() = default;
         NonCopyable(const NonCopyable&) = delete;
         NonCopyable& operator=(const NonCopyable&) = delete;
+        NonCopyable(NonCopyable&&) = default;
+        NonCopyable& operator=(NonCopyable&&) = default;
     };
 
     struct NonMovable {
-        NonMovable() {}
+        NonMovable() = default;
         NonMovable(NonMovable&&) = delete;
         NonMovable& operator=(NonMovable&&) = delete;
+        NonMovable(const NonMovable&) = default;
+        NonMovable& operator=(const NonMovable&) = default;
     };
 }

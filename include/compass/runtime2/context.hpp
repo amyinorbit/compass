@@ -15,28 +15,8 @@
 #include <compass/runtime2/value.hpp>
 
 namespace Compass::rt2 {
-    class Context {
-    public:
-
-        Context();
-        void collect() const;
-
-        Object* allocate(const string& kind) const;
-        Object* allocate(const string& kind, const Object* prototype) const;
-        Object* allocate(const string& kind, const string& prototype) const;
-        const Object* prototype(const string& name) const { return prototypes_.at(name); }
-        void deallocate(Object* obj) const;
-
-    private:
-
-        void markObject(const Object* object) const;
-
-        mutable Object*         gcHead_     = nullptr;
-        mutable u64             nextGC_     = 0;
-        mutable u64             allocated_  = 0;
-
-        map<string, Function>               functions_;
-        map<string, Object*>                prototypes_;
-        vector<Object*>                     roots_;
+    struct Context {
+        map<string, Function> functions;
+        vector<Object> prototypes;
     };
 }

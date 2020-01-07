@@ -27,6 +27,13 @@ namespace Compass::rt2 {
         return std::get<T>(v);
     }
 
+    Object::Object(const Object& other)
+    : kind_(other.kind_)
+    , prototype_(other.prototype_)
+    , properties_(other.properties_)
+    , links_(other.links_)
+    , verbs_(other.verbs_) {}
+
     int Object::mark() const {
         using Array = vector<Object*>;
         if(mark_) return 0;

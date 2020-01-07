@@ -24,6 +24,7 @@ namespace Compass::rt2 {
     // TODO: we probably need to merge the unique ID system in there?
     class Object: NonMovable, NonCopyable {
     public:
+        Object(const Object& other);
         Object(const string& kind) : kind_(kind) {}
         Object(const string& kind, const Object* proto)
             : kind_(kind)
@@ -51,12 +52,13 @@ namespace Compass::rt2 {
         const Value& operator[](const string& name) const { return properties_.at(name); }
 
         bool isa(const string& kind) const;
+        const string& kind() const { return kind_; }
 
         int mark() const;
         bool isMarked() const { return mark_; }
 
     private:
-        friend class Context;
+        friend class Run;
 
         mutable bool    mark_   = false;
         mutable Object* next_   = nullptr;
