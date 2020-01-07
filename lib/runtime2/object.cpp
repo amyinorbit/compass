@@ -13,16 +13,6 @@
 namespace Compass::rt2 {
 
     template <typename T>
-    inline bool is(const Value& v) {
-        return std::holds_alternative<T>(v);
-    }
-
-    template <typename T>
-    inline const T& as(const Value& v) {
-        return std::get<T>(v);
-    }
-
-    template <typename T>
     inline T& as(Value& v) {
         return std::get<T>(v);
     }
@@ -35,16 +25,16 @@ namespace Compass::rt2 {
     , verbs_(other.verbs_) {}
 
     int Object::mark() const {
-        using Array = vector<Object*>;
+        
         if(mark_) return 0;
         int allocated = 1;
 
         for(const auto& [_, p]: properties_) {
-            if(is<Object*>(p)) {
-                allocated += as<Object*>(p)->mark();
+            if(p.is<Value::Ref>()) {
+                allocated += p.as<Value::Ref>()->mark();
             }
-            else if(is<Array>(p)) {
-                for(const auto* obj: as<Array>(p)) {
+            else if(p.is<Value::Array>()) {
+                for(const auto* obj: p.as<Value::Array>()) {
                     allocated += obj->mark();
                 }
             }

@@ -12,7 +12,7 @@
 #include <compass/runtime2/primitives.hpp>
 
 namespace Compass::rt2 {
-    class Context;
+    class Run;
     class Object;
     static constexpr struct ForeignTag {} foreign;
     static constexpr struct BytecodeTag {} bytecode;
@@ -20,7 +20,7 @@ namespace Compass::rt2 {
     class Function : NonCopyable, NonMovable {
     public:
 
-        using ForeignImpl = std::function<void(Object*, Context&)>;
+        using ForeignImpl = std::function<void(Object*, Run&)>;
 
         enum class Kind { Foreign, Bytecode };
 
@@ -30,6 +30,7 @@ namespace Compass::rt2 {
         ~Function();
 
         Kind kind() const { return kind_; }
+        const u16* ip() const { return kind_ == Kind::Bytecode ? &bytecode_.front() : nullptr; }
 
     private:
         Kind kind_;

@@ -20,8 +20,7 @@ namespace Compass::rt2 {
         string direction;
     };
 
-    // TODO: we also need to have relationships handled in the C++ world, for simplicity
-    // TODO: we probably need to merge the unique ID system in there?
+
     class Object: NonMovable, NonCopyable {
     public:
         Object(const Object& other);
@@ -50,6 +49,9 @@ namespace Compass::rt2 {
 
         Value& operator[](const string& name) { return properties_[name]; }
         const Value& operator[](const string& name) const { return properties_.at(name); }
+
+        Value& field(const string& name) { return properties_[name]; }
+        const Value& field(const string& name) const { return properties_.at(name); }
 
         bool isa(const string& kind) const;
         const string& kind() const { return kind_; }

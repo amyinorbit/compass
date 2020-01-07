@@ -16,18 +16,32 @@ namespace Compass::rt2 {
     class Object;
     struct nil_t {} nil;
 
-    using Value = std::variant<nil_t, bool, double, string, Object*, vector<Object*>>;
+    bool operator==(nil_t, nil_t) { return false; }
+    bool operator!=(nil_t, nil_t) { return true; }
 
-    template <typename T>
-    struct match {
-        match(std::function<void(const T&)> fn) : fn(fn) {}
-        std::function<void(const T&)> fn;
+    struct Value {
+    using Ref = Object*;
+        using Array = vector<Ref>;
+
+        Value() : storage(nil) {}
+        template <typename T> Value(const T& value) : storage(value) {}
+        template <typename T> Value& operator=(const T& value) { storage = value; return *this; }
+
+        operator bool() const;
+        bool isTrue() const;
+
+        bool operator==(const Value& other) const { return storage == other.storage; }
+        bool operator!=(const Value& other) const { return storage != other.storage; }
+
+        template <typename T> bool is() const { return std::holds_alternative<T>(storage); }
+        template <typename T> T& as() { return std::get<T>(storage); }
+        template <typename T> const T& as() const { return std::get<T>(storage); }
+
+        int index() const { return storage.index(); }
+
+    private:
+        std::variant<nil_t, bool, double, string, Ref, Array> storage;
     };
 
-    template <typename T>
-    const Value& operator|(const Value& lhs, const match<T>& rhs) {
-        if(std::holds_alternative<T>(lhs)) rhs.fn(std::get<T>(lhs));
-        return lhs;
-    }
 
 }

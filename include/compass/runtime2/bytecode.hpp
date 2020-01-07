@@ -37,7 +37,7 @@ OPCODE(rjump,           1,   0)
 
 OPCODE(go_link,         1,   0)
 OPCODE(look,            1,   0)
-
-OPCODE(verb,            0,   2)
+OPCODE(make,            1,  +1)
+OPCODE(verb,            0,  +2)
 
 #undef OPCODE

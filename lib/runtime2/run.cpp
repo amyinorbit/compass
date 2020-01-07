@@ -13,6 +13,14 @@
 
 namespace Compass::rt2 {
 
+    u16 Run::read() const {
+        return *(ip_++);
+    }
+
+    Run::Code Run::readCode() const {
+        return static_cast<Code>(read());
+    }
+
     Run::Run(const Context& ctx) : ctx_(ctx) {
         for(const auto& p: ctx.prototypes) {
             prototypes_[p.kind()] = clone(&p);
@@ -31,6 +39,81 @@ namespace Compass::rt2 {
         //
         // prototypes_["Thing"] = allocate("Thing", obj);
         // prototypes_["Container"] = allocate("Container", prototype("Thing"));
+    }
+
+    bool Run::run(const string& signature) {
+        if(!ctx_.functions.count(signature)) return false;
+        const auto& fn = ctx_.functions.at(signature);
+        if(fn.kind() == Function::Kind::Foreign) return false;
+
+        ip_ = fn.ip();
+        Code inst = Code::halt;
+
+        while((inst = readCode()) != Code::halt) {
+            switch (inst) {
+                case Code::halt: return true;
+
+                case Code::push_true: push<bool>(true); break;
+                case Code::push_false: push<bool>(false); break;
+                case Code::push_const: push(constant()); break;
+                case Code::push_current: push(lookat_); break;
+
+                case Code::push_prop: {
+                    Object* obj = pop<Object*>();
+                    push(obj->field(constant<string>()));
+                } break;
+
+                case Code::store_current: lookat_ = pop<Object*>(); break;
+                case Code::store_prop: {
+                    Object* obj = pop<Object*>();
+                    obj->field(constant<string>()) = pop();
+                } break;
+
+                case Code::pop: pop(); break;
+                case Code::swap: swap(); break;
+                case Code::dup: push(peek()); break;
+
+                case Code::comp: push(pop() == pop()); break;
+
+                case Code::jump_if: {
+                    auto jump = read();
+                    if(peek<bool>()) ip_ += jump;
+                } break;
+
+                case Code::rjump_if: {
+                    auto jump = read();
+                    if(peek<bool>()) ip_ -= jump;
+                } break;
+
+                case Code::jump: ip_ += read(); break;
+                case Code::rjump: ip_ -= read(); break;
+
+                case Code::go_link: break;
+                case Code::look: break;
+                case Code::make: {
+                    auto kind = pop<string>();
+                    const Object* proto = prototype(kind);
+                    push(clone(proto));
+                } break;
+
+                case Code::verb: {
+                    auto sig = constant<string>();
+                    Object* obj = peek<Object*>();
+                    assert(obj->hasVerb(sig));
+                    const auto& fn = ctx_.functions.at(sig);
+                    if(fn.kind() == Function::Kind::Foreign) {
+                        // TODO: run the function
+                    } else {
+                        // TODO: push a new frame
+                    }
+                } break;
+
+                default:
+                return false;
+                break;
+            }
+        }
+        return true;
     }
 
     Object* Run::clone(const Object* other) {
@@ -56,29 +139,14 @@ namespace Compass::rt2 {
         return allocate(kind, prototype(name));
     }
 
-    template <typename T>
-    bool is(const Value& v) {
-        return std::holds_alternative<T>(v);
-    }
-
-    template <typename T>
-    const T& as(const Value& v) {
-        return std::get<T>(v);
-    }
-
-    template <typename T>
-    T& as(Value& v) {
-        return std::get<T>(v);
-    }
-
     static int mark(const Value& v) {
-        using Array = vector<Object*>;
-        if(is<Object*>(v)) {
-            return as<Object*>(v)->mark();
+
+        if(v.is<Value::Ref>()) {
+            return v.as<Value::Ref>()->mark();
         }
-        else if(is<Array>(v)) {
+        else if(v.is<Value::Array>()) {
             int marked = 0;
-            for(const auto* obj: as<Array>(v)) {
+            for(const auto* obj: v.as<Value::Array>()) {
                 marked += obj->mark();
             }
             return marked;

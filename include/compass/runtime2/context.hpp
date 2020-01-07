@@ -18,5 +18,6 @@ namespace Compass::rt2 {
     struct Context {
         map<string, Function> functions;
         vector<Object> prototypes;
+        vector<Value> constants;
     };
 }
