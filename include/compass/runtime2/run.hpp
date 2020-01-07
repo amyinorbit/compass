@@ -12,46 +12,41 @@
 
 namespace Compass::rt2 {
 
-    class Run {
+    class Run : NonCopyable, NonMovable {
     public:
         Run(const Context& ctx);
+        ~Run();
 
         bool run(const string& function = "<script>");
 
     private:
 
         struct Frame {
-            Function* fn;
+            const string name;
             const u16* ip;
-            Value* sp;
+            Value* base;
         };
 
-        #define OPCODE(name, _, __) name,
-        enum class Code {
-        #include "bytecode.hpp"
-        };
-        #undef OPCODE
+        void openFrame(const Function& fn);
+        void closeFrame();
 
         u16 read() const;
-        Code readCode() const;
+        Bytecode readCode() const;
 
-        Value pop() { auto v = stack_.back(); stack_.pop_back(); return v; }
+        void push(const Value& value) { *(stackTop_++) = value; }
         template <typename T>
-        void push(const T& value) { stack_.push_back(value); }
+        void push(const T& value) { *(stackTop_++) = value; }
 
+        Value pop() { return *(--stackTop_); }
         template <typename T>
-        T pop() {
-            Value v = stack_.back();
-            stack_.pop_back();
-            return v.as<T>();
-        }
+        T pop() { return pop().as<T>(); }
 
         template <typename T>
-        const T& peek() const { return std::get<T>(stack_.back()); }
+        const T& peek() const { return (stackTop_-1)->as<T>(); }
         template <typename T>
-        T& peek() { return stack_.back().as<T>(); }
-        Value peek() const { return stack_.back(); }
-        void swap() { std::iter_swap(stack_.end() - 1, stack_.end() - 2); }
+        T& peek() { return (stackTop_-1)->as<T>(); }
+        const Value& peek() const { return *(stackTop_-1); }
+        void swap() { std::iter_swap(stackTop_ - 1, stackTop_ - 2); }
 
         template <typename T>
         const T& constant() const { return ctx_.constants[read()].as<T>(); }
@@ -65,16 +60,26 @@ namespace Compass::rt2 {
         Object* allocate(const string& kind, const string& prototype);
         const Object* prototype(const string& kind) const { return prototypes_.at(kind); }
 
+
+        // MARK: - Story tracking
+
         Object* location_ = nullptr;
         Object* lookat_ = nullptr;
         const Context& ctx_;
+
+        // MARK: - Garbage collection
 
         Object* gcHead_ = nullptr;
         u64 nextGC_ = 0;
         u64 allocated_ = 0;
 
         map<string, Object*> prototypes_;
-        vector<Value> stack_;
-        mutable const u16* ip_;
+
+        // MARK: - Runtime VM
+
+        mutable const u16* ip_ = nullptr;
+        Value* stack_ = nullptr;
+        Value* stackTop_ = nullptr;
+        vector<Frame> callStack_;
     };
 }

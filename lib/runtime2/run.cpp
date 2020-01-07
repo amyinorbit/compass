@@ -10,102 +10,123 @@
 #include <cassert>
 #include <compass/runtime2/run.hpp>
 #include <compass/runtime2/object.hpp>
+#include <compass/runtime2/bytecode.hpp>
 
 namespace Compass::rt2 {
+
+
+    Run::Run(const Context& ctx) : ctx_(ctx) {
+        stack_ = new Value[512];
+        stackTop_ = stack_;
+        for(const auto& p: ctx.prototypes) {
+            prototypes_[p.kind()] = clone(&p);
+        }
+    }
+
+    Run::~Run() {
+        delete [] stack_;
+    }
 
     u16 Run::read() const {
         return *(ip_++);
     }
 
-    Run::Code Run::readCode() const {
-        return static_cast<Code>(read());
+
+    void Run::openFrame(const Function& fn) {
+        Frame f;
+        f.ip = ip_;
+        f.base = stackTop_;
+        callStack_.push_back(f);
+        ip_ = fn.ip();
     }
 
-    Run::Run(const Context& ctx) : ctx_(ctx) {
-        for(const auto& p: ctx.prototypes) {
-            prototypes_[p.kind()] = clone(&p);
-        }
-        // auto obj = allocate("Object");
-        // obj->addField<string>("description");
-        // obj->addField<string>("name");
-        // obj->addField<string>("article");
-        // obj->addField<Object*>("parent", nullptr);
-        // obj->addField<vector<Object*>>("children");
-        // prototypes_["Object"] = obj;
-        //
-        // auto room = allocate("Room", obj);
-        // room->addField<bool>("visited");
-        // prototypes_["Room"] = room;
-        //
-        // prototypes_["Thing"] = allocate("Thing", obj);
-        // prototypes_["Container"] = allocate("Container", prototype("Thing"));
+    void Run::closeFrame() {
+        assert(callStack_.size());
+        const auto& f = callStack_.back();
+        callStack_.pop_back();
+        stackTop_ = f.base;
+        ip_ = f.ip;
+    }
+
+    Bytecode Run::readCode() const {
+        return static_cast<Bytecode>(read());
     }
 
     bool Run::run(const string& signature) {
         if(!ctx_.functions.count(signature)) return false;
         const auto& fn = ctx_.functions.at(signature);
-        if(fn.kind() == Function::Kind::Foreign) return false;
 
         ip_ = fn.ip();
-        Code inst = Code::halt;
+        Bytecode inst = Bytecode::halt;
 
-        while((inst = readCode()) != Code::halt) {
+        while((inst = readCode()) != Bytecode::halt) {
             switch (inst) {
-                case Code::halt: return true;
+                case Bytecode::halt: return true;
 
-                case Code::push_true: push<bool>(true); break;
-                case Code::push_false: push<bool>(false); break;
-                case Code::push_const: push(constant()); break;
-                case Code::push_current: push(lookat_); break;
+                case Bytecode::push_true: push<bool>(true); break;
+                case Bytecode::push_false: push<bool>(false); break;
+                case Bytecode::push_const: push(constant()); break;
+                case Bytecode::push_current: push(lookat_); break;
 
-                case Code::push_prop: {
+                case Bytecode::push_prop: {
                     Object* obj = pop<Object*>();
                     push(obj->field(constant<string>()));
                 } break;
 
-                case Code::store_current: lookat_ = pop<Object*>(); break;
-                case Code::store_prop: {
+                case Bytecode::store_current: lookat_ = pop<Object*>(); break;
+                case Bytecode::store_prop: {
                     Object* obj = pop<Object*>();
                     obj->field(constant<string>()) = pop();
                 } break;
 
-                case Code::pop: pop(); break;
-                case Code::swap: swap(); break;
-                case Code::dup: push(peek()); break;
+                case Bytecode::pop: pop(); break;
+                case Bytecode::swap: swap(); break;
+                case Bytecode::dup: push(peek()); break;
 
-                case Code::comp: push(pop() == pop()); break;
+                case Bytecode::comp: push(pop() == pop()); break;
 
-                case Code::jump_if: {
+                case Bytecode::jump_if: {
                     auto jump = read();
                     if(peek<bool>()) ip_ += jump;
                 } break;
 
-                case Code::rjump_if: {
+                case Bytecode::rjump_if: {
                     auto jump = read();
                     if(peek<bool>()) ip_ -= jump;
                 } break;
 
-                case Code::jump: ip_ += read(); break;
-                case Code::rjump: ip_ -= read(); break;
+                case Bytecode::jump: ip_ += read(); break;
 
-                case Code::go_link: break;
-                case Code::look: break;
-                case Code::make: {
+                case Bytecode::rjump: ip_ -= read(); break;
+
+                case Bytecode::go_link: {
+                    auto dir = constant<string>();
+                    Object* obj = pop<Object*>();
+                    location_ = obj->follow(dir);
+                } break;
+
+                case Bytecode::look:
+                    lookat_ = pop<Object*>();
+                    break;
+
+                case Bytecode::make: {
                     auto kind = pop<string>();
                     const Object* proto = prototype(kind);
                     push(clone(proto));
                 } break;
 
-                case Code::verb: {
+                case Bytecode::call: {
                     auto sig = constant<string>();
                     Object* obj = peek<Object*>();
                     assert(obj->hasVerb(sig));
                     const auto& fn = ctx_.functions.at(sig);
-                    if(fn.kind() == Function::Kind::Foreign) {
-                        // TODO: run the function
-                    } else {
-                        // TODO: push a new frame
-                    }
+                    openFrame(fn);
+                } break;
+
+
+                case Bytecode::ret: {
+                    if(!callStack_.size()) return true;
+                    closeFrame();
                 } break;
 
                 default:
@@ -164,7 +185,7 @@ namespace Compass::rt2 {
             obj = obj->next_;
         }
 
-        for(const auto& value: stack_) { mark(value); }
+        for(const Value* v = stack_; v != stackTop_; ++v) { mark(*v); }
         for(const auto& [_, obj]: prototypes_) { allocated_ += obj->mark(); }
 
         auto** ptr = &gcHead_;

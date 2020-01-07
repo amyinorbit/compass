@@ -42,6 +42,7 @@ namespace Compass::rt2 {
         bool hasVerb(const string& verb) const { return verbs_.count(verb); }
 
         const vector<Link>& links() const { return links_; }
+        Object* follow(const string& direction) const;
         void link(Object* target, const string& direction) { links_.push_back({target, direction}); }
 
         Value& property(const string& name);

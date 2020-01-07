@@ -8,14 +8,10 @@
 // =^•.•^=
 //===--------------------------------------------------------------------------------------------===
 #include <cassert>
+#include <algorithm>
 #include <compass/runtime2/object.hpp>
 
 namespace Compass::rt2 {
-
-    template <typename T>
-    inline T& as(Value& v) {
-        return std::get<T>(v);
-    }
 
     Object::Object(const Object& other)
     : kind_(other.kind_)
@@ -24,8 +20,16 @@ namespace Compass::rt2 {
     , links_(other.links_)
     , verbs_(other.verbs_) {}
 
+    Object* Object::follow(const string& direction) const {
+        auto it = std::find_if(links_.begin(), links_.end(), [&](const auto& l) {
+            return l.direction == direction;
+        });
+        if(it == links_.end()) return nullptr;
+        return it->target;
+    }
+
     int Object::mark() const {
-        
+
         if(mark_) return 0;
         int allocated = 1;
 

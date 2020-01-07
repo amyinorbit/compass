@@ -8,55 +8,36 @@
 // =^•.•^=
 //===--------------------------------------------------------------------------------------------===
 #include <compass/runtime2/function.hpp>
+#include <cassert>
 
 namespace Compass::rt2 {
+
     /*
-    class Function {
-    public:
+        void emit(Bytecode inst);
+        void emit(Bytecode inst, u16 constant);
 
-        static constexpr struct ForeignTag {} foreign;
-        static constexpr struct BytecodeTag {} bytecode;
-
-        using ForeignImpl = std::function<void(Object*, Context&)>;
-
-        enum class Kind { Foreign, Bytecode };
-
-        Function(ForeignTag tag, ForeignImpl fn);
-        Function(BytecodeTag tag, UInt64 size);
-
-        Function(const Function&) = delete;
-        Function(Function&&) = delete;
-        Function& operator=(const Function&) = delete;
-        Function& operator=(Function&&) = delete;
-
-        ~Function();
-
-        Kind kind() const { return kind_; }
-
-    private:
-        Kind kind_;
-        enum {
-            std::vector<UInt16> bytecode_;
-            ForeignImpl         foreign_;
-        };
+        u16 emitJump(Bytecode inst);
+        void patchJump(u16 id);
     */
-    Function::Function(ForeignTag tag, ForeignImpl fn) : foreign_(fn) {
-
+    void Function::emit(Bytecode inst) {
+        bytecode_.push_back(static_cast<u16>(inst));
     }
 
-    Function::Function::Function(BytecodeTag tag, u64 size) : bytecode_() {
-
+    void Function::emit(Bytecode inst, u16 constant) {
+        emit(inst);
+        bytecode_.push_back(constant);
     }
 
-    Function::~Function() {
-        switch(kind_) {
-            case Kind::Foreign:
-            foreign_.~ForeignImpl();
-            break;
+    u16 Function::emitJump(Bytecode inst) {
+        emit(inst);
+        u16 loc = bytecode_.size();
+        bytecode_.push_back(0xcafe);
+        return loc;
+    }
 
-            case Kind::Bytecode:
-            bytecode_.~vector();
-            break;
-        }
+    void Function::patchJump(u16 id) {
+        assert(id < bytecode_.size());
+        i32 loc = bytecode_.size();
+        bytecode[id] = loc - id;
     }
 }

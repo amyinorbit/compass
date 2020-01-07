@@ -8,35 +8,25 @@
 // =^•.•^=
 //===--------------------------------------------------------------------------------------------===
 #pragma once
-#include <functional>
 #include <compass/runtime2/primitives.hpp>
+#include <compass/runtime2/bytecode.hpp>
 
 namespace Compass::rt2 {
     class Run;
     class Object;
-    static constexpr struct ForeignTag {} foreign;
-    static constexpr struct BytecodeTag {} bytecode;
+
 
     class Function : NonCopyable, NonMovable {
     public:
+        const u16* ip() const { return &bytecode_.front(); }
 
-        using ForeignImpl = std::function<void(Object*, Run&)>;
+        void emit(Bytecode inst);
+        void emit(Bytecode inst, u16 constant);
 
-        enum class Kind { Foreign, Bytecode };
-
-        Function(ForeignTag tag, ForeignImpl fn);
-        Function(BytecodeTag tag, u64 size);
-
-        ~Function();
-
-        Kind kind() const { return kind_; }
-        const u16* ip() const { return kind_ == Kind::Bytecode ? &bytecode_.front() : nullptr; }
+        u16 emitJump(Bytecode inst);
+        void patchJump(u16 id);
 
     private:
-        Kind kind_;
-        union {
-            std::vector<u16> bytecode_;
-            ForeignImpl      foreign_;
-        };
+        std::vector<u16> bytecode_;
     };
 }
