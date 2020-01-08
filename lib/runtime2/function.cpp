@@ -10,7 +10,7 @@
 #include <compass/runtime2/function.hpp>
 #include <cassert>
 
-namespace Compass::rt2 {
+namespace amyinorbit::compass {
 
     /*
         void emit(Bytecode inst);
@@ -38,6 +38,6 @@ namespace Compass::rt2 {
     void Function::patchJump(u16 id) {
         assert(id < bytecode_.size());
         i32 loc = bytecode_.size();
-        bytecode[id] = loc - id;
+        bytecode_[id] = loc - id;
     }
 }

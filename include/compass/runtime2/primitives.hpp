@@ -8,20 +8,18 @@
 // =^•.•^=
 //===--------------------------------------------------------------------------------------------===
 #pragma once
+#include <apfun/string.hpp>
 #include <cstdint>
-#include <string>
 #include <vector>
 #include <unordered_map>
 #include <unordered_set>
-#include <compass/runtime2/optional.hpp>
-#include <compass/runtime2/expected.hpp>
 
-namespace Compass {
+namespace amyinorbit::compass {
 
-    using namespace tl;
-
-    template <typename T>
-    using result = expected<T, std::string>;
+    // using namespace tl;
+    //
+    // template <typename T>
+    // using result = expected<T, std::string>;
 
     using i8 = std::int8_t;
     using u8 = std::uint8_t;
@@ -36,7 +34,7 @@ namespace Compass {
     using u64 = std::uint64_t;
 
     using uint = std::uint32_t;
-    using string = std::string;
+    // using string = std::string;
 
     template <typename T>
     using vector = std::vector<T>;

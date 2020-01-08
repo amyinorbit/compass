@@ -10,8 +10,9 @@
 #pragma once
 #include <string>
 #include <set>
+#include <apfun/string.hpp>
 
-namespace Compass::Language {
+namespace amyinorbit::compass {
     
     class Grammar {
     public:
@@ -22,9 +23,9 @@ namespace Compass::Language {
         };
         
         virtual ~Grammar() {}
-        virtual Class classOf(const std::string& word) const = 0;
-        virtual bool meansBeing(const std::string& word) const = 0;
-        virtual bool is(const std::string& word, Class wordClass) const = 0;
+        virtual Class classOf(const string& word) const = 0;
+        virtual bool meansBeing(const string& word) const = 0;
+        virtual bool is(const string& word, Class wordClass) const = 0;
     };
     
     
@@ -33,16 +34,16 @@ namespace Compass::Language {
         BasicEnglish() {}
         virtual ~BasicEnglish() {}
 
-        virtual Grammar::Class classOf(const std::string& word) const;
-        virtual bool meansBeing(const std::string& word) const;
-        virtual bool is(const std::string& word, Class wordClass) const;
+        virtual Grammar::Class classOf(const string& word) const;
+        virtual bool meansBeing(const string& word) const;
+        virtual bool is(const string& word, Class wordClass) const;
         
     private:
-        static const std::set<std::string> subjectives_;
-        static const std::set<std::string> objectives_;
-        static const std::set<std::string> possessives_;
-        static const std::set<std::string> demonstratives_;
-        static const std::set<std::string> prepositions_;
-        static const std::set<std::string> conjunctions_;
+        static const std::set<string> subjectives_;
+        static const std::set<string> objectives_;
+        static const std::set<string> possessives_;
+        static const std::set<string> demonstratives_;
+        static const std::set<string> prepositions_;
+        static const std::set<string> conjunctions_;
     };
 }

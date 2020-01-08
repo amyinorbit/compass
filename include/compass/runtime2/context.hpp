@@ -14,7 +14,7 @@
 #include <compass/runtime2/primitives.hpp>
 #include <compass/runtime2/value.hpp>
 
-namespace Compass::rt2 {
+namespace amyinorbit::compass {
     struct Context {
         map<string, Function> functions;
         vector<Object> prototypes;

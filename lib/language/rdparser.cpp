@@ -7,13 +7,12 @@
 // Licensed under the MIT License
 // =^•.•^=
 //===--------------------------------------------------------------------------------------------===
-#include <compass/core/string.hpp>
 #include <compass/language/driver.hpp>
 #include <compass/language/rdparser.hpp>
 
-namespace Compass::Language {
+namespace amyinorbit::compass {
     
-    RDParser::RDParser(const std::string& data, Driver& driver)
+    RDParser::RDParser(const string& data, Driver& driver)
         : lexer(data), driver(driver) {}
 
     bool RDParser::haveBeing() const {
@@ -24,8 +23,8 @@ namespace Compass::Language {
         return lexer.currentToken().kind == kind;
     }
     
-    bool RDParser::have(const std::string& word) const {
-        return String::toLower(text()) == String::toLower(word);
+    bool RDParser::have(const string& word) const {
+        return text() == word;
     }
     
     bool RDParser::have(Grammar::Class wordClass) const {
@@ -44,7 +43,7 @@ namespace Compass::Language {
         return true;
     }
     
-    bool RDParser::match(const std::string& word) {
+    bool RDParser::match(const string& word) {
         if(!have(word)) return false;
         lexer.nextToken();
         return true;
@@ -56,28 +55,28 @@ namespace Compass::Language {
         return true;
     }
     
-    void RDParser::expectBeing(const std::string& message) {
+    void RDParser::expectBeing(const cbuf& message) {
         if(driver.isFailed()) skipUntil(Token::End);
         if(!matchBeing()) driver.error(message);
     }
 
-    void RDParser::expect(Token::Kind kind, const std::string& message) {
+    void RDParser::expect(Token::Kind kind, const cbuf& message) {
         if(driver.isFailed()) skipUntil(kind);
         if(!match(kind)) driver.error(message);
     }
     
-    void RDParser::expect(const std::string& word, const std::string& message) {
+    void RDParser::expect(const string& word, const cbuf& message) {
         if(driver.isFailed()) skipUntil(Token::End);
         if(!match(word)) driver.error(message);
     }
     
-    void RDParser::expect(Grammar::Class wordClass, const std::string& message) {
+    void RDParser::expect(Grammar::Class wordClass, const cbuf& message) {
         if(driver.isFailed()) skipUntil(Token::End);
         if(!match(wordClass)) driver.error(message);
     }
     
-    std::string RDParser::eat() {
-        std::string text = lexer.currentToken().text;
+    string RDParser::eat() {
+        string text = lexer.currentToken().text;
         lexer.nextToken();
         return text;
     }
@@ -90,15 +89,15 @@ namespace Compass::Language {
     }
 
     
-    std::string RDParser::recWords(const std::string& stop) {
-        std::string str = text();
+    string RDParser::recWords(const string& stop) {
+        auto str = text();
         match(Token::Word);
         while(have(Token::Word) && !haveBeing() && !have(stop)) str += " " + eat();
         return str;
     }
     
-    std::string RDParser::recWords(Grammar::Class stop) {
-        std::string str = text();
+    string RDParser::recWords(Grammar::Class stop) {
+        auto str = text();
         match(Token::Word);
         while(have(Token::Word) && !haveBeing() && !have(stop)) str += " " + eat();
         return str;

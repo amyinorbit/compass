@@ -9,10 +9,13 @@
 //===--------------------------------------------------------------------------------------------===
 #pragma once
 #include <string>
-#include <compass/core/utf8.h>
+#include <apfun/unicode.hpp>
+#include <apfun/string.hpp>
 
-namespace Compass::Language {
+namespace amyinorbit::compass {
     
+    using cbuf = std::string;
+
     struct Token {
         enum Kind {
             Keyword,
@@ -26,34 +29,33 @@ namespace Compass::Language {
             Colon,
             End,
         };
-        
+
         Kind kind;
-        std::string text;
-        
-        std::string type() const;
+        string text;
+
+        cbuf type() const;
     };
-    
+
     class Lexer {
     public:
-        Lexer(const std::string& source);
+        Lexer(const string& source);
         virtual ~Lexer() {}
-        
+
         void reset();
         virtual const Token& nextToken();
         const Token& currentToken() const;
     protected:
-        
-        
+
+
     private:
-        codepoint_t current() const;
-        codepoint_t nextChar();
-        std::size_t remaining() const;
-    
-        const Token& makeToken(Token::Kind kind, const std::string& str = "");
-    
-        bool isIdentifier(codepoint_t c);
+        unicode::scalar current() const;
+        unicode::scalar nextChar();
+
+        const Token& makeToken(Token::Kind kind, const string& str = "");
+
+        bool isIdentifier(unicode::scalar c);
         void updateTokenStart();
-        
+
         const Token& lexKeyword();
         const Token& lexString();
         const Token& lexWord();
@@ -61,12 +63,15 @@ namespace Compass::Language {
         void eatLineComment();
         void eatParenComment();
         
-        std::string source_ = "";
+        string source_ = "";
+        unicode::scalar_iterator iterator_;
         
-        std::size_t ptr_ = 0;
-        std::size_t start_ = 0;
-    
-        codepoint_t current_;
-        Token       currentToken_;
+        unicode::scalar_iterator start_;
+
+        // std::size_t ptr_ = 0;
+        // std::size_t start_ = 0;
+
+        // unicode::scalar current_;
+        Token currentToken_;
     };
 }

@@ -15,63 +15,52 @@
 #include <string>
 #include <compass/language/lexer.hpp>
 
-std::string tokenNames__[] = {
-    "Keyword",
-    "Integer",
-    "Word",
-    "QuotedString",
-    "Dash",
-    "Comma",
-    "Period",
-    "Amp",
-    "Colon",
-    "End",
-};
+namespace amyinorbit::compass {
+    
+    cbuf tokenNames__[] = {
+        "Keyword",
+        "Integer",
+        "Word",
+        "QuotedString",
+        "Dash",
+        "Comma",
+        "Period",
+        "Amp",
+        "Colon",
+        "End",
+    };
 
-namespace Compass::Language {
-
-    std::string Token::type() const {
+    cbuf Token::type() const {
         return tokenNames__[kind];
     }
 
-    Lexer::Lexer(const std::string& source)
-        : source_(source), ptr_(0) {}
+    Lexer::Lexer(const string& source)
+        : source_(source), iterator_(source_.unicode_scalars().begin()) {}
 
     void Lexer::reset() {
-        ptr_ = 0;
+        iterator_ = source_.unicode_scalars().begin();
     }
 
     const Token& Lexer::currentToken() const {
         return currentToken_;
     }
 
-    std::size_t Lexer::remaining() const {
-        return source_.length() - ptr_;
+    unicode::scalar Lexer::current() const {
+        return *iterator_;
     }
 
-    codepoint_t Lexer::current() const {
-        return utf8_getCodepoint(source_.data() + ptr_, remaining());
+    unicode::scalar Lexer::nextChar() {
+        return *(++iterator_);
     }
 
-    codepoint_t Lexer::nextChar() {
-        if(ptr_ >= source_.size()) return current_ = '\0';
-
-        current_ = current();
-        auto size = utf8_codepointSize(current_);
-        if(size > 0) {
-            ptr_ += size;
-        }
-        return current_;
-    }
-
-    bool Lexer::isIdentifier(codepoint_t c) {
-        return utf8_isIdentifier(c)
+    bool Lexer::isIdentifier(unicode::scalar c) {
+        return unicode::is_identifier(c)
             || c == '-'
             || c == '\'';
     }
 
     void Lexer::updateTokenStart() {
-        start_ = ptr_;
+        start_ = iterator_;
     }
 
     const Token& Lexer::lexKeyword() {
@@ -79,16 +68,14 @@ namespace Compass::Language {
             nextChar();
         }
 
-        const auto length = ptr_ - start_;
-        const auto str = source_.substr(start_, length);
-
+        const auto str = string(start_.utf8(), iterator_.utf8());
         return makeToken(Token::Keyword, str);
     }
 
     const Token& Lexer::lexString() {
 
         while(current() != '"') {
-            codepoint_t c = nextChar();
+            auto c = nextChar();
             if(c == '\0') {
                 std::cerr << "quoted string not finished\n";
                 abort();
@@ -96,36 +83,32 @@ namespace Compass::Language {
         }
         nextChar();
 
-        const auto length = (ptr_ - start_)-2;
-        return makeToken(Token::QuotedString, source_.substr(start_+1, length));
+        const auto length = (iterator_.utf8() - start_.utf8())-2;
+        return makeToken(Token::QuotedString, string(start_.utf8() + 1, length));
     }
 
     const Token& Lexer::lexWord() {
         while(isIdentifier(current())) {
             nextChar();
         }
-
-        const auto length = ptr_ - start_;
-        const auto str = source_.substr(start_, length);
-        return makeToken(Token::Word, str);
+        return makeToken(Token::Word, string(start_.utf8(), iterator_.utf8()));
     }
 
     const Token& Lexer::lexNumber() {
         while(current() >= '0' && current() < '9') {
             nextChar();
         }
-        const auto length = (ptr_ - start_);
-        return makeToken(Token::Integer, source_.substr(start_, length));
+        return makeToken(Token::Word, string(start_.utf8(), iterator_.utf8()));
     }
 
-    const Token& Lexer::makeToken(Token::Kind kind, const std::string& str) {
+    const Token& Lexer::makeToken(Token::Kind kind, const string& str) {
         currentToken_.kind = kind;
         currentToken_.text = str;
         return currentToken_;
     }
 
     void Lexer::eatLineComment() {
-        while(current() && (current() != '\n' && current() != '\r')) {
+        while(current().is_valid() && (current() != '\n' && current() != '\r')) {
             nextChar();
         }
     }
@@ -136,15 +119,15 @@ namespace Compass::Language {
     }
 
     const Token& Lexer::nextToken() {
-        if(ptr_ >= source_.size()) {
+        if(iterator_ == source_.unicode_scalars().end()) {
             return makeToken(Token::End);
         }
 
         while(current() != '\0') {
             updateTokenStart();
-            codepoint_t c = nextChar();
+            auto c = nextChar();
 
-            switch(c) {
+            switch(c.value) {
                 //whitespace
                 case 0x0020:
                 case 0x000d:
@@ -189,10 +172,10 @@ namespace Compass::Language {
                     break;
 
                 default:
-                    if (utf8_isIdentifierHead(c)) {
+                    if(unicode::is_identifier_head(c)) {
                         return lexWord();
                     }
-                    std::cerr << "Invalid character: "<< (char)c <<"\n";
+                    std::cerr << "Invalid character: "<< c <<"\n";
                     abort();
             }
         }

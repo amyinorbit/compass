@@ -8,7 +8,7 @@
 //===--------------------------------------------------------------------------------------------===
 #include <compass/runtime2/value.hpp>
 
-namespace Compass::rt2 {
+namespace amyinorbit::compass {
     Value::operator bool() const {
         return isTrue();
     }

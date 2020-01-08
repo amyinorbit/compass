@@ -13,7 +13,7 @@
 #include <compass/runtime2/object.hpp>
 #include <compass/runtime2/bytecode.hpp>
 
-namespace Compass::rt2 {
+namespace amyinorbit::compass {
 
     Machine::Machine(const Context& ctx) : ctx_(ctx), stack_(512), callStack_(32), heap_(1024) {
         for(const auto& p: ctx.prototypes) {
@@ -88,7 +88,7 @@ namespace Compass::rt2 {
                 CODE(Bytecode::io_read, {
                     std::string line;
                     std::getline(std::cin, line);
-                    stack_.push_back(line);
+                    stack_.push_back(string(line.data(), line.size()));
                 });
 
                 CODE(Bytecode::io_write, {

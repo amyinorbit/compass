@@ -11,7 +11,7 @@
 #include <variant>
 #include <compass/runtime2/primitives.hpp>
 
-namespace Compass::rt2 {
+namespace amyinorbit::compass {
 
     class Object;
     struct nil_t {} nil;

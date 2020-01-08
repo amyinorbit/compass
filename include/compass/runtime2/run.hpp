@@ -11,7 +11,7 @@
 #include <compass/runtime2/primitives.hpp>
 #include <compass/runtime2/buffer.hpp>
 
-namespace Compass::rt2 {
+namespace amyinorbit::compass {
 
     class Machine : NonCopyable, NonMovable {
     public:

@@ -8,7 +8,7 @@
 //===--------------------------------------------------------------------------------------------===
 #pragma once
 
-namespace Compass::rt2 {
+namespace amyinorbit::compass {
 
     #define OPCODE(name, _, __) name,
     enum class Bytecode {

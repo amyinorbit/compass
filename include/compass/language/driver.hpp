@@ -8,11 +8,10 @@
 // =^•.•^=
 //===--------------------------------------------------------------------------------------------===
 #pragma once
-#include <compass/core/functional.hpp>
 #include <compass/language/diagnostics.hpp>
 #include <compass/language/grammar.hpp>
 
-namespace Compass::Language {
+namespace amyinorbit::compass {
     
     class Driver {
     public:

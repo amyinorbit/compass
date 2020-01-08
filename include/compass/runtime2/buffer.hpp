@@ -10,7 +10,7 @@
 #include <compass/runtime2/value.hpp>
 #include <algorithm>
 
-namespace Compass::rt2 {
+namespace amyinorbit::compass {
 
     template <typename T>
     class buffer {

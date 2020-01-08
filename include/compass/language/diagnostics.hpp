@@ -11,9 +11,9 @@
 #include <cstdint>
 #include <functional>
 #include <string>
-#include <compass/core/functional.hpp>
+#include <optional>
 
-namespace Compass::Language {
+namespace amyinorbit::compass {
     
     class Diagnostic {
     public:
@@ -28,11 +28,11 @@ namespace Compass::Language {
         
         Level level() const { return level_; }
         const std::string& title() const { return title_; }
-        const optional<std::string>& message() const { return message_; }
+        const std::optional<std::string>& message() const { return message_; }
     private:
         Level                   level_;
         std::string             title_;
-        optional<std::string>   message_;
+        std::optional<std::string> message_;
     };
     
     using DiagnosticsConsumer = std::function<void(const Diagnostic&)>;

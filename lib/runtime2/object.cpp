@@ -11,7 +11,7 @@
 #include <algorithm>
 #include <compass/runtime2/object.hpp>
 
-namespace Compass::rt2 {
+namespace amyinorbit::compass {
 
     Object::Object(const Object& other)
     : kind_(other.kind_)

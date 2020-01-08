@@ -13,34 +13,34 @@
 #include <compass/language/grammar.hpp>
 #include <compass/language/lexer.hpp>
 
-namespace Compass::Language {
+namespace amyinorbit::compass {
     
     class RDParser {
     public:
-        RDParser(const std::string& data, Driver& grammar);
+        RDParser(const string& data, Driver& grammar);
         virtual ~RDParser() {}
     protected:
         
         bool haveBeing() const;
         bool have(Token::Kind kind) const;
-        bool have(const std::string& word) const;
+        bool have(const string& word) const;
         bool have(Grammar::Class wordClass) const;
         
         bool matchBeing();
         bool match(Token::Kind kind);
-        bool match(const std::string& word);
+        bool match(const string& word);
         bool match(Grammar::Class wordClass);
         
-        void expectBeing(const std::string& error = "invalid token");
-        void expect(Token::Kind kind, const std::string& error = "invalid token");
-        void expect(const std::string& word, const std::string& error = "invalid token");
-        void expect(Grammar::Class wordClass, const std::string& error = "invalid token");
+        void expectBeing(const cbuf& error = "invalid token");
+        void expect(Token::Kind kind, const cbuf& error = "invalid token");
+        void expect(const string& word, const cbuf& error = "invalid token");
+        void expect(Grammar::Class wordClass, const cbuf& error = "invalid token");
         
-        std::string recWords(const std::string& stop = "");
-        std::string recWords(Grammar::Class stop);
+        string recWords(const string& stop = "");
+        string recWords(Grammar::Class stop);
         
-        std::string eat();
-        std::string text() const { return lexer.currentToken().text; }
+        string eat();
+        string text() const { return lexer.currentToken().text; }
 
         Lexer lexer;
         Driver& driver;
