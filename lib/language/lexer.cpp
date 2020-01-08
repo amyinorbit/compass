@@ -29,18 +29,18 @@ std::string tokenNames__[] = {
 };
 
 namespace Compass::Language {
-    
+
     std::string Token::type() const {
         return tokenNames__[kind];
     }
-    
+
     Lexer::Lexer(const std::string& source)
         : source_(source), ptr_(0) {}
-    
+
     void Lexer::reset() {
         ptr_ = 0;
     }
-    
+
     const Token& Lexer::currentToken() const {
         return currentToken_;
     }
@@ -55,7 +55,7 @@ namespace Compass::Language {
 
     codepoint_t Lexer::nextChar() {
         if(ptr_ >= source_.size()) return current_ = '\0';
-    
+
         current_ = current();
         auto size = utf8_codepointSize(current_);
         if(size > 0) {
@@ -78,15 +78,15 @@ namespace Compass::Language {
         while(isIdentifier(current())) {
             nextChar();
         }
-    
+
         const auto length = ptr_ - start_;
         const auto str = source_.substr(start_, length);
-    
+
         return makeToken(Token::Keyword, str);
     }
 
     const Token& Lexer::lexString() {
-    
+
         while(current() != '"') {
             codepoint_t c = nextChar();
             if(c == '\0') {
@@ -95,7 +95,7 @@ namespace Compass::Language {
             }
         }
         nextChar();
-    
+
         const auto length = (ptr_ - start_)-2;
         return makeToken(Token::QuotedString, source_.substr(start_+1, length));
     }
@@ -104,7 +104,7 @@ namespace Compass::Language {
         while(isIdentifier(current())) {
             nextChar();
         }
-    
+
         const auto length = ptr_ - start_;
         const auto str = source_.substr(start_, length);
         return makeToken(Token::Word, str);
@@ -123,13 +123,13 @@ namespace Compass::Language {
         currentToken_.text = str;
         return currentToken_;
     }
-    
+
     void Lexer::eatLineComment() {
         while(current() && (current() != '\n' && current() != '\r')) {
             nextChar();
         }
     }
-    
+
     void Lexer::eatParenComment() {
         while(current() != ')') nextChar();
         nextChar();
@@ -139,11 +139,11 @@ namespace Compass::Language {
         if(ptr_ >= source_.size()) {
             return makeToken(Token::End);
         }
-    
+
         while(current() != '\0') {
             updateTokenStart();
             codepoint_t c = nextChar();
-        
+
             switch(c) {
                 //whitespace
                 case 0x0020:
@@ -157,37 +157,37 @@ namespace Compass::Language {
 
                 // // line feed
                 //     return makeToken(Token::Newline);
-                    
+
                 case '.':
                     return makeToken(Token::Period);
-            
+
                 case ',':
                     return makeToken(Token::Comma);
-                
+
                 case '&':
                     return makeToken(Token::Amp);
-                
+
                 case '-':
                     return makeToken(Token::Dash);
-            
+
                 case '@':
                     return lexKeyword();
-                
+
                 case '"':
                     return lexString();
-                    
+
                 case ':':
                     return makeToken(Token::Colon);
-                    
+
                 case '#':
                 case '!':
                     eatLineComment();
                     break;
-                    
+
                 case '(':
                     eatParenComment();
                     break;
-                
+
                 default:
                     if (utf8_isIdentifierHead(c)) {
                         return lexWord();

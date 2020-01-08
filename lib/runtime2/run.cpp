@@ -15,7 +15,6 @@
 
 namespace Compass::rt2 {
 
-
     Machine::Machine(const Context& ctx) : ctx_(ctx), stack_(512), callStack_(32), heap_(1024) {
         for(const auto& p: ctx.prototypes) {
             prototypes_[p.kind()] = clone(&p);
@@ -136,9 +135,7 @@ namespace Compass::rt2 {
                     closeFrame();
                 });
 
-                default:
-                return false;
-                break;
+                default: return false;
             }
         }
         return true;

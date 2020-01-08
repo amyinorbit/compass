@@ -8,45 +8,44 @@
 // =^•.•^=
 //===--------------------------------------------------------------------------------------------===
 #include <cassert>
-#include <compass/core/string.hpp>
 #include <compass/language/grammar.hpp>
 
 namespace Compass::Language {
-     
+
      template <typename T>
      bool contains(const std::set<T>& set, const T& key) {
          return set.find(key) != set.end();
      }
-    
+
     const std::set<std::string> BasicEnglish::subjectives_ = {
         "I", "you", "he", "she", "it", "we", "they"
     };
-    
+
     const std::set<std::string> BasicEnglish::objectives_ = {
         "me", "you", "him", "her", "it", "us", "them"
     };
-    
+
     const std::set<std::string> BasicEnglish::possessives_ = {
         "my", "your", "his", "her", "its", "ours", "theirs"
     };
-    
+
     const std::set<std::string> BasicEnglish::demonstratives_ = {
         "this", "that", "these", "those"
     };
-    
+
     const std::set<std::string> BasicEnglish::prepositions_ = {
         "to", "off", "on", "under", "in", "at", "of", "from"
     };
-    
+
     const std::set<std::string> BasicEnglish::conjunctions_ = {
         "for", "and", "nor", "but", "or", "yet", "so"
     };
-    
+
     // TODO: some words can be both (for example, 'it' is both an objective and subjective pronoun)
     // TODO: maybe return a tuple of values? or a std::set?
     // TODO: might also be better rewritng as is(string, class)->bool
     Grammar::Class BasicEnglish::classOf(const std::string& word) const {
-        const auto low = String::toLower(word);
+        const auto low = word;
         if(low == "the") return Grammar::Definite;
         if(low == "a" || low == "an") return Grammar::Indefinite;
         if(contains(objectives_, low)) return Grammar::Objective;
@@ -57,14 +56,14 @@ namespace Compass::Language {
         if(contains(conjunctions_, low)) return Grammar::Conjunction;
         return Grammar::Neutral;
     }
-    
+
     bool BasicEnglish::meansBeing(const std::string& word) const {
-        const auto low = String::toLower(word);
+        const auto low = word;
         return low == "is" || low == "are";
     }
-    
+
     bool BasicEnglish::is(const std::string& word, Grammar::Class wordClass) const {
-        const auto low = String::toLower(word);
+        const auto low = word;
         switch(wordClass) {
             case Grammar::Definite: return low == "the";
             case Grammar::Indefinite: return low == "a" || low == "an";

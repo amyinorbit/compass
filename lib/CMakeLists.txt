@@ -1,6 +1,3 @@
 add_subdirectory(runtime2)
-add_subdirectory(core)
-add_subdirectory(filesystem)
 add_subdirectory(language)
 add_subdirectory(compiler)
-add_subdirectory(runtime)
