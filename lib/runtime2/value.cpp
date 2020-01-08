@@ -20,4 +20,29 @@ namespace Compass::rt2 {
         if(is<Ref>()) return as<Ref>() != nullptr;
         return false;
     }
+
+    const Value operator+(const Value& left, const Value& right) {
+        if(left.index() != right.index()) return nil;
+        if(left.is<string>()) return left.as<string>() + right.as<string>();
+        if(left.is<double>()) return left.as<double>() + right.as<double>();
+        return nil;
+    }
+
+    const Value operator-(const Value& left, const Value& right) {
+        if(left.index() != right.index()) return nil;
+        if(left.is<double>()) return left.as<double>() - right.as<double>();
+        return nil;
+    }
+
+    const Value operator*(const Value& left, const Value& right) {
+        if(left.index() != right.index()) return nil;
+        if(left.is<double>()) return left.as<double>() * right.as<double>();
+        return nil;
+    }
+
+    const Value operator/(const Value& left, const Value& right) {
+        if(left.index() != right.index()) return nil;
+        if(left.is<double>()) return left.as<double>() / right.as<double>();
+        return nil;
+    }
 }

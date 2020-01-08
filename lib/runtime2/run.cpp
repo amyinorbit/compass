@@ -8,6 +8,7 @@
 // =^•.•^=
 //===--------------------------------------------------------------------------------------------===
 #include <cassert>
+#include <iostream>
 #include <compass/runtime2/run.hpp>
 #include <compass/runtime2/object.hpp>
 #include <compass/runtime2/bytecode.hpp>
@@ -15,7 +16,7 @@
 namespace Compass::rt2 {
 
 
-    Machine::Machine(const Context& ctx) : ctx_(ctx), stack_(512), callStack_(32) {
+    Machine::Machine(const Context& ctx) : ctx_(ctx), stack_(512), callStack_(32), heap_(1024) {
         for(const auto& p: ctx.prototypes) {
             prototypes_[p.kind()] = clone(&p);
         }
@@ -53,75 +54,87 @@ namespace Compass::rt2 {
         ip_ = fn.ip();
         Bytecode inst = Bytecode::halt;
 
+        #define CODE(inst, block) case inst: block; break;
+
         while((inst = readCode()) != Bytecode::halt) {
             switch (inst) {
-                case Bytecode::halt: return true;
+                CODE(Bytecode::halt, return true);
+                CODE(Bytecode::load_true, stack_.push_back(true));
+                CODE(Bytecode::load_false, stack_.push_back(false));
+                CODE(Bytecode::load_const, stack_.push_back(constant()));
+                CODE(Bytecode::load_var, stack_.push_back(heap_[read()]));
 
-                case Bytecode::push_true: stack_.push_back<bool>(true); break;
-                case Bytecode::push_false: stack_.push_back<bool>(false); break;
-                case Bytecode::push_const: stack_.push_back(constant()); break;
-                case Bytecode::push_current: stack_.push_back(lookat_); break;
-
-                case Bytecode::push_prop: {
-                    Object* obj = stack_.pop_back<Object*>();
+                CODE(Bytecode::load_prop, {
+                    auto obj = stack_.pop_back<Value::Ref>();
                     stack_.push_back(obj->field(constant<string>()));
-                } break;
+                });
 
-                case Bytecode::store_current: lookat_ = stack_.pop_back<Object*>(); break;
-                case Bytecode::store_prop: {
-                    Object* obj = stack_.pop_back<Object*>();
+                CODE(Bytecode::store_prop, {
+                    auto obj = stack_.pop_back<Value::Ref>();
                     obj->field(constant<string>()) = stack_.pop_back();
-                } break;
+                });
 
-                case Bytecode::pop: stack_.pop_back(); break;
-                case Bytecode::swap: swap(); break;
-                case Bytecode::dup: stack_.push_back(stack_.back()); break;
+                CODE(Bytecode::store_var, {
+                    heap_[read()] = stack_.pop_back();
+                });
 
-                case Bytecode::comp: stack_.push_back(stack_.pop_back() == stack_.pop_back()); break;
+                CODE(Bytecode::pop, stack_.pop_back());
+                CODE(Bytecode::swap, swap());
+                CODE(Bytecode::dup, stack_.push_back(stack_.back()));
 
-                case Bytecode::jump_if: {
+                CODE(Bytecode::io_style, {
+
+                });
+
+                CODE(Bytecode::io_read, {
+                    std::string line;
+                    std::getline(std::cin, line);
+                    stack_.push_back(line);
+                });
+
+                CODE(Bytecode::io_write, {
+                    std::cout << stack_.pop_back<string>() << "\n";
+                });
+
+
+                CODE(Bytecode::comp, stack_.push_back(stack_.pop_back() == stack_.pop_back()));
+                CODE(Bytecode::jump_if, {
                     auto jump = read();
                     if(stack_.back<bool>()) ip_ += jump;
-                } break;
+                });
 
-                case Bytecode::rjump_if: {
+                CODE(Bytecode::rjump_if, {
                     auto jump = read();
                     if(stack_.back<bool>()) ip_ -= jump;
-                } break;
+                });
 
-                case Bytecode::jump: ip_ += read(); break;
+                CODE(Bytecode::jump, ip_ += read());
+                CODE(Bytecode::rjump, ip_ -= read());
 
-                case Bytecode::rjump: ip_ -= read(); break;
-
-                case Bytecode::go_link: {
+                CODE(Bytecode::link, {
                     auto dir = constant<string>();
-                    Object* obj = stack_.pop_back<Object*>();
-                    location_ = obj->follow(dir);
-                } break;
+                    auto obj = stack_.pop_back<Object*>();
+                    stack_.push_back(obj->follow(dir));
+                });
 
-                case Bytecode::look:
-                    lookat_ = stack_.pop_back<Object*>();
-                    break;
-
-                case Bytecode::make: {
+                CODE(Bytecode::clone, {
                     auto kind = stack_.pop_back<string>();
                     const Object* proto = prototype(kind);
                     stack_.push_back(clone(proto));
-                } break;
+                });
 
-                case Bytecode::call: {
+                CODE(Bytecode::call, {
                     auto sig = constant<string>();
                     Object* obj = stack_.back<Object*>();
                     assert(obj->hasVerb(sig));
                     const auto& fn = ctx_.functions.at(sig);
                     openFrame(fn);
-                } break;
+                });
 
-
-                case Bytecode::ret: {
+                CODE(Bytecode::ret, {
                     if(!callStack_.size()) return true;
                     closeFrame();
-                } break;
+                });
 
                 default:
                 return false;
@@ -180,6 +193,7 @@ namespace Compass::rt2 {
         }
 
         for(const auto& v: stack_) { mark(v); }
+        for(const auto& v: heap_) { mark(v); }
         for(const auto& [_, obj]: prototypes_) { allocated_ += obj->mark(); }
 
         auto** ptr = &gcHead_;

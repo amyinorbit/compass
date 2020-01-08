@@ -46,11 +46,6 @@ namespace Compass::rt2 {
         Object* allocate(const string& kind, const string& prototype);
         const Object* prototype(const string& kind) const { return prototypes_.at(kind); }
 
-
-        // MARK: - Story tracking
-
-        Object* location_ = nullptr;
-        Object* lookat_ = nullptr;
         const Context& ctx_;
 
         // MARK: - Garbage collection
@@ -64,7 +59,9 @@ namespace Compass::rt2 {
         // MARK: - Runtime VM
 
         mutable const u16* ip_ = nullptr;
+
         buffer<Value> stack_;
         buffer<Frame> callStack_;
+        buffer<Value> heap_;
     };
 }

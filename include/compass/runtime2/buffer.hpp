@@ -72,6 +72,13 @@ namespace Compass::rt2 {
         template <typename U>
         void push_back(const U& item) { storage_[size_++] = item; }
 
+        template <typename U>
+        void insert(iterator where, const U& item) {
+            std::copy_backward(where, end(), end() + 1);
+            storage_[where] = item;
+            size_ += 1;
+        }
+
         void erase(iterator where) {
             erase(where, where+1);
         }

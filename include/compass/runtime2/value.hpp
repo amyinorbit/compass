@@ -43,5 +43,8 @@ namespace Compass::rt2 {
         std::variant<nil_t, bool, double, string, Ref, Array> storage;
     };
 
-
+    const Value operator+(const Value& left, const Value& right);
+    const Value operator-(const Value& left, const Value& right);
+    const Value operator*(const Value& left, const Value& right);
+    const Value operator/(const Value& left, const Value& right);
 }
