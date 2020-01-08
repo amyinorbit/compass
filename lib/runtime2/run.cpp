@@ -15,44 +15,38 @@
 namespace Compass::rt2 {
 
 
-    Run::Run(const Context& ctx) : ctx_(ctx) {
-        stack_ = new Value[512];
-        stackTop_ = stack_;
+    Machine::Machine(const Context& ctx) : ctx_(ctx), stack_(512), callStack_(32) {
         for(const auto& p: ctx.prototypes) {
             prototypes_[p.kind()] = clone(&p);
         }
     }
 
-    Run::~Run() {
-        delete [] stack_;
-    }
-
-    u16 Run::read() const {
+    u16 Machine::read() const {
         return *(ip_++);
     }
 
 
-    void Run::openFrame(const Function& fn) {
+    void Machine::openFrame(const Function& fn) {
         Frame f;
         f.ip = ip_;
-        f.base = stackTop_;
+        f.base = stack_.end();
         callStack_.push_back(f);
         ip_ = fn.ip();
     }
 
-    void Run::closeFrame() {
+    void Machine::closeFrame() {
         assert(callStack_.size());
         const auto& f = callStack_.back();
         callStack_.pop_back();
-        stackTop_ = f.base;
+        stack_.erase(f.base, stack_.end());
         ip_ = f.ip;
     }
 
-    Bytecode Run::readCode() const {
+    Bytecode Machine::readCode() const {
         return static_cast<Bytecode>(read());
     }
 
-    bool Run::run(const string& signature) {
+    bool Machine::run(const string& signature) {
         if(!ctx_.functions.count(signature)) return false;
         const auto& fn = ctx_.functions.at(signature);
 
@@ -63,36 +57,36 @@ namespace Compass::rt2 {
             switch (inst) {
                 case Bytecode::halt: return true;
 
-                case Bytecode::push_true: push<bool>(true); break;
-                case Bytecode::push_false: push<bool>(false); break;
-                case Bytecode::push_const: push(constant()); break;
-                case Bytecode::push_current: push(lookat_); break;
+                case Bytecode::push_true: stack_.push_back<bool>(true); break;
+                case Bytecode::push_false: stack_.push_back<bool>(false); break;
+                case Bytecode::push_const: stack_.push_back(constant()); break;
+                case Bytecode::push_current: stack_.push_back(lookat_); break;
 
                 case Bytecode::push_prop: {
-                    Object* obj = pop<Object*>();
-                    push(obj->field(constant<string>()));
+                    Object* obj = stack_.pop_back<Object*>();
+                    stack_.push_back(obj->field(constant<string>()));
                 } break;
 
-                case Bytecode::store_current: lookat_ = pop<Object*>(); break;
+                case Bytecode::store_current: lookat_ = stack_.pop_back<Object*>(); break;
                 case Bytecode::store_prop: {
-                    Object* obj = pop<Object*>();
-                    obj->field(constant<string>()) = pop();
+                    Object* obj = stack_.pop_back<Object*>();
+                    obj->field(constant<string>()) = stack_.pop_back();
                 } break;
 
-                case Bytecode::pop: pop(); break;
+                case Bytecode::pop: stack_.pop_back(); break;
                 case Bytecode::swap: swap(); break;
-                case Bytecode::dup: push(peek()); break;
+                case Bytecode::dup: stack_.push_back(stack_.back()); break;
 
-                case Bytecode::comp: push(pop() == pop()); break;
+                case Bytecode::comp: stack_.push_back(stack_.pop_back() == stack_.pop_back()); break;
 
                 case Bytecode::jump_if: {
                     auto jump = read();
-                    if(peek<bool>()) ip_ += jump;
+                    if(stack_.back<bool>()) ip_ += jump;
                 } break;
 
                 case Bytecode::rjump_if: {
                     auto jump = read();
-                    if(peek<bool>()) ip_ -= jump;
+                    if(stack_.back<bool>()) ip_ -= jump;
                 } break;
 
                 case Bytecode::jump: ip_ += read(); break;
@@ -101,23 +95,23 @@ namespace Compass::rt2 {
 
                 case Bytecode::go_link: {
                     auto dir = constant<string>();
-                    Object* obj = pop<Object*>();
+                    Object* obj = stack_.pop_back<Object*>();
                     location_ = obj->follow(dir);
                 } break;
 
                 case Bytecode::look:
-                    lookat_ = pop<Object*>();
+                    lookat_ = stack_.pop_back<Object*>();
                     break;
 
                 case Bytecode::make: {
-                    auto kind = pop<string>();
+                    auto kind = stack_.pop_back<string>();
                     const Object* proto = prototype(kind);
-                    push(clone(proto));
+                    stack_.push_back(clone(proto));
                 } break;
 
                 case Bytecode::call: {
                     auto sig = constant<string>();
-                    Object* obj = peek<Object*>();
+                    Object* obj = stack_.back<Object*>();
                     assert(obj->hasVerb(sig));
                     const auto& fn = ctx_.functions.at(sig);
                     openFrame(fn);
@@ -137,7 +131,7 @@ namespace Compass::rt2 {
         return true;
     }
 
-    Object* Run::clone(const Object* other) {
+    Object* Machine::clone(const Object* other) {
         allocated_ += 1;
         if(allocated_ >= nextGC_) collect();
         auto* obj = new Object(*other);
@@ -146,7 +140,7 @@ namespace Compass::rt2 {
         return obj;
     }
 
-    Object* Run::allocate(const string& kind, const Object* prototype) {
+    Object* Machine::allocate(const string& kind, const Object* prototype) {
         allocated_ += 1;
         if(allocated_ >= nextGC_) collect();
 
@@ -156,7 +150,7 @@ namespace Compass::rt2 {
         return obj;
     }
 
-    Object* Run::allocate(const string& kind, const string& name) {
+    Object* Machine::allocate(const string& kind, const string& name) {
         return allocate(kind, prototype(name));
     }
 
@@ -175,7 +169,7 @@ namespace Compass::rt2 {
         return 0;
     }
 
-    void Run::collect() {
+    void Machine::collect() {
         allocated_ = 0;
 
         // TODO: unmark everything
@@ -185,7 +179,7 @@ namespace Compass::rt2 {
             obj = obj->next_;
         }
 
-        for(const Value* v = stack_; v != stackTop_; ++v) { mark(*v); }
+        for(const auto& v: stack_) { mark(v); }
         for(const auto& [_, obj]: prototypes_) { allocated_ += obj->mark(); }
 
         auto** ptr = &gcHead_;

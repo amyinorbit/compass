@@ -12,7 +12,7 @@
 #include <compass/runtime2/bytecode.hpp>
 
 namespace Compass::rt2 {
-    class Run;
+    class Machine;
     class Object;
 
 

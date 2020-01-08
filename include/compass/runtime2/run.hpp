@@ -9,20 +9,19 @@
 #pragma once
 #include <compass/runtime2/context.hpp>
 #include <compass/runtime2/primitives.hpp>
+#include <compass/runtime2/buffer.hpp>
 
 namespace Compass::rt2 {
 
-    class Run : NonCopyable, NonMovable {
+    class Machine : NonCopyable, NonMovable {
     public:
-        Run(const Context& ctx);
-        ~Run();
-
+        Machine(const Context& ctx);
         bool run(const string& function = "<script>");
 
     private:
 
         struct Frame {
-            const string name;
+            string name;
             const u16* ip;
             Value* base;
         };
@@ -33,20 +32,7 @@ namespace Compass::rt2 {
         u16 read() const;
         Bytecode readCode() const;
 
-        void push(const Value& value) { *(stackTop_++) = value; }
-        template <typename T>
-        void push(const T& value) { *(stackTop_++) = value; }
-
-        Value pop() { return *(--stackTop_); }
-        template <typename T>
-        T pop() { return pop().as<T>(); }
-
-        template <typename T>
-        const T& peek() const { return (stackTop_-1)->as<T>(); }
-        template <typename T>
-        T& peek() { return (stackTop_-1)->as<T>(); }
-        const Value& peek() const { return *(stackTop_-1); }
-        void swap() { std::iter_swap(stackTop_ - 1, stackTop_ - 2); }
+        void swap() { std::iter_swap(stack_.end() - 1, stack_.end() - 2); }
 
         template <typename T>
         const T& constant() const { return ctx_.constants[read()].as<T>(); }
@@ -78,8 +64,7 @@ namespace Compass::rt2 {
         // MARK: - Runtime VM
 
         mutable const u16* ip_ = nullptr;
-        Value* stack_ = nullptr;
-        Value* stackTop_ = nullptr;
-        vector<Frame> callStack_;
+        buffer<Value> stack_;
+        buffer<Frame> callStack_;
     };
 }

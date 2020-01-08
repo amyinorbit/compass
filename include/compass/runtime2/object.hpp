@@ -61,7 +61,7 @@ namespace Compass::rt2 {
         bool isMarked() const { return mark_; }
 
     private:
-        friend class Run;
+        friend class Machine;
 
         mutable bool    mark_   = false;
         mutable Object* next_   = nullptr;
