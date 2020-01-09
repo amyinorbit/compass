@@ -34,7 +34,7 @@ namespace amyinorbit::compass {
     };
 
     const std::set<string> BasicEnglish::prepositions_ = {
-        "to", "off", "on", "under", "in", "at", "of", "from"
+        "on", "under", "in" //"to", "off", "on", "under", "in", "at", "of", "from"
     };
 
     const std::set<string> BasicEnglish::conjunctions_ = {

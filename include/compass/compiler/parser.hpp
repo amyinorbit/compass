@@ -45,6 +45,13 @@ namespace amyinorbit::compass {
     public:
         AssertionParser(const string& data, Driver& driver) : RDParser(data, driver) {}
         virtual ~AssertionParser() {}
+
+        void sentence();
     private:
+
+        string subject();
+        string verb();
+        string kind();
+        std::vector<string> adjectives();
     };
 }
