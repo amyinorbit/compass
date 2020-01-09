@@ -8,6 +8,7 @@
 //===--------------------------------------------------------------------------------------------===
 #pragma once
 #include <compass/language/rdparser.hpp>
+#include <vector>
 
 namespace amyinorbit::compass {
 
@@ -52,6 +53,7 @@ namespace amyinorbit::compass {
         string subject();
         string verb();
         string kind();
+        void qualifier();
         std::vector<string> adjectives();
     };
 }

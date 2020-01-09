@@ -10,6 +10,7 @@
 #include <compass/runtime2/context.hpp>
 #include <compass/runtime2/primitives.hpp>
 #include <compass/runtime2/buffer.hpp>
+#include <compass/runtime2/garbage.hpp>
 
 namespace amyinorbit::compass {
 
@@ -39,20 +40,21 @@ namespace amyinorbit::compass {
         template <typename T>
         const T& constant(u16 idx) const { return ctx_.constants[idx].as<T>(); }
         const Value& constant() const { return ctx_.constants[read()]; }
-
-        void collect();
-        Object* clone(const Object* other);
-        Object* allocate(const string& kind, const Object* prototype = nullptr);
-        Object* allocate(const string& kind, const string& prototype);
+        //
+        // void collect();
+        // Object* clone(const Object* other);
+        // Object* allocate(const string& kind, const Object* prototype = nullptr);
+        // Object* allocate(const string& kind, const string& prototype);
         const Object* prototype(const string& kind) const { return prototypes_.at(kind); }
 
         const Context& ctx_;
+        Garbage gc_;
 
         // MARK: - Garbage collection
 
-        Object* gcHead_ = nullptr;
-        u64 nextGC_ = 0;
-        u64 allocated_ = 0;
+        // Object* gcHead_ = nullptr;
+        // u64 nextGC_ = 0;
+        // u64 allocated_ = 0;
 
         map<string, Object*> prototypes_;
 

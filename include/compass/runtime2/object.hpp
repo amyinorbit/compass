@@ -61,7 +61,7 @@ namespace amyinorbit::compass {
         bool isMarked() const { return mark_; }
 
     private:
-        friend class Machine;
+        friend class Garbage;
 
         mutable bool    mark_   = false;
         mutable Object* next_   = nullptr;

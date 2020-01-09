@@ -31,13 +31,13 @@ namespace amyinorbit::compass {
 
         if(match(Grammar::Class::Indefinite)) {
             std::cout << "kind: " << kind() << "\n";
+            if(match("which") || match("where")) {
+                qualifier();
+            }
         } else {
             std::cout << "adjectives:\n";
             adjectives() | view::tapped(printer);
         }
-
-        if(match(Token::Kind::Period)) return;
-
         // TODO: qualifier
     }
 
@@ -81,5 +81,11 @@ namespace amyinorbit::compass {
         } while(match(Token::Kind::Comma) || match("and"));
 
         return adjs;
+    }
+    
+    void AssertionParser::qualifier() {
+        std::cout << "---qualifier\n";
+        std::cout << "   verb: " << verb() << "\n";
+        
     }
 }
