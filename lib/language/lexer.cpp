@@ -50,9 +50,7 @@ namespace amyinorbit::compass {
     }
 
     unicode::scalar Lexer::nextChar() {
-        auto r = *current_;
-        ++current_;
-        return r;
+        return *(current_++);
     }
 
     bool Lexer::isIdentifier(unicode::scalar c) {
