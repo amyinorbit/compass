@@ -16,7 +16,7 @@
 #include <compass/language/lexer.hpp>
 
 namespace amyinorbit::compass {
-    
+
     cbuf tokenNames__[] = {
         "Keyword",
         "Integer",
@@ -54,7 +54,7 @@ namespace amyinorbit::compass {
     }
 
     bool Lexer::isIdentifier(unicode::scalar c) {
-        return unicode::is_identifier(c)
+        return c.is_identifier()
             || c == '-'
             || c == '\'';
     }
@@ -172,7 +172,7 @@ namespace amyinorbit::compass {
                     break;
 
                 default:
-                    if(unicode::is_identifier_head(c)) {
+                    if(c.is_identifier_head()) {
                         return lexWord();
                     }
                     std::cerr << "Invalid character: "<< c <<"\n";
