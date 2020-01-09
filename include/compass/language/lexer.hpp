@@ -13,7 +13,7 @@
 #include <apfun/string.hpp>
 
 namespace amyinorbit::compass {
-    
+
     using cbuf = std::string;
 
     struct Token {
@@ -62,16 +62,11 @@ namespace amyinorbit::compass {
         const Token& lexNumber();
         void eatLineComment();
         void eatParenComment();
-        
+
         string source_ = "";
-        unicode::scalar_iterator iterator_;
-        
+
+        unicode::scalar_iterator current_;
         unicode::scalar_iterator start_;
-
-        // std::size_t ptr_ = 0;
-        // std::size_t start_ = 0;
-
-        // unicode::scalar current_;
         Token currentToken_;
     };
 }

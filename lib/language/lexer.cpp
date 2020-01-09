@@ -35,10 +35,10 @@ namespace amyinorbit::compass {
     }
 
     Lexer::Lexer(const string& source)
-        : source_(source), iterator_(source_.unicode_scalars().begin()) {}
+        : source_(source), current_(source_.unicode_scalars().begin()) {}
 
     void Lexer::reset() {
-        iterator_ = source_.unicode_scalars().begin();
+        current_ = source_.unicode_scalars().begin();
     }
 
     const Token& Lexer::currentToken() const {
@@ -46,11 +46,13 @@ namespace amyinorbit::compass {
     }
 
     unicode::scalar Lexer::current() const {
-        return *iterator_;
+        return *current_;
     }
 
     unicode::scalar Lexer::nextChar() {
-        return *(++iterator_);
+        auto r = *current_;
+        ++current_;
+        return r;
     }
 
     bool Lexer::isIdentifier(unicode::scalar c) {
@@ -60,7 +62,7 @@ namespace amyinorbit::compass {
     }
 
     void Lexer::updateTokenStart() {
-        start_ = iterator_;
+        start_ = current_;
     }
 
     const Token& Lexer::lexKeyword() {
@@ -68,7 +70,7 @@ namespace amyinorbit::compass {
             nextChar();
         }
 
-        const auto str = string(start_.utf8(), iterator_.utf8());
+        const auto str = string(start_.utf8(), current_.utf8());
         return makeToken(Token::Keyword, str);
     }
 
@@ -83,7 +85,7 @@ namespace amyinorbit::compass {
         }
         nextChar();
 
-        const auto length = (iterator_.utf8() - start_.utf8())-2;
+        const auto length = (current_.utf8() - start_.utf8())-2;
         return makeToken(Token::QuotedString, string(start_.utf8() + 1, length));
     }
 
@@ -91,14 +93,14 @@ namespace amyinorbit::compass {
         while(isIdentifier(current())) {
             nextChar();
         }
-        return makeToken(Token::Word, string(start_.utf8(), iterator_.utf8()));
+        return makeToken(Token::Word, string(start_.utf8(), current_.utf8()));
     }
 
     const Token& Lexer::lexNumber() {
         while(current() >= '0' && current() < '9') {
             nextChar();
         }
-        return makeToken(Token::Word, string(start_.utf8(), iterator_.utf8()));
+        return makeToken(Token::Word, string(start_.utf8(), current_.utf8()));
     }
 
     const Token& Lexer::makeToken(Token::Kind kind, const string& str) {
@@ -119,12 +121,12 @@ namespace amyinorbit::compass {
     }
 
     const Token& Lexer::nextToken() {
-        if(iterator_ == source_.unicode_scalars().end()) {
+        if(current_ == source_.unicode_scalars().end()) {
             return makeToken(Token::End);
         }
 
-        while(current() != '\0') {
-            updateTokenStart();
+        while(current().is_valid()) {
+            start_ = current_;
             auto c = nextChar();
 
             switch(c.value) {
@@ -163,7 +165,6 @@ namespace amyinorbit::compass {
                     return makeToken(Token::Colon);
 
                 case '#':
-                case '!':
                     eatLineComment();
                     break;
 
