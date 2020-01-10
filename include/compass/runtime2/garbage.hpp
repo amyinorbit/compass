@@ -13,25 +13,26 @@
 #include <vector>
 
 namespace amyinorbit::compass {
-    
+
     class Garbage {
     public:
         using Marker = std::function<void()>;
-        
+
         void onGC(Marker m);
         void mark(const Value& value);
-        
+        void markObject(const Object* obj);
+
         void collect();
         Object* clone(const Object* other);
         Object* allocate(const string& kind, const Object* prototype = nullptr);
-        
-        void pushRoot(Object* obj) { roots_.push_back(obj); }
-        void popRoot(Object* obj) { roots_.pop_back(); }
-        
+
+        void pushRoot(const Object* obj) { roots_.push_back(obj); }
+        void popRoot() { roots_.pop_back(); }
+
     private:
         Marker onGC_;
-        std::vector<Object*> roots_;
-        
+        std::vector<const Object*> roots_;
+
         Object* gcHead_ = nullptr;
         u64 nextGC_ = 64;
         u64 allocated_ = 0;

@@ -21,9 +21,9 @@ namespace amyinorbit::compass {
             for(const auto& v: heap_) { gc_.mark(v); }
             for(const auto& [_, obj]: prototypes_) { gc_.mark(obj); }
         });
-        
+
         for(const auto& p: ctx.prototypes) {
-            prototypes_[p.kind()] = gc_.clone(&p);
+            prototypes_[p.kind] = gc_.clone(&p);
         }
     }
 
@@ -119,7 +119,7 @@ namespace amyinorbit::compass {
                 CODE(Bytecode::link, {
                     auto dir = constant<string>();
                     auto obj = stack_.pop_back<Object*>();
-                    stack_.push_back(obj->follow(dir));
+                    stack_.push_back(follow(obj, dir));
                 });
 
                 CODE(Bytecode::clone, {

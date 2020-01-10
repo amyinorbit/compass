@@ -10,32 +10,53 @@
 
 namespace amyinorbit::compass {
     Object* Garbage::clone(const Object* other) {
+        pushRoot(other);
+
         allocated_ += 1;
         if(allocated_ >= nextGC_) collect();
+
         auto* obj = new Object(*other);
-        obj->next_ = gcHead_;
+        obj->mem.next = gcHead_;
         gcHead_ = obj;
+
+        popRoot();
         return obj;
     }
 
     Object* Garbage::allocate(const string& kind, const Object* prototype) {
+        pushRoot(prototype);
+
         allocated_ += 1;
         if(allocated_ >= nextGC_) collect();
 
-        auto* obj = prototype ? new Object(kind, prototype) : new Object(kind);
-        obj->next_ = gcHead_;
+        auto* obj = new Object(*prototype);
+        obj->mem.next = gcHead_;
+        obj->prototype = prototype;
         gcHead_ = obj;
+
+        popRoot();
         return obj;
+    }
+
+    void Garbage::markObject(const Object *obj) {
+        if(!obj) return;
+        if(obj->mem.mark) return;
+        obj->mem.mark = true;
+        allocated_ += 1;
+        markObject(obj->prototype);
+
+        for(const auto& [_, v]: obj->fields) {
+            mark(v);
+        }
     }
 
     void Garbage::mark(const Value& v) {
         if(v.is<Value::Ref>()) {
-            auto obj = v.as<Value::Ref>();
-            allocated_ += obj->mark();
+            markObject(v.as<Value::Ref>());
         }
         else if(v.is<Value::Array>()) {
             for(const auto* obj: v.as<Value::Array>()) {
-                allocated_ += obj->mark();
+                markObject(obj);
             }
         }
     }
@@ -46,22 +67,22 @@ namespace amyinorbit::compass {
         // TODO: unmark everything
         const Object* obj = gcHead_;
         while(obj) {
-            obj->mark_ = false;
-            obj = obj->next_;
+            obj->mem.mark = false;
+            obj = obj->mem.next;
         }
 
-        for(auto obj: roots_) { obj->mark(); }
+        for(auto obj: roots_) { markObject(obj); }
         if(onGC_) onGC_();
 
         auto** ptr = &gcHead_;
         while(*ptr) {
-            if(!(*ptr)->mark_) {
+            if(!(*ptr)->mem.mark) {
                 auto* garbage = *ptr;
-                *ptr = garbage->next_;
+                *ptr = garbage->mem.next;
                 delete garbage;
             } else {
-                (*ptr)->mark_ = false;
-                ptr = &(*ptr)->next_;
+                (*ptr)->mem.mark = false;
+                ptr = &(*ptr)->mem.next;
             }
         }
 
