@@ -7,41 +7,46 @@
 // =^•.•^=
 //===--------------------------------------------------------------------------------------------===
 #pragma once
-#include <compass/runtime2/primitives.hpp>
+#include <compass/language/driver.hpp>
+#include <compass/runtime2/garbage.hpp>
 #include <apfun/string.hpp>
 #include <apfun/maybe.hpp>
-#include <unordered_map>
 #include <string>
-#include <memory>
 
 namespace amyinorbit::compass {
     using cbuf = std::string;
     
     namespace inferred {
-        
-        enum class VK { boolean, real, text, thing, collection };
-        
         struct Link {
             string direction;
-            cbuf from, to;
+            string from, to;
         };
-        
-        
     };
     
-    class Infer {
+    class InferEngine {
     public:
+        InferEngine(Driver& driver);
         
         void declareDirection(const string& dir);
         void declareDirection(const string& dir, const string& opposite);
         
+        void refer(const string& name);
+        
+        void kind(const string& kind);
+        void adjectives(const std::vector<string>& adj);
+        
+        void describe(const string& desc);
+        void relation(const string& rel, const string& other);
+        void location(const string& direction, const string& other);
+        
     private:
-        template <typename T> using ref = std::unique_ptr<T>;
+        Driver& driver_;
         
-        // The object that is currently being talked about.
-        // inferred::Object* current_;
+        Garbage gc_;
+        Object* current_ = nullptr;
         
-        // All known things.
+        map<string, Object*> world_;
+        map<string, Object*> prototypes_;
         map<string, maybe<string>> directions_;
     };
 }

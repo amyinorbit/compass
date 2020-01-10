@@ -24,14 +24,16 @@ namespace amyinorbit::compass {
         void collect();
         Object* clone(const Object* other);
         Object* allocate(const string& kind, const Object* prototype = nullptr);
-        Object* allocate(const string& kind, const string& prototype);
+        
+        void pushRoot(Object* obj) { roots_.push_back(obj); }
+        void popRoot(Object* obj) { roots_.pop_back(); }
         
     private:
         Marker onGC_;
         std::vector<Object*> roots_;
         
         Object* gcHead_ = nullptr;
-        u64 nextGC_ = 0;
+        u64 nextGC_ = 64;
         u64 allocated_ = 0;
     };
 }
