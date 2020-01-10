@@ -23,18 +23,9 @@ namespace amyinorbit::compass {
         return obj;
     }
 
-    Object* Garbage::allocate(const string& kind, const Object* prototype) {
-        pushRoot(prototype);
-
-        allocated_ += 1;
-        if(allocated_ >= nextGC_) collect();
-
-        auto* obj = new Object(*prototype);
-        obj->mem.next = gcHead_;
+    Object* Garbage::allocate(const Object* prototype) {
+        auto* obj = clone(prototype);
         obj->prototype = prototype;
-        gcHead_ = obj;
-
-        popRoot();
         return obj;
     }
 

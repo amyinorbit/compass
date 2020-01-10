@@ -23,7 +23,7 @@ namespace amyinorbit::compass {
         });
 
         for(const auto& p: ctx.prototypes) {
-            prototypes_[p.kind] = gc_.clone(&p);
+            // prototypes_[p.kind] = gc_.clone(&p);
         }
     }
 
@@ -125,7 +125,7 @@ namespace amyinorbit::compass {
                 CODE(Bytecode::clone, {
                     auto kind = stack_.pop_back<string>();
                     const Object* proto = prototype(kind);
-                    stack_.push_back(gc_.clone(proto));
+                    stack_.push_back(gc_.allocate(proto));
                 });
 
                 CODE(Bytecode::call, {
