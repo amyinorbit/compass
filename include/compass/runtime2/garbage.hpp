@@ -18,7 +18,7 @@ namespace amyinorbit::compass {
     public:
         using Marker = std::function<void()>;
 
-        void onGC(Marker m);
+        void onGC(Marker m) { onGC_ = m; }
         void mark(const Value& value);
         void markObject(const Object* obj);
 

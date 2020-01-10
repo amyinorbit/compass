@@ -38,6 +38,13 @@ namespace amyinorbit::compass {
         void describe(const string& desc);
         void relation(const string& rel, const string& other);
         void location(const string& direction, const string& other);
+        
+        
+        void dump() const {
+            std::cout << *current_ << "\n";
+            std::cout << *thingKind_ << "\n";
+            std::cout << *roomKind_ << "\n";
+        }
 
     private:
         Driver& driver_;

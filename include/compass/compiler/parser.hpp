@@ -8,6 +8,7 @@
 //===--------------------------------------------------------------------------------------------===
 #pragma once
 #include <compass/language/rdparser.hpp>
+#include <compass/compiler/infer.hpp>
 #include <vector>
 
 namespace amyinorbit::compass {
@@ -44,16 +45,19 @@ namespace amyinorbit::compass {
 
     class AssertionParser : public RDParser {
     public:
-        AssertionParser(const string& data, Driver& driver) : RDParser(data, driver) {}
+        AssertionParser(const string& data, Driver& driver)
+            : RDParser(data, driver), infer(driver) {}
         virtual ~AssertionParser() {}
 
         void sentence();
     private:
 
-        string subject();
-        string verb();
-        string kind();
+        void subject();
+        void verb();
+        void kind();
         void qualifier();
-        std::vector<string> adjectives();
+        void adjectives();
+        
+        InferEngine infer;
     };
 }

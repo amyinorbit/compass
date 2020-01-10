@@ -26,22 +26,22 @@ namespace amyinorbit::compass {
     auto printer = [](const auto& value) { std::cout << "  - " << value << "\n"; };
 
     void AssertionParser::sentence() {
-        std::cout << "subject: " << subject() << "\n";
-        std::cout << "verb: " << verb() << "\n";
-
+        subject();
+        verb();
+        
         if(match(Grammar::Class::Indefinite)) {
-            std::cout << "kind: " << kind() << "\n";
-            if(match("which") || match("where")) {
+            kind();
+            if(match("which")) {
                 qualifier();
             }
         } else {
-            std::cout << "adjectives:\n";
-            adjectives() | view::tapped(printer);
+            adjectives();
         }
+        infer.dump();
         // TODO: qualifier
     }
 
-    string AssertionParser::subject() {
+    void AssertionParser::subject() {
         match(Grammar::Class::Indefinite);
         string subject;
 
@@ -50,42 +50,39 @@ namespace amyinorbit::compass {
             subject += text();
             expect(Token::Kind::Word, "This sentence is missing a subject");
         } while(have(Token::Kind::Word) && !haveBeing());
-
-        return subject;
+        
+        if(subject != "it") infer.refer(subject);
     }
 
-    string AssertionParser::verb() {
+    void AssertionParser::verb() {
         string v = text();
         expectBeing("This assertion is missing a valid verb");
-        return v;
     }
 
-    string AssertionParser::kind() {
+    void AssertionParser::kind() {
         string kind;
         do {
             if(kind.size()) kind += " ";
             kind += text();
             expect(Token::Kind::Word, "This sentence is missing a kind");
         } while(have(Token::Kind::Word) && !have(Grammar::Class::Preposition));
-
-        return kind;
+        infer.kind(kind);
     }
 
-    std::vector<string> AssertionParser::adjectives() {
-        std::vector<string> adjs;
+    void AssertionParser::adjectives() {
 
         do {
             string adj = text();
             expect(Token::Kind::Word, "missing adjectives qualifying the thing");
-            adjs.push_back(adj);
+            // infer.adjective(adj);
         } while(match(Token::Kind::Comma) || match("and"));
 
-        return adjs;
+        // return adjs;
     }
     
     void AssertionParser::qualifier() {
-        std::cout << "---qualifier\n";
-        std::cout << "   verb: " << verb() << "\n";
+        // std::cout << "---qualifier\n";
+        // std::cout << "   verb: " << verb() << "\n";
         
     }
 }

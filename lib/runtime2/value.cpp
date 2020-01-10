@@ -7,6 +7,7 @@
 // =^•.•^=
 //===--------------------------------------------------------------------------------------------===
 #include <compass/runtime2/value.hpp>
+#include <compass/runtime2/object.hpp>
 
 namespace amyinorbit::compass {
     Value::operator bool() const {
@@ -44,5 +45,31 @@ namespace amyinorbit::compass {
         if(left.index() != right.index()) return nil;
         if(left.is<double>()) return left.as<double>() / right.as<double>();
         return nil;
+    }
+    
+    void printArray(std::ostream& out, const Value::Array& array) {
+        out << "[";
+        
+        for(std::size_t i = 0; i < array.size(); ++i) {
+            print(array[i], out);
+            if(i < array.size() - 1) out << ", ";
+        }
+        
+        out << "]";
+    }
+    
+    void Value::print(std::ostream& out) const {
+        // std::variant<nil_t, bool, double, string, Ref, Array> storage;
+        switch(storage.index()) {
+            
+            case 0: out << "<nil>"; break;
+            case 1: out << (as<bool>() ? "true" : "false"); break;
+            case 2: out << as<double>(); break;
+            case 3: out << '"' << as<string>() << '"'; break;
+            case 4: ::amyinorbit::compass::print(as<Ref>(), out); break;
+            case 5: printArray(out, as<Array>()); break;
+            
+            default: out << "<invalid value>" << "\n"; break;
+        }
     }
 }

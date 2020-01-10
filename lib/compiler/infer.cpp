@@ -30,10 +30,11 @@ namespace amyinorbit::compass {
         thingKind_->verbs = {"look"};
 
         roomKind_ = gc_.clone(thingKind_);
+        roomKind_->id = "Room";
         roomKind_->field("children") = Value::Array();
 
-        prototypes_["Room"] = roomKind_;
-        prototypes_["Thing"] = thingKind_;
+        prototypes_["room"] = roomKind_;
+        prototypes_["thing"] = thingKind_;
     }
 
     void InferEngine::declareDirection(const string& dir) {
@@ -53,6 +54,7 @@ namespace amyinorbit::compass {
             return;
         }
         current_ = gc_.allocate();
+        current_->id = name; // TODO: we probably need a way to sanitise names
     }
 
     void InferEngine::kind(const string& kind) {
@@ -67,7 +69,7 @@ namespace amyinorbit::compass {
                 current_->prototype && !prototype->is(current_->prototype),
                 "This is already something else")
             ) return;
-
+            current_->prototype = prototype;
             current_->fields.insert(prototype->fields.begin(), prototype->fields.end());
             current_->verbs.insert(prototype->verbs.begin(), prototype->verbs.end());
         } else {

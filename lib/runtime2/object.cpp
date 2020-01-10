@@ -24,4 +24,24 @@ namespace amyinorbit::compass {
         });
         return it != obj->links.end() ? it->target : nullptr;
     }
+    
+    void printProto(const Object* obj, std::ostream& out) {
+        if(!obj) return;
+        out << ">" << obj->id;
+        printProto(obj->prototype, out);
+    }
+    
+    void print(const Object* obj, std::ostream& out) {
+        out << obj->id << ": ";
+        printProto(obj->prototype, out);
+        out << " {\n";
+        
+        for(const auto& [name, value]: obj->fields) {
+            out << "  - " << name << " = ";
+            value.print(out);
+            out << "\n";
+        }
+        
+        out << "}";
+    }
 }

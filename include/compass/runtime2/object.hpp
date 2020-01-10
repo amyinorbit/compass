@@ -10,6 +10,7 @@
 #pragma once
 #include <compass/runtime2/primitives.hpp>
 #include <compass/runtime2/value.hpp>
+#include <iostream>
 
 namespace amyinorbit::compass {
 
@@ -35,9 +36,15 @@ namespace amyinorbit::compass {
 
         bool is(const Object* proto) const;
         bool hasVerb(const string& verb) const { return verbs.count(verb); }
-        Value& field(const string& field) { return fields.at(field); }
+        Value& field(const string& field) { return fields[field]; }
         const Value& field(const string& field) const { return fields.at(field); }
     };
 
     Object* follow(const Object* obj, const string& to);
+    void print(const Object* obj, std::ostream& out);
+    
+    inline std::ostream& operator << (std::ostream& left, const Object& right) {
+        print(&right, left);
+        return left;
+    }
 }

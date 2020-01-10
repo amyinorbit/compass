@@ -8,16 +8,17 @@
 // =^•.•^=
 //===--------------------------------------------------------------------------------------------===
 #pragma once
-#include <variant>
 #include <compass/runtime2/primitives.hpp>
+#include <iostream>
+#include <variant>
 
 namespace amyinorbit::compass {
 
     class Object;
-    struct nil_t {} nil;
+    constexpr struct nil_t {} nil;
 
-    bool operator==(nil_t, nil_t) { return false; }
-    bool operator!=(nil_t, nil_t) { return true; }
+    constexpr bool operator==(nil_t, nil_t) { return false; }
+    constexpr bool operator!=(nil_t, nil_t) { return true; }
 
     struct Value {
     using Ref = Object*;
@@ -38,6 +39,8 @@ namespace amyinorbit::compass {
         template <typename T> const T& as() const { return std::get<T>(storage); }
 
         int index() const { return storage.index(); }
+        
+        void print(std::ostream& out) const;
 
     private:
         std::variant<nil_t, bool, double, string, Ref, Array> storage;
@@ -47,4 +50,9 @@ namespace amyinorbit::compass {
     const Value operator-(const Value& left, const Value& right);
     const Value operator*(const Value& left, const Value& right);
     const Value operator/(const Value& left, const Value& right);
+    
+    inline std::ostream& operator << (std::ostream& left, const Value& right) {
+        right.print(left);
+        return left;
+    }
 }
