@@ -24,7 +24,8 @@ namespace amyinorbit::compass {
 
         void collect();
         Object* clone(const Object* other);
-        Object* allocate(const Object* prototype);
+        Object* instantiate(const Object* prototype);
+        Object* allocate();
 
         void pushRoot(const Object* obj) { roots_.push_back(obj); }
         void popRoot() { roots_.pop_back(); }

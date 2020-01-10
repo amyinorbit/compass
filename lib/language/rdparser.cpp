@@ -55,22 +55,22 @@ namespace amyinorbit::compass {
         return true;
     }
 
-    void RDParser::expectBeing(const cbuf& message) {
+    void RDParser::expectBeing(const string& message) {
         if(driver.isFailed()) skipUntil(Token::End);
         if(!matchBeing()) driver.diagnostic(Diagnostic::error(message));
     }
 
-    void RDParser::expect(Token::Kind kind, const cbuf& message) {
+    void RDParser::expect(Token::Kind kind, const string& message) {
         if(driver.isFailed()) skipUntil(kind);
         if(!match(kind)) driver.diagnostic(Diagnostic::error(message));
     }
 
-    void RDParser::expect(const string& word, const cbuf& message) {
+    void RDParser::expect(const string& word, const string& message) {
         if(driver.isFailed()) skipUntil(Token::End);
         if(!match(word)) driver.diagnostic(Diagnostic::error(message));
     }
 
-    void RDParser::expect(Grammar::Class wordClass, const cbuf& message) {
+    void RDParser::expect(Grammar::Class wordClass, const string& message) {
         if(driver.isFailed()) skipUntil(Token::End);
         if(!match(wordClass)) driver.diagnostic(Diagnostic::error(message));
     }
