@@ -9,13 +9,7 @@
 #include <compass/compiler/infer.hpp>
 
 namespace amyinorbit::compass {
-    /*
-    void adjectives(const std::vector<string>& adj);
 
-    void describe(const string& desc);
-    void relation(const string& rel, const string& other);
-    void location(const string& direction, const string& other);
-    */
     InferEngine::InferEngine(Driver& driver) : driver_(driver) {
         gc_.onGC([this]{
             gc_.markObject(current_);
@@ -29,8 +23,10 @@ namespace amyinorbit::compass {
         thingKind_->field("desccription") = string();
         thingKind_->verbs = {"look"};
 
-        roomKind_ = gc_.clone(thingKind_);
+        roomKind_ = gc_.allocate();
         roomKind_->id = "Room";
+        roomKind_->field("name") = string();
+        roomKind_->field("desccription") = string();
         roomKind_->field("children") = Value::Array();
 
         prototypes_["room"] = roomKind_;
@@ -55,6 +51,7 @@ namespace amyinorbit::compass {
         }
         current_ = gc_.allocate();
         current_->id = name; // TODO: we probably need a way to sanitise names
+        world_[name] = current_;
     }
 
     void InferEngine::kind(const string& kind) {
@@ -73,8 +70,8 @@ namespace amyinorbit::compass {
             current_->fields.insert(prototype->fields.begin(), prototype->fields.end());
             current_->verbs.insert(prototype->verbs.begin(), prototype->verbs.end());
         } else {
-            current_->prototype = gc_.clone(current_);
             prototypes_[kind] = gc_.clone(current_);
+            current_->prototype = prototypes_[kind];
         }
     }
 

@@ -45,8 +45,8 @@ namespace amyinorbit::compass {
 
     class AssertionParser : public RDParser {
     public:
-        AssertionParser(const string& data, Driver& driver)
-            : RDParser(data, driver), infer(driver) {}
+        AssertionParser(const string& data, Driver& driver, InferEngine& infer)
+            : RDParser(data, driver), infer(infer) {}
         virtual ~AssertionParser() {}
 
         void sentence();
@@ -57,7 +57,7 @@ namespace amyinorbit::compass {
         void kind();
         void qualifier();
         void adjectives();
-        
-        InferEngine infer;
+
+        InferEngine& infer;
     };
 }

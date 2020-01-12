@@ -11,12 +11,14 @@ int main(int argc, const char** argv) {
 
     std::string in;
 
+    Compiler compiler;
+    InferEngine infer(compiler);
+
     for(;;) {
         std::cout << "input> ";
         if(!std::getline(std::cin, in)) break;
 
-        Compiler compiler;
-        AssertionParser ap(string(in.data(), in.size()), compiler);
+        AssertionParser ap(string(in.data(), in.size()), compiler, infer);
 
         ap.sentence();
 

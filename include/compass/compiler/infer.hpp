@@ -29,6 +29,7 @@ namespace amyinorbit::compass {
 
         void declareDirection(const string& dir);
         void declareDirection(const string& dir, const string& opposite);
+        void declareProperty(const string& name);
 
         void refer(const string& name);
 
@@ -38,8 +39,8 @@ namespace amyinorbit::compass {
         void describe(const string& desc);
         void relation(const string& rel, const string& other);
         void location(const string& direction, const string& other);
-        
-        
+        void property(const string& value);
+
         void dump() const {
             std::cout << *current_ << "\n";
             std::cout << *thingKind_ << "\n";
@@ -64,5 +65,17 @@ namespace amyinorbit::compass {
         map<string, Object*> world_;
         map<string, Object*> prototypes_;
         map<string, maybe<string>> directions_;
+
+        // This is probably not the best way to represent properties:
+        //  1. it doesn't ensure that each property value has a globally unique name
+        //  2. it makes it extremely inefficient to recover a property from one of its values
+        //
+        //      using EnumValues std::vector<string>;
+        //      map<string, EnumValues> properties_;
+        //
+        // Instead, this feels like a better idea. Not it still requires keeping track of existing
+        // properties for referring to them in text.
+        map<string, string> values_; // property value -> property name
+        set<string> properties_; // property names
     };
 }
