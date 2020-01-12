@@ -20,6 +20,11 @@ namespace amyinorbit::compass {
     constexpr bool operator==(nil_t, nil_t) { return false; }
     constexpr bool operator!=(nil_t, nil_t) { return true; }
 
+    struct Enum { string value; };
+
+    inline bool operator==(const Enum& left, const Enum& right) { return left.value == right.value; }
+    inline bool operator!=(const Enum& left, const Enum& right) { return !(left == right); }
+
     struct Value {
     using Ref = Object*;
         using Array = vector<Ref>;
@@ -39,18 +44,18 @@ namespace amyinorbit::compass {
         template <typename T> const T& as() const { return std::get<T>(storage); }
 
         int index() const { return storage.index(); }
-        
+
         void print(std::ostream& out) const;
 
     private:
-        std::variant<nil_t, bool, double, string, Ref, Array> storage;
+        std::variant<nil_t, bool, double, string, Enum, Ref, Array> storage;
     };
 
     const Value operator+(const Value& left, const Value& right);
     const Value operator-(const Value& left, const Value& right);
     const Value operator*(const Value& left, const Value& right);
     const Value operator/(const Value& left, const Value& right);
-    
+
     inline std::ostream& operator << (std::ostream& left, const Value& right) {
         right.print(left);
         return left;

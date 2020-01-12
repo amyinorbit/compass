@@ -101,6 +101,29 @@ namespace amyinorbit::compass {
                     std::cout << stack_.pop_back<string>() << "\n";
                 });
 
+                CODE(Bytecode::add, {
+                    auto b = stack_.pop_back();
+                    auto a = stack_.pop_back();
+                    stack_.push_back(a + b);
+                });
+
+                CODE(Bytecode::sub, {
+                    auto b = stack_.pop_back();
+                    auto a = stack_.pop_back();
+                    stack_.push_back(a - b);
+                });
+
+                CODE(Bytecode::mul, {
+                    auto b = stack_.pop_back();
+                    auto a = stack_.pop_back();
+                    stack_.push_back(a * b);
+                });
+
+                CODE(Bytecode::div, {
+                    auto b = stack_.pop_back();
+                    auto a = stack_.pop_back();
+                    stack_.push_back(a - b);
+                });
 
                 CODE(Bytecode::comp, stack_.push_back(stack_.pop_back() == stack_.pop_back()));
                 CODE(Bytecode::jump_if, {
