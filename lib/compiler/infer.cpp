@@ -22,7 +22,7 @@ namespace amyinorbit::compass {
         thingKind_->field("name") = string();
         thingKind_->field("desccription") = string();
         thingKind_->field("adjectives") = Value::Array();
-        thingKind_->verbs = Value::Array{"look"};
+        thingKind_->verbs = {"look"};
 
         roomKind_ = gc_.allocate();
         roomKind_->id = "Room";
