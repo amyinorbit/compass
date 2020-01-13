@@ -17,21 +17,29 @@ namespace amyinorbit::compass {
             for(const auto& [_, o]: world_) { gc_.markObject(o); }
         });
 
-        thingKind_ = gc_.allocate();
+        Object* base = gc_.allocate();
+        base->field("name") = string();
+        base->field("description") = string();
+        base->field("adjectives") = Value::Array();
+
+        gc_.pushRoot(base);
+
+        thingKind_ = gc_.clone(base);
         thingKind_->id = "Thing";
-        thingKind_->field("name") = string();
-        thingKind_->field("desccription") = string();
-        thingKind_->field("adjectives") = Value::Array();
         thingKind_->verbs = {"look"};
 
-        roomKind_ = gc_.allocate();
+        roomKind_ = gc_.clone(base);
         roomKind_->id = "Room";
-        roomKind_->field("name") = string();
-        roomKind_->field("desccription") = string();
         roomKind_->field("children") = Value::Array();
 
         prototypes_["room"] = roomKind_;
         prototypes_["thing"] = thingKind_;
+
+        gc_.popRoot();
+
+        for(const auto& s: {"small", "large", "massive", "tiny"}) {
+            declareProperty("size", s);
+        }
     }
 
     void InferEngine::declareDirection(const string& dir) {
@@ -43,6 +51,14 @@ namespace amyinorbit::compass {
         if(error(directions_.count(dir), dir + " is already a direction")) return;
         directions_[dir] = opposite;
         directions_[opposite] = dir;
+    }
+
+    void InferEngine::declareProperty(const string& property, const string& value) {
+        properties_.insert(property);
+        auto it = values_.find(value);
+        if(error(values_.count(value), "you cannot change what " + value + " is.")) return;
+        values_[value] = property;
+        properties_.insert(property);
     }
 
     void InferEngine::refer(const string& name) {
@@ -74,6 +90,19 @@ namespace amyinorbit::compass {
             prototypes_[kind] = gc_.clone(current_);
             current_->prototype = prototypes_[kind];
         }
+    }
+
+    void InferEngine::property(const string& value) {
+        if(error(!current_, "I am not sure what you are referring to")) return;
+        auto it = values_.find(value);
+        if(it == values_.end()) {
+            //current_->field("adjectives").as<Value::Array>().push_back(value);
+        } else {
+            auto& prop = current_->field(it->second);
+            if(error(!prop.is<Enum>() && !prop.is<nil_t>(), "this is not a valid property!")) return;
+            prop = Enum{value};
+        }
+        // if(error(it != values_.end()), "")
     }
 
     void InferEngine::describe(const string& desc) {

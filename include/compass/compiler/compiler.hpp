@@ -22,6 +22,7 @@ namespace amyinorbit::compass {
         virtual bool isFailed() const override { return errorCount_ > 0; }
 
         void diagnose(std::ostream& out) const;
+        void flush() { diagnostics_.clear(); }
     private:
         BasicEnglish grammar_;
         int errorCount_ = 0;

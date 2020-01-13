@@ -28,7 +28,7 @@ namespace amyinorbit::compass {
     void AssertionParser::sentence() {
         subject();
         verb();
-        
+
         if(match(Grammar::Class::Indefinite)) {
             kind();
             if(match("which")) {
@@ -50,7 +50,7 @@ namespace amyinorbit::compass {
             subject += text();
             expect(Token::Kind::Word, "This sentence is missing a subject");
         } while(have(Token::Kind::Word) && !haveBeing());
-        
+
         if(subject != "it") infer.refer(subject);
     }
 
@@ -74,15 +74,16 @@ namespace amyinorbit::compass {
         do {
             string adj = text();
             expect(Token::Kind::Word, "missing adjectives qualifying the thing");
+            infer.property(adj);
             // infer.adjective(adj);
         } while(match(Token::Kind::Comma) || match("and"));
 
         // return adjs;
     }
-    
+
     void AssertionParser::qualifier() {
         // std::cout << "---qualifier\n";
         // std::cout << "   verb: " << verb() << "\n";
-        
+
     }
 }

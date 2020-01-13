@@ -23,6 +23,7 @@ int main(int argc, const char** argv) {
         ap.sentence();
 
         compiler.diagnose(std::cout);
+        compiler.flush();
     }
 
     return 0;

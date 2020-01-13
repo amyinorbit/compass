@@ -29,17 +29,16 @@ namespace amyinorbit::compass {
 
         void declareDirection(const string& dir);
         void declareDirection(const string& dir, const string& opposite);
-        void declareProperty(const string& name);
+        void declareProperty(const string& property, const string& value);
 
         void refer(const string& name);
 
         void kind(const string& kind);
-        void adjectives(const std::vector<string>& adj);
+        void property(const string& value);
 
         void describe(const string& desc);
         void relation(const string& rel, const string& other);
         void location(const string& direction, const string& other);
-        void property(const string& value);
 
         void dump() const {
             std::cout << *current_ << "\n";
