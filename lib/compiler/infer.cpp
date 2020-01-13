@@ -21,7 +21,8 @@ namespace amyinorbit::compass {
         thingKind_->id = "Thing";
         thingKind_->field("name") = string();
         thingKind_->field("desccription") = string();
-        thingKind_->verbs = {"look"};
+        thingKind_->field("adjectives") = Value::Array();
+        thingKind_->verbs = Value::Array{"look"};
 
         roomKind_ = gc_.allocate();
         roomKind_->id = "Room";
@@ -74,14 +75,6 @@ namespace amyinorbit::compass {
             current_->prototype = prototypes_[kind];
         }
     }
-
-    /*
-    void adjectives(const std::vector<string>& adj);
-
-    void describe(const string& desc);
-    void relation(const string& rel, const string& other);
-    void location(const string& direction, const string& other);
-    */
 
     void InferEngine::describe(const string& desc) {
         if(error(!current_, "I am not sure what you are referring to")) return;
