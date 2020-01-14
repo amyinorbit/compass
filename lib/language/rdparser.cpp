@@ -15,7 +15,7 @@ namespace amyinorbit::compass {
     RDParser::RDParser(const string& data, Driver& driver)
         : lexer(data), driver(driver) {}
 
-    bool RDParser::haveBeing() const {
+    bool RDParser::have_being() const {
         return driver.grammar().meansBeing(text());
     }
 
@@ -27,12 +27,16 @@ namespace amyinorbit::compass {
         return text() == word;
     }
 
+    bool RDParser::have_any(const std::set<string>& words) const {
+        return words.count(text()) > 0;
+    }
+
     bool RDParser::have(Grammar::Class wordClass) const {
         return driver.grammar().is(text(), wordClass);
     }
 
-    bool RDParser::matchBeing() {
-        if(!haveBeing()) return false;
+    bool RDParser::match_being() {
+        if(!have_being()) return false;
         lexer.nextToken();
         return true;
     }
@@ -49,29 +53,40 @@ namespace amyinorbit::compass {
         return true;
     }
 
+    bool RDParser::match_any(const std::set<string>& words) {
+        if(!have_any(words)) return false;
+        lexer.nextToken();
+        return true;
+    }
+
     bool RDParser::match(Grammar::Class wordClass) {
         if(!have(wordClass)) return false;
         lexer.nextToken();
         return true;
     }
 
-    void RDParser::expectBeing(const string& message) {
-        if(driver.isFailed()) skipUntil(Token::End);
-        if(!matchBeing()) driver.diagnostic(Diagnostic::error(message));
+    void RDParser::expect_being(const string& message) {
+        if(driver.isFailed()) skip_until(Token::End);
+        if(!match_being()) driver.diagnostic(Diagnostic::error(message));
     }
 
     void RDParser::expect(Token::Kind kind, const string& message) {
-        if(driver.isFailed()) skipUntil(kind);
+        if(driver.isFailed()) skip_until(kind);
         if(!match(kind)) driver.diagnostic(Diagnostic::error(message));
     }
 
     void RDParser::expect(const string& word, const string& message) {
-        if(driver.isFailed()) skipUntil(Token::End);
+        if(driver.isFailed()) skip_until(Token::End);
         if(!match(word)) driver.diagnostic(Diagnostic::error(message));
     }
 
+    void RDParser::expect_any(const std::set<string>& words, const string& message) {
+        if(driver.isFailed()) skip_until(Token::End);
+        if(!match_any(words)) driver.diagnostic(Diagnostic::error(message));
+    }
+
     void RDParser::expect(Grammar::Class wordClass, const string& message) {
-        if(driver.isFailed()) skipUntil(Token::End);
+        if(driver.isFailed()) skip_until(Token::End);
         if(!match(wordClass)) driver.diagnostic(Diagnostic::error(message));
     }
 
@@ -81,25 +96,31 @@ namespace amyinorbit::compass {
         return text;
     }
 
-    void RDParser::skipUntil(Token::Kind kind) {
+    void RDParser::skip_until(Token::Kind kind) {
         while(lexer.currentToken().kind != kind) {
             lexer.nextToken();
         }
         lexer.nextToken();
     }
 
-
-    string RDParser::recWords(const string& stop) {
+    string RDParser::words(const string& stop) {
         auto str = text();
         match(Token::Word);
-        while(have(Token::Word) && !haveBeing() && !have(stop)) str += " " + eat();
+        while(have(Token::Word) && !have_being() && !have(stop)) str += " " + eat();
         return str;
     }
 
-    string RDParser::recWords(Grammar::Class stop) {
+    string RDParser::words_until_any(const std::set<string>& stop) {
         auto str = text();
         match(Token::Word);
-        while(have(Token::Word) && !haveBeing() && !have(stop)) str += " " + eat();
+        while(have(Token::Word) && !have_being() && !have_any(stop)) str += " " + eat();
+        return str;
+    }
+
+    string RDParser::words(Grammar::Class stop) {
+        auto str = text();
+        match(Token::Word);
+        while(have(Token::Word) && !have_being() && !have(stop)) str += " " + eat();
         return str;
     }
 }

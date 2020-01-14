@@ -29,34 +29,50 @@ namespace amyinorbit::compass {
      * north is a direction. the opposite of north is south.
      * north is a direction which is the opposite of south.
 
-    the "basic" structure of a sentence is therefore:
-        [subject] [verb] [object|attributes] [qualifier]
+     ABNF grammar
 
-    In ABNF:
-        sentence    = subject verb (object / attribute) [qualifier] '.'
-        subject     = 'there' / 'it' / 1*(non-verb-word)
-        verb        = 'is' / 'lies'
-        attributes  = kind / locator / (kind locator)
-        kind        = ('a' / 'an') non-verb-word
-        locator     = loc-relative noun
-        noun        = ['the'] 1*(non-verb-word)
-        qualifier   = ('which' / 'that') sentence
+         sentence       = trigger / assertion
+
+         assertion      = subject continuation
+         continuation   = is-sentence / has-sentence / can-sentence
+
+         is-sentence    = ('is' / 'are') (kind / adjectives / locator / prop-def)
+         kind           = ('a' / 'an') ['kind' 'of']
+         adjectives     = word *(',' word)
+         locator        =  direction ('from' / 'of') noun
+         prop-def       = 'a' 'property' 'of' noun
+
+         has-sentence   = ('has' / 'have') property-name
+
+         can-sentence   = 'can' 'be' participle
+
+         subject        = 'there' / 'it' / descriptor
+         descriptor     = ['the' / 'a'] noun ['of' noun]
     */
 
-    class AssertionParser : public RDParser {
+    class Parser : public RDParser {
     public:
-        AssertionParser(const string& data, Driver& driver, InferEngine& infer)
+        Parser(const string& data, Driver& driver, InferEngine& infer)
             : RDParser(data, driver), infer(infer) {}
-        virtual ~AssertionParser() {}
+        virtual ~Parser() {}
 
-        void sentence();
+        void parse();
     private:
 
+        void assertion();
+
         void subject();
-        void verb();
-        void kind();
-        void qualifier();
-        void adjectives();
+        void noun();
+        void descriptor();
+
+        void is_sentence();
+        void kind_or_property();
+        void attributes();
+
+        void has_sentence();
+        void can_sentence();
+
+        bool have_direction() const { return false; } // TODO: implementation
 
         InferEngine& infer;
     };

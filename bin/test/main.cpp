@@ -18,9 +18,9 @@ int main(int argc, const char** argv) {
         std::cout << "input> ";
         if(!std::getline(std::cin, in)) break;
 
-        AssertionParser ap(string(in.data(), in.size()), compiler, infer);
+        Parser ap(string(in.data(), in.size()), compiler, infer);
 
-        ap.sentence();
+        ap.parse();
 
         compiler.diagnose(std::cout);
         compiler.flush();

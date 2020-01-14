@@ -1,0 +1,17 @@
+sentence       = trigger / assertion
+
+assertion      = subject continuation
+continuation   = is-sentence / has-sentence / can-sentence
+
+is-sentence    = ("is" / "are") (kind / adjectives / locator / prop-def)
+kind           = ("a" / "an") ["kind" "of"]
+adjectives     = word *("," word)
+locator        =  direction ("from" / "of") noun
+prop-def       = "a" "property" "of" noun
+
+has-sentence   = ("has" / "have") property-name
+
+can-sentence   = "can" "be" participle
+
+subject        = "there" / "it" / descriptor
+descriptor     = ["the" / "a"] noun ["of" noun]

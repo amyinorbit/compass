@@ -8,10 +8,11 @@
 // =^•.•^=
 //===--------------------------------------------------------------------------------------------===
 #pragma once
-#include <string>
 #include <compass/language/driver.hpp>
 #include <compass/language/grammar.hpp>
 #include <compass/language/lexer.hpp>
+#include <set>
+#include <string>
 
 namespace amyinorbit::compass {
 
@@ -21,23 +22,27 @@ namespace amyinorbit::compass {
         virtual ~RDParser() {}
     protected:
 
-        bool haveBeing() const;
+        bool have_being() const;
         bool have(Token::Kind kind) const;
         bool have(const string& word) const;
+        bool have_any(const std::set<string>& words) const;
         bool have(Grammar::Class wordClass) const;
 
-        bool matchBeing();
+        bool match_being();
         bool match(Token::Kind kind);
         bool match(const string& word);
+        bool match_any(const std::set<string>& words);
         bool match(Grammar::Class wordClass);
 
-        void expectBeing(const string& error = "invalid token");
+        void expect_being(const string& error = "invalid token");
         void expect(Token::Kind kind, const string& error = "invalid token");
         void expect(const string& word, const string& error = "invalid token");
+        void expect_any(const std::set<string>& words, const string& error = "invalid token");
         void expect(Grammar::Class wordClass, const string& error = "invalid token");
 
-        string recWords(const string& stop = "");
-        string recWords(Grammar::Class stop);
+        string words(const string& stop = "");
+        string words_until_any(const std::set<string>& stop);
+        string words(Grammar::Class stop);
 
         string eat();
         string text() const { return lexer.currentToken().text; }
@@ -46,6 +51,6 @@ namespace amyinorbit::compass {
         Driver& driver;
 
     private:
-        void skipUntil(Token::Kind kind);
+        void skip_until(Token::Kind kind);
     };
 }
