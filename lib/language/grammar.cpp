@@ -13,36 +13,36 @@
 namespace amyinorbit::compass {
 
      template <typename T>
-     bool contains(const std::set<T>& set, const T& key) {
-         return set.find(key) != set.end();
+     bool contains(const set<T>& s, const T& key) {
+         return s.find(key) != s.end();
      }
 
-    const std::set<string> BasicEnglish::subjectives_ = {
+    const set<string> BasicEnglish::subjectives_ = {
         "I", "you", "he", "she", "it", "we", "they"
     };
 
-    const std::set<string> BasicEnglish::objectives_ = {
+    const set<string> BasicEnglish::objectives_ = {
         "me", "you", "him", "her", "it", "us", "them"
     };
 
-    const std::set<string> BasicEnglish::possessives_ = {
+    const set<string> BasicEnglish::possessives_ = {
         "my", "your", "his", "her", "its", "ours", "theirs"
     };
 
-    const std::set<string> BasicEnglish::demonstratives_ = {
+    const set<string> BasicEnglish::demonstratives_ = {
         "this", "that", "these", "those"
     };
 
-    const std::set<string> BasicEnglish::prepositions_ = {
+    const set<string> BasicEnglish::prepositions_ = {
         "on", "under", "in" //"to", "off", "on", "under", "in", "at", "of", "from"
     };
 
-    const std::set<string> BasicEnglish::conjunctions_ = {
+    const set<string> BasicEnglish::conjunctions_ = {
         "for", "and", "nor", "but", "or", "yet", "so"
     };
 
     // TODO: some words can be both (for example, 'it' is both an objective and subjective pronoun)
-    // TODO: maybe return a tuple of values? or a std::set?
+    // TODO: maybe return a tuple of values? or a set?
     // TODO: might also be better rewritng as is(string, class)->bool
     Grammar::Class BasicEnglish::classOf(const string& word) const {
         const auto low = word;
@@ -73,7 +73,7 @@ namespace amyinorbit::compass {
             case Grammar::Demonstrative: return contains(demonstratives_, low);
             case Grammar::Preposition: return contains(prepositions_, low);
             case Grammar::Conjunction: return contains(conjunctions_, low);
-            default: return true;
+            default: return false;
         }
         return false;
     }

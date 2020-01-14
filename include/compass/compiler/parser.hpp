@@ -72,7 +72,7 @@ namespace amyinorbit::compass {
         void has_sentence();
         void can_sentence();
 
-        bool have_direction() const { return false; } // TODO: implementation
+        string noun_until(const set<string>& stop);
 
         InferEngine& infer;
     };

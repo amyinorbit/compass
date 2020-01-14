@@ -8,7 +8,7 @@
 //===--------------------------------------------------------------------------------------------===
 #pragma once
 #include <compass/runtime2/context.hpp>
-#include <compass/runtime2/primitives.hpp>
+#include <compass/types.hpp>
 #include <compass/runtime2/buffer.hpp>
 #include <compass/runtime2/garbage.hpp>
 

@@ -11,20 +11,25 @@
 
 namespace amyinorbit::compass {
 
+    // #define DEBUG() (std::cout << __PRETTY_FUNCTION__ << "\n")
+#define DEBUG()
+
     using namespace fp;
-    void Parser::parse() {
+    void Parser::parse() { DEBUG();
+        lexer.nextToken();
         while(!match(Token::Kind::End)) {
             if(match("when")) {
                 // TODO: match trigger
             } else {
                 assertion();
             }
+            // std::cout << "end of sentence: " << lexer.currentToken().type() << "\n";
             expect(Token::Period, "sentences should end with a period");
         }
     }
 
     // ABNF = subject continuation
-    void Parser::assertion() {
+    void Parser::assertion() { DEBUG();
         subject();
         if(match_being()) {
             is_sentence();
@@ -38,26 +43,27 @@ namespace amyinorbit::compass {
     }
 
     // subject        = "there" / "it" / descriptor
-    void Parser::subject() {
+    void Parser::subject() { DEBUG();
         if(match_any({"there", "it"})) { return; }
         descriptor();
     }
 
     // descriptor     = ["the" / "a"] noun ["of" noun]
-    void Parser::descriptor() {
-        match(Grammar::Indefinite) || match(Grammar::Definite);
+    void Parser::descriptor() { DEBUG();
+        match_any({"a", "an", "the"});
         string first = words_until_any({"of", "is", "have", "has"});
+
         if(match("of")) {
-            // infer.select(first)
-        } else {
-            match(Grammar::Indefinite) || match(Grammar::Definite);
+            match_any({"a", "an", "the"});
             string second = words_until_any({"of", "is", "have", "has"});
-            // infer.select(second, first);
+            std::cout << "infer.select(" << second << ", " << first << ")" << std::endl;
+        } else {
+            std::cout << "infer.select(" << first << ")" << std::endl;
         }
     }
 
     // is-sentence    = ("is" / "are") (kind / adjectives / locator / prop-def)
-    void Parser::is_sentence() {
+    void Parser::is_sentence() { DEBUG();
         if(match(Grammar::Indefinite)) {
             kind_or_property();
         } else {
@@ -65,59 +71,65 @@ namespace amyinorbit::compass {
         }
     }
 
-    void Parser::kind_or_property() {
+    // TODO: we need to stop words() at directions, so we can have sentences of the type:
+    //          "Jane Doe is a person in the living room"
+    void Parser::kind_or_property() { DEBUG();
         // While kinds are techincally vm-native objects, we are better off having a separate
         // method call and hard-coding them here, rather than have the inference engine do the
         // legwork of recognising words
         if(match("kind")) {
             expect("of");
             string prototype = words();
-            // infer.new_kind(prototype);
+            std::cout << "infer.new_kind(" << prototype << ")" << std::endl;
         } else if(match("property")) {
             expect("of");
             string what = words();
-            // infer.new_property(what);
+            std::cout << "infer.new_property(" << what << ")" << std::endl;
         } else {
             string what = words();
-            // infer.is_kind(what)
+            std::cout << "infer.is_kind(" << what << ")" << std::endl;
         }
     }
 
 
-    void Parser::attributes() {
+    void Parser::attributes() { DEBUG();
         do {
             if(have(Grammar::Preposition)) {
                 string prep = eat();
-                string container = words("and");
-                // infer.contained(prep, container);
+                string container = noun_until({"and"});
+                std::cout << "infer.contained(" << prep << ", " << container << ")" << std::endl;
             } else {
                 string attr = words_until_any({"of", "from", "and"});
                 if(match_any({"of", "from"})) {
                     string loc = words("and");
-                    // infer.link_to(loc, attr);
+                    std::cout << "infer.link_to(" << loc << ")" << std::endl;
                 } else {
-                    /// infer.set_property(attr);
+                    std::cout << "infer.set_property(" << attr << ")" << std::endl;
                 }
             }
-            // infer.property(adj);
         } while(match("and") || match(Token::Kind::Comma));
     }
 
     // has-sentence   = ("has" / "have") property-name
-    void Parser::has_sentence() {
+    void Parser::has_sentence() { DEBUG();
         do {
-            match(Grammar::Indefinite) || match(Grammar::Definite);
+            match_any({"a", "an", "the"});
             string prop = words("and");
-            // infer.add_prop(prop);
+            std::cout << "infer.add_prop(" << prop << ")" << std::endl;
         } while(match("and") || match(Token::Kind::Comma));
     }
 
     // can-sentence   = "can" "be" participle
-    void Parser::can_sentence() {
+    void Parser::can_sentence() { DEBUG();
         do {
-            match(Grammar::Indefinite) || match(Grammar::Definite);
-            string participle = words("and");
-            // infer.add_prop(prop);
+            match_any({"a", "an", "the"});
+            string prop = words("and");
+            std::cout << "infer.add_prop(" << prop << ")" << std::endl;
         } while(match("and") || match(Token::Kind::Comma));
+    }
+
+    string Parser::noun_until(const set<string>& stop) {
+        match_any({"a", "an", "the"});
+        return words_until_any(stop);
     }
 }

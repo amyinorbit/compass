@@ -11,9 +11,10 @@
 #include <string>
 #include <set>
 #include <apfun/string.hpp>
+#include <compass/types.hpp>
 
 namespace amyinorbit::compass {
-    
+
     class Grammar {
     public:
         enum Class {
@@ -21,14 +22,14 @@ namespace amyinorbit::compass {
             Objective, Subjective, Possessive, Demonstrative, // Pronouns
             Definite, Indefinite                    // Articles
         };
-        
+
         virtual ~Grammar() {}
         virtual Class classOf(const string& word) const = 0;
         virtual bool meansBeing(const string& word) const = 0;
         virtual bool is(const string& word, Class wordClass) const = 0;
     };
-    
-    
+
+
     class BasicEnglish : public Grammar {
     public:
         BasicEnglish() {}
@@ -37,13 +38,13 @@ namespace amyinorbit::compass {
         virtual Grammar::Class classOf(const string& word) const;
         virtual bool meansBeing(const string& word) const;
         virtual bool is(const string& word, Class wordClass) const;
-        
+
     private:
-        static const std::set<string> subjectives_;
-        static const std::set<string> objectives_;
-        static const std::set<string> possessives_;
-        static const std::set<string> demonstratives_;
-        static const std::set<string> prepositions_;
-        static const std::set<string> conjunctions_;
+        static const set<string> subjectives_;
+        static const set<string> objectives_;
+        static const set<string> possessives_;
+        static const set<string> demonstratives_;
+        static const set<string> prepositions_;
+        static const set<string> conjunctions_;
     };
 }

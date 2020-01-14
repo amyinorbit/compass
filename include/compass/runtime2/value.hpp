@@ -8,7 +8,7 @@
 // =^•.•^=
 //===--------------------------------------------------------------------------------------------===
 #pragma once
-#include <compass/runtime2/primitives.hpp>
+#include <compass/types.hpp>
 #include <iostream>
 #include <variant>
 

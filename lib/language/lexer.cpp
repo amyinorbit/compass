@@ -104,6 +104,7 @@ namespace amyinorbit::compass {
     const Token& Lexer::makeToken(Token::Kind kind, const string& str) {
         currentToken_.kind = kind;
         currentToken_.text = str;
+        // std::cout << "\t" << currentToken_.type() << "=" << str << "\n";
         return currentToken_;
     }
 

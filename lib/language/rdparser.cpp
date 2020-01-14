@@ -12,6 +12,14 @@
 
 namespace amyinorbit::compass {
 
+    void dump(const set<string>& words) {
+        std::cout << "{";
+        for(const auto& s: words) {
+            std::cout << s << ",";
+        }
+        std::cout << "}\n";
+    }
+
     RDParser::RDParser(const string& data, Driver& driver)
         : lexer(data), driver(driver) {}
 
@@ -27,8 +35,8 @@ namespace amyinorbit::compass {
         return text() == word;
     }
 
-    bool RDParser::have_any(const std::set<string>& words) const {
-        return words.count(text()) > 0;
+    bool RDParser::have_any(const set<string>& words) const {
+        return words.count(text());
     }
 
     bool RDParser::have(Grammar::Class wordClass) const {
@@ -53,7 +61,7 @@ namespace amyinorbit::compass {
         return true;
     }
 
-    bool RDParser::match_any(const std::set<string>& words) {
+    bool RDParser::match_any(const set<string>& words) {
         if(!have_any(words)) return false;
         lexer.nextToken();
         return true;
@@ -80,7 +88,7 @@ namespace amyinorbit::compass {
         if(!match(word)) driver.diagnostic(Diagnostic::error(message));
     }
 
-    void RDParser::expect_any(const std::set<string>& words, const string& message) {
+    void RDParser::expect_any(const set<string>& words, const string& message) {
         if(driver.isFailed()) skip_until(Token::End);
         if(!match_any(words)) driver.diagnostic(Diagnostic::error(message));
     }
@@ -98,6 +106,7 @@ namespace amyinorbit::compass {
 
     void RDParser::skip_until(Token::Kind kind) {
         while(lexer.currentToken().kind != kind) {
+            if(lexer.currentToken().kind == Token::Kind::End) return;
             lexer.nextToken();
         }
         lexer.nextToken();
@@ -105,22 +114,31 @@ namespace amyinorbit::compass {
 
     string RDParser::words(const string& stop) {
         auto str = text();
-        match(Token::Word);
-        while(have(Token::Word) && !have_being() && !have(stop)) str += " " + eat();
+        expect(Token::Word);
+        while(have(Token::Word) && !have_being() && !have(stop)) {
+            str += " ";
+            str += eat();
+        }
         return str;
     }
 
-    string RDParser::words_until_any(const std::set<string>& stop) {
+    string RDParser::words_until_any(const set<string>& stop) {
         auto str = text();
-        match(Token::Word);
-        while(have(Token::Word) && !have_being() && !have_any(stop)) str += " " + eat();
+        expect(Token::Word);
+        while(have(Token::Word) && !have_being() && !have_any(stop)) {
+            str += " ";
+            str += eat();
+        }
         return str;
     }
 
     string RDParser::words(Grammar::Class stop) {
         auto str = text();
-        match(Token::Word);
-        while(have(Token::Word) && !have_being() && !have(stop)) str += " " + eat();
+        expect(Token::Word);
+        while(have(Token::Word) && !have_being() && !have(stop)) {
+            str += " ";
+            str += eat();
+        }
         return str;
     }
 }

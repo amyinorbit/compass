@@ -11,7 +11,7 @@
 #include <memory>
 #include <compass/runtime2/function.hpp>
 #include <compass/runtime2/object.hpp>
-#include <compass/runtime2/primitives.hpp>
+#include <compass/types.hpp>
 #include <compass/runtime2/value.hpp>
 
 namespace amyinorbit::compass {
