@@ -40,9 +40,9 @@ namespace amyinorbit::compass {
         void expect_any(const set<string>& words, const string& error = "invalid token");
         void expect(Grammar::Class wordClass, const string& error = "invalid token");
 
-        string words(const string& stop = "");
+        string words_until(const string& stop = "");
         string words_until_any(const set<string>& stop);
-        string words(Grammar::Class stop);
+        string words_until(Grammar::Class stop);
 
         string eat();
         string text() const { return lexer.currentToken().text; }

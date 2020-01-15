@@ -112,7 +112,7 @@ namespace amyinorbit::compass {
         lexer.nextToken();
     }
 
-    string RDParser::words(const string& stop) {
+    string RDParser::words_until(const string& stop) {
         auto str = text();
         expect(Token::Word);
         while(have(Token::Word) && !have_being() && !have(stop)) {
@@ -132,7 +132,7 @@ namespace amyinorbit::compass {
         return str;
     }
 
-    string RDParser::words(Grammar::Class stop) {
+    string RDParser::words_until(Grammar::Class stop) {
         auto str = text();
         expect(Token::Word);
         while(have(Token::Word) && !have_being() && !have(stop)) {
