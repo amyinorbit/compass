@@ -14,16 +14,6 @@ int main(int argc, const char** argv) {
     Compiler compiler;
     InferEngine infer(compiler);
 
-    string a, b, c, d;
-    a = "hello";
-    b = "world";
-    c = "hello";
-    d = "hell";
-
-    std::cout << a << "==" << b << "=" << (a==b) << "\n";
-    std::cout << a << "==" << c << "=" << (a==c) << "\n";
-    std::cout << d << "==" << a << "=" << (d==a) << "\n";
-
     for(;;) {
         std::cout << "input> ";
         if(!std::getline(std::cin, in)) break;
@@ -33,6 +23,10 @@ int main(int argc, const char** argv) {
         ap.parse();
 
         compiler.diagnose(std::cout);
+
+        if(!compiler.isFailed()) {
+            infer.dump();
+        }
         compiler.flush();
     }
 

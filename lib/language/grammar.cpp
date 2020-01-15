@@ -40,10 +40,7 @@ namespace amyinorbit::compass {
     const set<string> BasicEnglish::conjunctions_ = {
         "for", "and", "nor", "but", "or", "yet", "so"
     };
-
-    // TODO: some words can be both (for example, 'it' is both an objective and subjective pronoun)
-    // TODO: maybe return a tuple of values? or a set?
-    // TODO: might also be better rewritng as is(string, class)->bool
+    
     Grammar::Class BasicEnglish::classOf(const string& word) const {
         const auto low = word;
         if(low == "the") return Grammar::Definite;

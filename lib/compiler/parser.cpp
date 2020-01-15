@@ -56,8 +56,10 @@ namespace amyinorbit::compass {
         if(match("of")) {
             match_any({"a", "an", "the"});
             string second = words_until_any({"of", "is", "have", "has"});
+            infer.select(second, first);
             std::cout << "infer.select(" << second << ", " << first << ")" << std::endl;
         } else {
+            infer.select(first);
             std::cout << "infer.select(" << first << ")" << std::endl;
         }
     }
@@ -80,17 +82,21 @@ namespace amyinorbit::compass {
         if(match("kind")) {
             expect("of");
             string prototype = words_until();
+            infer.new_kind(prototype);
             std::cout << "infer.new_kind(" << prototype << ")" << std::endl;
         } else if(match("property")) {
             expect("of");
             string what = words_until();
+            infer.new_property(what);
             std::cout << "infer.new_property(" << what << ")" << std::endl;
         } else {
             string what = words_until(Grammar::Preposition);
+            infer.set_kind(what);
             std::cout << "infer.is_kind(" << what << ")" << std::endl;
             if(have(Grammar::Preposition)) {
                 string prep = eat();
                 string container = noun_until({});
+                infer.contained(prep, container);
                 std::cout << "infer.contained(" << prep << ", " << container << ")" << std::endl;
             }
         }
@@ -102,13 +108,16 @@ namespace amyinorbit::compass {
             if(have(Grammar::Preposition)) {
                 string prep = eat();
                 string container = noun_until({"and"});
+                infer.contained(prep, container);
                 std::cout << "infer.contained(" << prep << ", " << container << ")" << std::endl;
             } else {
                 string attr = words_until_any({"of", "from", "and"});
                 if(match_any({"of", "from"})) {
                     string loc = words_until("and");
+                    infer.link_to(attr, loc);
                     std::cout << "infer.link_to(" << attr << "," << loc << ")" << std::endl;
                 } else {
+                    infer.set_property(attr);
                     std::cout << "infer.set_property(" << attr << ")" << std::endl;
                 }
             }
@@ -120,6 +129,7 @@ namespace amyinorbit::compass {
         do {
             match_any({"a", "an", "the"});
             string prop = words_until("and");
+            // infer.
             std::cout << "infer.add_prop(" << prop << ")" << std::endl;
         } while(match("and") || match(Token::Kind::Comma));
     }

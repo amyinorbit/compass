@@ -27,27 +27,32 @@ namespace amyinorbit::compass {
     public:
         InferEngine(Driver& driver);
 
-        void declareDirection(const string& dir);
-        void declareDirection(const string& dir, const string& opposite);
-        void declareProperty(const string& property, const string& value);
+        struct Ref {
+            string obj;
+            maybe<string> field = nothing();
+        };
 
-        void refer(const string& name);
+        void select(const string& what);
+        void select(const string& what, const string& field);
 
-        void kind(const string& kind);
-        void property(const string& value);
+        void new_kind(const string& prototype);
+        void new_property(const string& prototype);
+        void new_property();
+        void set_kind(const string& kind);
 
-        void describe(const string& desc);
-        void relation(const string& rel, const string& other);
-        void location(const string& direction, const string& other);
+        void contained(const string& how, const string& in_what);
+        void link_to(const string& direction, const string& place);
+
+        void set_property(const string& prop);
+        void declare_property(const string& property, const string& value);
 
         void dump() const {
-            std::cout << *current_ << "\n";
-            std::cout << *thingKind_ << "\n";
-            std::cout << *roomKind_ << "\n";
+            for(const auto& [id, obj]: world_) {
+                std::cout << "-" << id << ": " << *obj << "\n";
+            }
         }
 
     private:
-        Driver& driver_;
 
         bool error(bool expr, const string& error) {
             if(expr) {
@@ -56,14 +61,18 @@ namespace amyinorbit::compass {
             return expr;
         }
 
+        Object* get_or_create(const string& name);
+
+        Driver& driver_;
         Garbage gc_;
-        Object* current_ = nullptr;
+        maybe<Ref> ref_;
         Object* thingKind_ = nullptr;
         Object* roomKind_ = nullptr;
+        Object* directionKind_ = nullptr;
 
         map<string, Object*> world_;
         map<string, Object*> prototypes_;
-        map<string, maybe<string>> directions_;
+        map<string, Object*> directions_;
 
         // This is probably not the best way to represent properties:
         //  1. it doesn't ensure that each property value has a globally unique name
