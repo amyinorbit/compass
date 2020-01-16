@@ -26,10 +26,14 @@ namespace amyinorbit::compass::type {
         using Array = vector<Value>;
         const Type* type;
         std::variant<std::int32_t, string, Ref, Array> data;
+
+        template <typename T> const T& as() const { return std::get<T>(data); }
+        template <typename T> T& as() { return std::get<T>(data); }
     };
 
     struct Object {
         const Object* prototype;
+        bool is_abstract;
         string name;
         map<string, Value> fields;
     };
@@ -41,17 +45,21 @@ namespace amyinorbit::compass::type {
         const Type* param = nullptr;
     };
 
-    class TypeDB {
+    class Sema {
     public:
-        TypeDB();
+        Sema();
+
+        const Type* derive(const string& name, const Object* prototype);
+        const Type* type_of(const Value& value);
+
+        const Type* new_property(const string& name);
+        void add_property_value(const Type* property, const string& name);
+        const Type* property_of(const string& value);
 
     private:
 
-        std::unique_ptr<Type> number;
-        std::unique_ptr<Type> text;
-
-        map<string, std::unique_ptr<Type>> types;
-        map<string, const Type*> values;
-        map<string, Value> world;
+        map<string, std::unique_ptr<Type>> types_;
+        map<string, const Type*> values_;
+        map<string, std::unique_ptr<Object>> world_;
     };
 }
