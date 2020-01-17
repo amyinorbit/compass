@@ -8,6 +8,8 @@
 //===--------------------------------------------------------------------------------------------===
 #pragma once
 #include <compass/types.hpp>
+#include <compass/language/driver.hpp>
+#include <apfun/maybe.hpp>
 #include <variant>
 #include <memory>
 
@@ -22,10 +24,11 @@ namespace amyinorbit::compass::type {
     struct Object;
 
     struct Value {
-        using Ref = std::shared_ptr<Object>;
+        using Ref = Object*;
         using Array = vector<Value>;
         const Type* type;
-        std::variant<std::int32_t, string, Ref, Array> data;
+        struct Prop { string value; };
+        std::variant<std::int32_t, string, Prop, Ref, Array> data;
 
         template <typename T> const T& as() const { return std::get<T>(data); }
         template <typename T> T& as() { return std::get<T>(data); }
@@ -45,19 +48,31 @@ namespace amyinorbit::compass::type {
         const Type* param = nullptr;
     };
 
-    class Sema {
+    class TypeDB {
     public:
-        Sema();
-
-        const Type* derive(const string& name, const Object* prototype);
+        TypeDB(Driver& driver);
         const Type* type_of(const Value& value);
 
         const Type* new_property(const string& name);
         void add_property_value(const Type* property, const string& name);
         const Type* property_of(const string& value);
 
+        Object* new_kind(const string& name, const Object* prototype);
+        Object* new_object(const string& name, const Object* prototype);
+        Object* object(const string& name);
+
+        // TODO: we should move this to Object, which should probs not be a POD
+        const Value* obj_field(const Object* obj, const string& name) const;
+        Value* obj_field(Object* obj, const string& name);
+
     private:
 
+        const Value* proto_field(const Object* obj, const string& name) const;
+
+        const Type* prop_type_of(const string& value);
+        const Type* obj_type_of(const Object* obj);
+
+        Driver& driver_;
         map<string, std::unique_ptr<Type>> types_;
         map<string, const Type*> values_;
         map<string, std::unique_ptr<Object>> world_;

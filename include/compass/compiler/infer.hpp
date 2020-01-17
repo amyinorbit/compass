@@ -9,6 +9,7 @@
 #pragma once
 #include <compass/language/driver.hpp>
 #include <compass/runtime2/garbage.hpp>
+// #include <compass/compiler/types.hpp>
 #include <apfun/string.hpp>
 #include <apfun/maybe.hpp>
 #include <string>
@@ -66,6 +67,12 @@ namespace amyinorbit::compass {
         Driver& driver_;
         Garbage gc_;
         maybe<Ref> ref_;
+
+
+
+
+
+
         Object* thingKind_ = nullptr;
         Object* roomKind_ = nullptr;
         Object* directionKind_ = nullptr;
