@@ -11,14 +11,14 @@
 namespace amyinorbit::compass::type {
 
     Object::Object(kind_t, const Object* prototype, string name)
-    : prototype_(prototype)
-    , is_abstract_(true)
-    , name_(name) { }
+        : prototype_(prototype)
+        , is_abstract_(true)
+        , name_(name) { }
 
     Object::Object(concrete_t, const Object* prototype, string name)
-    : prototype_(prototype)
-    , is_abstract_(false)
-    , name_(name) { }
+        : prototype_(prototype)
+        , is_abstract_(false)
+        , name_(name) { }
 
     void Object::dump(std::ostream& out) const {
         out << name_;
@@ -85,7 +85,7 @@ namespace amyinorbit::compass::type {
     bool Object::has_field(const string& name, const Type* type) const {
         auto field = field_type(name);
         if(!field) return false;
-        return *field == *type; 
+        return *field == *type;
     }
 
     bool Object::conforms_to(const Contract& contract) const {
@@ -136,6 +136,37 @@ namespace amyinorbit::compass::type {
             return left.name == right.name;
         case Type::list:
             return left.param && (*left.param == *right.param);
+        }
+
+        return true;
+    }
+
+    bool isa(const Type& type, const Type& parent) {
+        if(type == parent) return true;
+        if(type.kind != parent.kind) return false;
+        if(type.kind != Type::object) return false;
+        if(parent == type) return true;
+        if(!type.param) return false;
+        return isa(*type.param, parent);
+    }
+
+
+    bool assign(const Type& left, const Type& right) {
+        if(left.kind != right.kind) return false;
+        if(left.kind == Type::nil && left.kind == Type::text && left.kind == Type::number) {
+            return true;
+        }
+
+        switch(left.kind) {
+        case Type::nil:
+        case Type::text:
+        case Type::number:
+            return true;
+        case Type::property:
+        case Type::object:
+            return isa(right, left);
+        case Type::list:
+            return left.param && right.param &&  isa(*right.param, *left.param);
         }
 
         return true;
@@ -219,7 +250,9 @@ namespace amyinorbit::compass::type {
             return nullptr;
         }
         world_[name] = std::make_unique<Object>(kind_tag, prototype, name);
-        types_[name] = std::make_unique<Type>(Type{Type::object, name, nullptr});
+        types_[name] = std::make_unique<Type>(Type{
+            Type::object, name, prototype ? types_.at(prototype->name()).get() : nullptr
+        });
         return world_.at(name).get();
     }
 

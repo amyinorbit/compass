@@ -78,7 +78,8 @@ namespace amyinorbit::compass::type {
     };
 
     bool operator==(const Type& left, const Type& right);
-    bool operator!=(const Type& left, const Type& right) { return !(left == right); }
+    inline bool operator!=(const Type& left, const Type& right) { return !(left == right); }
+    bool assign(const Type& to, const Type& from);
 
     class TypeDB {
     public:

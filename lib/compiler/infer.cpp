@@ -16,6 +16,8 @@ namespace amyinorbit::compass {
         for(const auto& s: {"small", "large", "massive", "tiny"}) {
             world_.add_property_value(size, s);
         }
+
+        // container_["children"] = world_.list_type(world_.);
     }
 
     void InferEngine::select(const string& what) {
@@ -73,7 +75,7 @@ namespace amyinorbit::compass {
     void InferEngine::contained(const string& how, const string& in_what) {
         auto container = world_.object(in_what);
         if(!container) return;
-        if(error(!container->is_kind("container"), in_what + "is not a container"))
+        // if(error(!container->is_kind("container"), in_what + "is not a container"))
     }
 
     void InferEngine::link_to(const string& direction, const string& place) {

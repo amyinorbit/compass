@@ -66,5 +66,6 @@ namespace amyinorbit::compass {
         maybe<Ref> ref_;
         type::TypeDB world_;
         std::vector<inferred::Link> links_;
+        type::Contract container_;
     };
 }
