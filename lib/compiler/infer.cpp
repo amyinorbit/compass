@@ -12,7 +12,7 @@ namespace amyinorbit::compass {
 
     InferEngine::InferEngine(Driver& driver) : driver_(driver), world_(driver) {
 
-        auto size = world_.new_property("size");
+        auto size = world_.property("size");
         for(const auto& s: {"small", "large", "massive", "tiny"}) {
             world_.add_property_value(size, s);
         }
@@ -39,7 +39,7 @@ namespace amyinorbit::compass {
         if(error(!ref_, "I am not sure what you are referring to")) return;
         if(error(ref_->field, "A property of something cannot be a new kind of property")) return;
 
-        auto prop = world_.new_property(ref_->obj);
+        auto prop = world_.property(ref_->obj);
         if(!prop) return;
 
         auto obj = world_.object(prototype);
@@ -50,7 +50,7 @@ namespace amyinorbit::compass {
     void InferEngine::new_property() {
         if(error(!ref_, "I am not sure what you are referring to")) return;
         if(error(ref_->field, "A property of something cannot be a new kind of property")) return;
-        world_.new_property(ref_->obj);
+        world_.property(ref_->obj);
     }
 
     void InferEngine::set_kind(const string& kind_name) {
@@ -65,12 +65,9 @@ namespace amyinorbit::compass {
     }
 
     void InferEngine::declare_property(const string& property_name, const string& value) {
-        // properties_.insert(property);
-        // if(error(values_.count(value), "you cannot change what " + value + " is.")) return;
-        // values_[value] = property;
-        // properties_.insert(property);
-        // auto property = world_.prop
-        // world_.add_property_value(const Type *property, const string &name)
+        auto property = world_.property(property_name);
+        if(!property) return;
+        world_.add_property_value(property, value);
     }
 
 
@@ -88,7 +85,7 @@ namespace amyinorbit::compass {
         auto obj = world_.object(ref_->obj);
         if(!obj) return;
 
-        auto value = world_.property(prop);
+        auto value = world_.property_val(prop);
         if(value.is<type::nil_t>()) return;
 
         auto prop_name = value.type->name;

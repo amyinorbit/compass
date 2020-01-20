@@ -43,6 +43,8 @@ namespace amyinorbit::compass::type {
         Object(kind_t, const Object* prototype, string name);
         Object(concrete_t, const Object* prototype, string name);
 
+        void dump(std::ostream& out) const;
+
         bool set_kind(const Object* kind);
 
         const auto& fields() const { return fields_; }
@@ -55,7 +57,8 @@ namespace amyinorbit::compass::type {
 
     private:
         const Value* field_ptr(const string& name) const;
-
+        void dump_fields(std::ostream& out) const;
+        
         const Object* prototype_;
         bool is_abstract_;
         string name_;
@@ -84,7 +87,7 @@ namespace amyinorbit::compass::type {
         const_iterator begin() const { return world_.begin(); }
         const_iterator end() const { return world_.end(); }
 
-        const Type* new_property(const string& name);
+        const Type* property(const string& name);
         void add_property_value(const Type* property, const string& name);
         const Type* property_of(const string& value);
 
@@ -93,10 +96,19 @@ namespace amyinorbit::compass::type {
         Object* object(const string& name);
         Object* fetch_or_create(const string& name);
 
-        Value text(const string& value) const { return Value{types_.at("text").get(), value}; }
-        Value number(std::int32_t value) const { return Value{types_.at("number").get(), value}; }
-        Value property(const string& value) const;
-        Value list(const Type* contained) { return Value{list_type(contained), Value::Array()}; }
+        Value text_val(const string& value) const {
+            return Value{types_.at("text").get(), value};
+        }
+
+        Value number_val(std::int32_t value) const {
+            return Value{types_.at("number").get(), value};
+        };
+
+        Value property_val(const string& value) const;
+
+        Value list_val(const Type* contained) {
+            return Value{list_type(contained), Value::Array()};
+        }
 
     private:
 

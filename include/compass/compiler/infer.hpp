@@ -14,7 +14,6 @@
 #include <string>
 
 namespace amyinorbit::compass {
-    using cbuf = std::string;
 
     namespace inferred {
         struct Link {
@@ -48,10 +47,9 @@ namespace amyinorbit::compass {
 
         void dump() const {
             for(const auto& [id, obj]: world_) {
-                std::cout << "-" << id << ":\n";
-                for(const auto& [field, _]: obj->fields()) {
-                    std::cout << "  - " << field << "\n";
-                }
+                std::cout << "-" << id << ": ";
+                obj->dump(std::cout);
+                std::cout << "\n";
             }
         }
 

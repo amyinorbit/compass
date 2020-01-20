@@ -20,6 +20,50 @@ namespace amyinorbit::compass::type {
     , is_abstract_(false)
     , name_(name) { }
 
+    void Object::dump(std::ostream& out) const {
+        out << name_;
+        if(is_abstract_) {
+            out << "[kind]";
+        }
+        const Object* p = prototype_;
+        while(p) {
+            out << "<" << p->name_;
+            p = p->prototype_;
+        }
+        std::cout << ":\n";
+        dump_fields(out);
+    }
+
+    void dump_value(std::ostream& out, const Value& v) {
+        if(v.is<string>())
+            out << v.as<string>();
+        else if(v.is<std::int32_t>())
+            out << "'" << v.as<std::int32_t>() << "'";
+        else if(v.is<nil_t>())
+            out << "<nil>";
+        else if(v.is<Value::Prop>())
+            out << "prop/" << v.as<Value::Prop>().value;
+        else if(v.is<Value::Ref>())
+            out << "ref/" << v.as<Value::Ref>();
+        else if(v.is<Value::Array>()) {
+            out << "[";
+            for(const auto& i: v.as<Value::Array>()) {
+                dump_value(out, i);
+                out << ",";
+            }
+            out << "]";
+        }
+    }
+
+    void Object::dump_fields(std::ostream& out) const {
+        if(prototype_) prototype_->dump_fields(out);
+        for(const auto& [k, v]: fields_) {
+            out << "  > " << k << ":";
+            dump_value(out, v);
+            out << "\n";
+        }
+    }
+
     bool Object::set_kind(const Object* kind) {
         if(kind && kind->is_kind(name_)) return false;
         prototype_ = kind;
@@ -29,7 +73,7 @@ namespace amyinorbit::compass::type {
     Value& Object::field(const string& name) {
         if(fields_.count(name)) return fields_.at(name);
 
-        auto v = prototype_->field_ptr(name);
+        auto v = prototype_ ? prototype_->field_ptr(name) : nullptr;
         if(v) {
             fields_[name] = *v;
         } else {
@@ -40,7 +84,7 @@ namespace amyinorbit::compass::type {
 
     const Value* Object::field_ptr(const string& name) const {
         if(fields_.count(name)) return &fields_.at(name);
-        return prototype_->field_ptr(name);
+        return prototype_ ? prototype_->field_ptr(name) : nullptr;
     }
 
 
@@ -70,6 +114,8 @@ namespace amyinorbit::compass::type {
         auto relation = new_kind("relation", nullptr);
         relation->field("direction") = {types_["direction"].get(), nullptr};
         relation->field("target") = {types_["object"].get(), nullptr};
+
+        auto thing = new_kind("thing", base);
 
         room->field("directions") = {list_type(types_.at("room").get()), Value::Array()};
         // TODO: add field with type Link[]
@@ -101,10 +147,14 @@ namespace amyinorbit::compass::type {
         }
     }
 
-    const Type* TypeDB::new_property(const string& name) {
+    const Type* TypeDB::property(const string& name) {
         if(types_.count(name)) {
-            driver_.diagnostic(Diagnostic::error(name + " is already something else"));
-            return nullptr;
+            auto type = types_.at(name).get();
+            if(type->kind != Type::Kind::property) {
+                driver_.diagnostic(Diagnostic::error(name + " is already something else"));
+                return nullptr;
+            }
+            return type;
         }
         types_[name] = std::make_unique<Type>(Type{Type::property, name, nullptr});
         return types_[name].get();
@@ -155,9 +205,11 @@ namespace amyinorbit::compass::type {
     }
 
     const Type* TypeDB::list_type(const Type* contained) {
-        auto name = "list of " + contained;
-        if(types_.count(name)) return types_.at(name);
-        types_[name] = std::make_unique<Type>(Type{Type::list, name, contained});
+        auto name = "list of " + contained->name;
+        if(!types_.count(name)) {
+            types_[name] = std::make_unique<Type>(Type{Type::list, name, contained});
+        }
+        return types_.at(name).get();
     }
 
     const Type* TypeDB::property_of(const string& value) {
@@ -165,8 +217,7 @@ namespace amyinorbit::compass::type {
         return values_.at(value);
     }
 
-
-    Value TypeDB::property(const string& value) const {
+    Value TypeDB::property_val(const string& value) const {
         if(!values_.count(value)) {
             driver_.diagnostic(Diagnostic::error(value + " is not a property that I know"));
             return Value{nullptr, nil_tag};
