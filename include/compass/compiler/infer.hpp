@@ -54,7 +54,6 @@ namespace amyinorbit::compass {
         }
 
     private:
-
         bool error(bool expr, const string& error) {
             if(expr) {
                 driver_.diagnostic(Diagnostic::error(error));
@@ -63,10 +62,9 @@ namespace amyinorbit::compass {
         }
 
         Driver& driver_;
-        // Garbage gc_;
+
         maybe<Ref> ref_;
         type::TypeDB world_;
-        map<string, string> values_; // property value -> property name
-        set<string> properties_; // property names
+        std::vector<inferred::Link> links_;
     };
 }

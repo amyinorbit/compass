@@ -70,6 +70,31 @@ namespace amyinorbit::compass::type {
         return true;
     }
 
+    bool Object::has_field(const string& name) const {
+        if(fields_.count(name)) return true;
+        if(!prototype_) return false;
+        return prototype_->has_field(name);
+    }
+
+    const Type* Object::field_type(const string& name) const {
+        if(fields_.count(name)) return fields_.at(name).type;
+        if(!prototype_) return nullptr;
+        return prototype_->field_type(name);
+    }
+
+    bool Object::has_field(const string& name, const Type* type) const {
+        auto field = field_type(name);
+        if(!field) return false;
+        return *field == *type; 
+    }
+
+    bool Object::conforms_to(const Contract& contract) const {
+        for(const auto& [k, t]: contract) {
+            if(!has_field(k, t)) return false;
+        }
+        return true;
+    }
+
     Value& Object::field(const string& name) {
         if(fields_.count(name)) return fields_.at(name);
 
@@ -92,6 +117,28 @@ namespace amyinorbit::compass::type {
         if(!prototype_) return false;
         if(prototype_->name_ == name) return true;
         return prototype_->is_kind(name);
+    }
+
+
+    bool operator==(const Type& left, const Type& right) {
+        if(left.kind != right.kind) return false;
+        if(left.kind == Type::nil && left.kind == Type::text && left.kind == Type::number) {
+            return true;
+        }
+
+        switch(left.kind) {
+        case Type::nil:
+        case Type::text:
+        case Type::number:
+            return true;
+        case Type::property:
+        case Type::object:
+            return left.name == right.name;
+        case Type::list:
+            return left.param && (*left.param == *right.param);
+        }
+
+        return true;
     }
 
     TypeDB::TypeDB(Driver& driver) : driver_(driver) {
@@ -117,10 +164,7 @@ namespace amyinorbit::compass::type {
 
         auto thing = new_kind("thing", base);
 
-        room->field("directions") = {list_type(types_.at("room").get()), Value::Array()};
-        // TODO: add field with type Link[]
-        // room->fields["directions"] = {types_}
-        // room
+        room->field("directions") = list_val(types_.at("room").get());
     }
 
     const Type* TypeDB::type_of(const Value& value) {

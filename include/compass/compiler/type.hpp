@@ -39,26 +39,31 @@ namespace amyinorbit::compass::type {
         template <typename T> T& as() { return std::get<T>(data); }
     };
 
+    using Contract = map<string, const Type*>;
+
     struct Object {
         Object(kind_t, const Object* prototype, string name);
         Object(concrete_t, const Object* prototype, string name);
 
         void dump(std::ostream& out) const;
-
+        bool is_abstract() const { return is_abstract_; }
         bool set_kind(const Object* kind);
+        bool is_kind(const string& name) const;
+
+        bool conforms_to(const Contract& contract) const;
+
+        bool has_field(const string& name) const;
+        bool has_field(const string& name, const Type* type) const;
 
         const auto& fields() const { return fields_; }
         Value& field(const string& name);
         const string& name() const { return name_; }
-        bool is_abstract() const { return is_abstract_; }
         const Object* prototype() const { return prototype_; }
-
-        bool is_kind(const string& name) const;
-
     private:
+        const Type* field_type(const string& name) const;
         const Value* field_ptr(const string& name) const;
         void dump_fields(std::ostream& out) const;
-        
+
         const Object* prototype_;
         bool is_abstract_;
         string name_;
@@ -66,11 +71,14 @@ namespace amyinorbit::compass::type {
     };
 
     struct Type {
-        enum Kind {number, text, property, object, list};
+        enum Kind { nil, number, text, property, object, list};
         Kind kind;
         string name;
         const Type* param = nullptr;
     };
+
+    bool operator==(const Type& left, const Type& right);
+    bool operator!=(const Type& left, const Type& right) { return !(left == right); }
 
     class TypeDB {
     public:
