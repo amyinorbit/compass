@@ -35,37 +35,39 @@ namespace amyinorbit::compass::type {
     }
 
     void dump_value(std::ostream& out, const Value& v) {
-        if(v.is<string>())
-            out << v.as<string>();
-        else if(v.is<std::int32_t>())
-            out << "'" << v.as<std::int32_t>() << "'";
-        else if(v.is<nil_t>())
-            out << "<nil>";
-        else if(v.is<Value::Prop>())
-            out << "prop/" << v.as<Value::Prop>().value;
-        else if(v.is<Value::Ref>())
-            out << "ref/" << v.as<Value::Ref>();
-        else if(v.is<Value::Array>()) {
-            out << "[";
-            for(const auto& i: v.as<Value::Array>()) {
-                dump_value(out, i);
-                out << ",";
-            }
-            out << "]";
+        switch(v.type()) {
+            case Type::nil: out << "<nil>"; break;
+            case Type::text: out << "'" << v.as<string>() << "'"; break;
+            case Type::number: out << v.as<std::int32_t>(); break;
+            case Type::property: out << "prop/" << v.as<Value::Prop>().value; break;
+            case Type::object:
+                if(!v.as<Object*>())
+                    out << "obj/nil";
+                else
+                    out << "obj/" << v.as<Object*>()->name();
+                break;
+            case Type::list:
+                out << "[";
+                for(const auto& i: v.as<Value::Array>()) {
+                    dump_value(out, i);
+                    out << ",";
+                }
+                out << "]";
+                break;
         }
     }
 
     void Object::dump_fields(std::ostream& out) const {
         if(prototype_) prototype_->dump_fields(out);
         for(const auto& [k, v]: fields_) {
-            out << "  > " << k << ":";
+            out << "  > " << k << ": ";
             dump_value(out, v);
             out << "\n";
         }
     }
 
     bool Object::set_kind(const Object* kind) {
-        if(kind && kind->is_kind(name_)) return false;
+        if(kind && kind->is_a(this)) return false;
         prototype_ = kind;
         return true;
     }
@@ -76,16 +78,10 @@ namespace amyinorbit::compass::type {
         return prototype_->has_field(name);
     }
 
-    const Type* Object::field_type(const string& name) const {
-        if(fields_.count(name)) return fields_.at(name).type;
-        if(!prototype_) return nullptr;
-        return prototype_->field_type(name);
-    }
-
-    bool Object::has_field(const string& name, const Type* type) const {
-        auto field = field_type(name);
+    bool Object::has_field(const string& name, Type type) const {
+        auto field = field_ptr(name);
         if(!field) return false;
-        return *field == *type;
+        return field->type() == type;
     }
 
     bool Object::conforms_to(const Contract& contract) const {
@@ -112,131 +108,59 @@ namespace amyinorbit::compass::type {
         return prototype_ ? prototype_->field_ptr(name) : nullptr;
     }
 
-
-    bool Object::is_kind(const string& name) const {
+    bool Object::is_a(const Object* kind) const {
         if(!prototype_) return false;
-        if(prototype_->name_ == name) return true;
-        return prototype_->is_kind(name);
+        if(prototype_->name_ == kind->name_) return true;
+        return prototype_->is_a(kind);
     }
 
+    bool Value::can_assign(const Value &other) const {
+        if(type() != other.type()) return false;
 
-    bool operator==(const Type& left, const Type& right) {
-        if(left.kind != right.kind) return false;
-        if(left.kind == Type::nil && left.kind == Type::text && left.kind == Type::number) {
-            return true;
-        }
-
-        switch(left.kind) {
+        switch(type()) {
         case Type::nil:
         case Type::text:
         case Type::number:
-            return true;
-        case Type::property:
-        case Type::object:
-            return left.name == right.name;
         case Type::list:
-            return left.param && (*left.param == *right.param);
-        }
-
-        return true;
-    }
-
-    bool isa(const Type& type, const Type& parent) {
-        if(type == parent) return true;
-        if(type.kind != parent.kind) return false;
-        if(type.kind != Type::object) return false;
-        if(parent == type) return true;
-        if(!type.param) return false;
-        return isa(*type.param, parent);
-    }
-
-
-    bool assign(const Type& left, const Type& right) {
-        if(left.kind != right.kind) return false;
-        if(left.kind == Type::nil && left.kind == Type::text && left.kind == Type::number) {
-            return true;
-        }
-
-        switch(left.kind) {
-        case Type::nil:
-        case Type::text:
-        case Type::number:
-            return true;
         case Type::property:
+            return true;
         case Type::object:
-            return isa(right, left);
-        case Type::list:
-            return left.param && right.param &&  isa(*right.param, *left.param);
+            return other.as<Ref>()->is_a(as<Ref>());
         }
-
-        return true;
     }
 
     TypeDB::TypeDB(Driver& driver) : driver_(driver) {
-        types_["number"] = std::make_unique<Type>(Type{Type::number, "number", nullptr});
-        types_["text"] = std::make_unique<Type>(Type{Type::text, "text", nullptr});
-        types_["object"] = std::make_unique<Type>(Type{Type::object, "object", nullptr});
-
 
         auto base = new_kind("object", nullptr);
-        base->field("name") = {types_["text"].get(), ""};
-        base->field("plural") = {types_["text"].get(), ""};
-        base->field("description") = {types_["text"].get(), ""};
+        base->field("name") = "";
+        base->field("plural") = "";
+        base->field("description") = "";
 
         auto direction = new_kind("direction", nullptr);
-        direction->field("name") = {types_["text"].get(), ""};
-        direction->field("opposite") = {types_["text"].get(), ""};
+        direction->field("name") = "";
+        direction->field("opposite") = "";
 
 
         auto room = new_kind("room", base);
         auto relation = new_kind("relation", nullptr);
-        relation->field("direction") = {types_["direction"].get(), nullptr};
-        relation->field("target") = {types_["object"].get(), nullptr};
+        relation->field("direction") = nullptr;
+        relation->field("target") = nullptr;
 
         auto thing = new_kind("thing", base);
 
-        room->field("directions") = list_val(types_.at("room").get());
+        room->field("directions") = Value::Array();
+        room->field("children") = Value::Array();
     }
 
-    const Type* TypeDB::type_of(const Value& value) {
-        switch(value.data.index()) {
-            case 0: return types_.at("number").get();
-            case 1: return types_.at("text").get();
-            case 2: return prop_type_of(value.as<Value::Prop>().value);
-            case 3: return obj_type_of(value.as<Object*>()); // TODO: replace with actual checking
-            default: break;
+    void TypeDB::property(const string& name) {
+        if(properties_.count(name)) return;
+        properties_.insert(name);
+    }
+
+    void TypeDB::add_property_value(const string& property, const string& name) {
+        if(!properties_.count(property)) {
+            driver_.diagnostic(Diagnostic::error(name + " is not a property"));
         }
-        return nullptr;
-    }
-
-    const Type* TypeDB::prop_type_of(const string &value) {
-        return values_.count(value) ? values_.at(value) : nullptr;
-    }
-
-    const Type* TypeDB::obj_type_of(const Object* obj) {
-        if(!obj) return nullptr;
-        if(obj->is_abstract()) {
-            return types_.count(obj->name()) ? types_.at(obj->name()).get() : nullptr;
-        } else {
-            return obj_type_of(obj->prototype());
-        }
-    }
-
-    const Type* TypeDB::property(const string& name) {
-        if(types_.count(name)) {
-            auto type = types_.at(name).get();
-            if(type->kind != Type::Kind::property) {
-                driver_.diagnostic(Diagnostic::error(name + " is already something else"));
-                return nullptr;
-            }
-            return type;
-        }
-        types_[name] = std::make_unique<Type>(Type{Type::property, name, nullptr});
-        return types_[name].get();
-    }
-
-    void TypeDB::add_property_value(const Type* property, const string& name) {
-        if(!property) return;
         if(values_.count(name) && values_.at(name) != property) {
             driver_.diagnostic(Diagnostic::error(name + " is already something else"));
             return;
@@ -250,9 +174,7 @@ namespace amyinorbit::compass::type {
             return nullptr;
         }
         world_[name] = std::make_unique<Object>(kind_tag, prototype, name);
-        types_[name] = std::make_unique<Type>(Type{
-            Type::object, name, prototype ? types_.at(prototype->name()).get() : nullptr
-        });
+        kinds_[name] = world_.at(name).get();
         return world_.at(name).get();
     }
 
@@ -281,24 +203,8 @@ namespace amyinorbit::compass::type {
         }
     }
 
-    const Type* TypeDB::list_type(const Type* contained) {
-        auto name = "list of " + contained->name;
-        if(!types_.count(name)) {
-            types_[name] = std::make_unique<Type>(Type{Type::list, name, contained});
-        }
-        return types_.at(name).get();
-    }
-
-    const Type* TypeDB::property_of(const string& value) {
-        if(!values_.count(value)) return nullptr;
+    maybe<string> TypeDB::property_of(const string& value) {
+        if(!values_.count(value)) return nothing();
         return values_.at(value);
-    }
-
-    Value TypeDB::property_val(const string& value) const {
-        if(!values_.count(value)) {
-            driver_.diagnostic(Diagnostic::error(value + " is not a property that I know"));
-            return Value{nullptr, nil_tag};
-        }
-        return Value{values_.at(value), Value::Prop{value}};
     }
 }
