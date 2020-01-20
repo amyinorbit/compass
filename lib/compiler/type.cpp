@@ -10,15 +10,71 @@
 
 namespace amyinorbit::compass::type {
 
+    Object::Object(kind_t, const Object* prototype, string name)
+    : prototype_(prototype)
+    , is_abstract_(true)
+    , name_(name) { }
+
+    Object::Object(concrete_t, const Object* prototype, string name)
+    : prototype_(prototype)
+    , is_abstract_(false)
+    , name_(name) { }
+
+    bool Object::set_kind(const Object* kind) {
+        if(kind && kind->is_kind(name_)) return false;
+        prototype_ = kind;
+        return true;
+    }
+
+    Value& Object::field(const string& name) {
+        if(fields_.count(name)) return fields_.at(name);
+
+        auto v = prototype_->field_ptr(name);
+        if(v) {
+            fields_[name] = *v;
+        } else {
+            fields_[name] = Value();
+        }
+        return fields_[name];
+    }
+
+    const Value* Object::field_ptr(const string& name) const {
+        if(fields_.count(name)) return &fields_.at(name);
+        return prototype_->field_ptr(name);
+    }
+
+
+    bool Object::is_kind(const string& name) const {
+        if(!prototype_) return false;
+        if(prototype_->name_ == name) return true;
+        return prototype_->is_kind(name);
+    }
+
     TypeDB::TypeDB(Driver& driver) : driver_(driver) {
         types_["number"] = std::make_unique<Type>(Type{Type::number, "number", nullptr});
         types_["text"] = std::make_unique<Type>(Type{Type::text, "text", nullptr});
         types_["object"] = std::make_unique<Type>(Type{Type::object, "object", nullptr});
 
-        auto base = std::make_unique<Object>(nullptr, true, "object");
-        base->fields["name"] = {types_["text"].get(), ""};
-        base->fields["plural"] = {types_["text"].get(), ""};
-        base->fields["description"] = {types_["text"].get(), ""};
+
+        auto base = new_kind("object", nullptr);
+        base->field("name") = {types_["text"].get(), ""};
+        base->field("plural") = {types_["text"].get(), ""};
+        base->field("description") = {types_["text"].get(), ""};
+
+        auto direction = new_kind("direction", nullptr);
+        direction->field("name") = {types_["text"].get(), ""};
+        direction->field("opposite") = {types_["text"].get(), ""};
+
+
+        auto room = new_kind("room", base);
+        auto relation = new_kind("relation", nullptr);
+        relation->field("direction") = {types_["direction"].get(), nullptr};
+        relation->field("target") = {types_["object"].get(), nullptr};
+
+        room->field("directions") = {list_type(types_.at("room").get()), Value::Array()};
+        // TODO: add field with type Link[]
+        // room->fields["directions"] = {types_}
+        // room
     }
 
     const Type* TypeDB::type_of(const Value& value) {
@@ -38,14 +94,18 @@ namespace amyinorbit::compass::type {
 
     const Type* TypeDB::obj_type_of(const Object* obj) {
         if(!obj) return nullptr;
-        if(obj->is_abstract) {
-            return types_.count(obj->name) ? types_.at(obj->name).get() : nullptr;
+        if(obj->is_abstract()) {
+            return types_.count(obj->name()) ? types_.at(obj->name()).get() : nullptr;
         } else {
-            return obj_type_of(obj->prototype);
+            return obj_type_of(obj->prototype());
         }
     }
 
     const Type* TypeDB::new_property(const string& name) {
+        if(types_.count(name)) {
+            driver_.diagnostic(Diagnostic::error(name + " is already something else"));
+            return nullptr;
+        }
         types_[name] = std::make_unique<Type>(Type{Type::property, name, nullptr});
         return types_[name].get();
     }
@@ -64,7 +124,7 @@ namespace amyinorbit::compass::type {
             driver_.diagnostic(Diagnostic::error("another object called " + name + " exists"));
             return nullptr;
         }
-        world_[name] = std::make_unique<Object>(Object{prototype, true, name});
+        world_[name] = std::make_unique<Object>(kind_tag, prototype, name);
         types_[name] = std::make_unique<Type>(Type{Type::object, name, nullptr});
         return world_.at(name).get();
     }
@@ -74,40 +134,43 @@ namespace amyinorbit::compass::type {
             driver_.diagnostic(Diagnostic::error("another object called " + name + " exists"));
             return nullptr;
         }
-        world_[name] = std::make_unique<Object>(Object{prototype, false, name});
+        world_[name] = std::make_unique<Object>(concrete_tag, prototype, name);
         return world_.at(name).get();
     }
 
     Object* TypeDB::object(const string& name) {
-        return world_.count(name) ? world_.at(name).get() : nullptr;
+        if(!world_.count(name)) {
+            driver_.diagnostic(Diagnostic::error("I don't know anything called " + name));
+            return nullptr;
+        }
+        return world_.at(name).get();
     }
 
-    const Value* TypeDB::obj_field(const Object* obj, const string& name) const {
-        if(!obj) return nullptr;
-        if(obj->fields.count(name)) return &obj->fields.at(name);
-
-        const Value* v = proto_field(obj->prototype, name);
-        return v;
+    Object* TypeDB::fetch_or_create(const string& name) {
+        if(!world_.count(name)) {
+            return new_object(name, world_.at("object").get());
+        } else {
+            return world_.at(name).get();
+        }
     }
 
-    Value* TypeDB::obj_field(Object* obj, const string& name) {
-        if(!obj) return nullptr;
-        if(obj->fields.count(name)) return &obj->fields.at(name);
-
-        const Value* v = proto_field(obj->prototype, name);
-        if(!v) return nullptr;
-        obj->fields[name] = *v;
-        return &obj->fields.at(name);
-    }
-
-    const Value* TypeDB::proto_field(const Object* obj, const string& name) const {
-        if(!obj) return nullptr;
-        if(obj->fields.count(name)) return &obj->fields.at(name);
-        return proto_field(obj->prototype, name);
+    const Type* TypeDB::list_type(const Type* contained) {
+        auto name = "list of " + contained;
+        if(types_.count(name)) return types_.at(name);
+        types_[name] = std::make_unique<Type>(Type{Type::list, name, contained});
     }
 
     const Type* TypeDB::property_of(const string& value) {
         if(!values_.count(value)) return nullptr;
         return values_.at(value);
+    }
+
+
+    Value TypeDB::property(const string& value) const {
+        if(!values_.count(value)) {
+            driver_.diagnostic(Diagnostic::error(value + " is not a property that I know"));
+            return Value{nullptr, nil_tag};
+        }
+        return Value{values_.at(value), Value::Prop{value}};
     }
 }

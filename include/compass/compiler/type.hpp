@@ -23,22 +23,43 @@ namespace amyinorbit::compass::type {
     struct Type;
     struct Object;
 
+    constexpr struct kind_t {} kind_tag;
+    constexpr struct concrete_t {} concrete_tag;
+    constexpr struct nil_t {} nil_tag;
+
     struct Value {
         using Ref = Object*;
         using Array = vector<Value>;
         const Type* type;
         struct Prop { string value; };
-        std::variant<std::int32_t, string, Prop, Ref, Array> data;
+        std::variant<nil_t, std::int32_t, string, Prop, Ref, Array> data;
 
+        template <typename T> bool is() const { return std::holds_alternative<T>(data); }
         template <typename T> const T& as() const { return std::get<T>(data); }
         template <typename T> T& as() { return std::get<T>(data); }
     };
 
     struct Object {
-        const Object* prototype;
-        bool is_abstract;
-        string name;
-        map<string, Value> fields;
+        Object(kind_t, const Object* prototype, string name);
+        Object(concrete_t, const Object* prototype, string name);
+
+        bool set_kind(const Object* kind);
+
+        const auto& fields() const { return fields_; }
+        Value& field(const string& name);
+        const string& name() const { return name_; }
+        bool is_abstract() const { return is_abstract_; }
+        const Object* prototype() const { return prototype_; }
+
+        bool is_kind(const string& name) const;
+
+    private:
+        const Value* field_ptr(const string& name) const;
+
+        const Object* prototype_;
+        bool is_abstract_;
+        string name_;
+        map<string, Value> fields_;
     };
 
     struct Type {
@@ -50,8 +71,18 @@ namespace amyinorbit::compass::type {
 
     class TypeDB {
     public:
+        using container = map<string, std::unique_ptr<Object>>;
+        using value_type = container::value_type;
+        using reference = container::reference;
+        using iterator = container::iterator;
+        using const_iterator = container::const_iterator;
+
+
         TypeDB(Driver& driver);
         const Type* type_of(const Value& value);
+
+        const_iterator begin() const { return world_.begin(); }
+        const_iterator end() const { return world_.end(); }
 
         const Type* new_property(const string& name);
         void add_property_value(const Type* property, const string& name);
@@ -60,15 +91,16 @@ namespace amyinorbit::compass::type {
         Object* new_kind(const string& name, const Object* prototype);
         Object* new_object(const string& name, const Object* prototype);
         Object* object(const string& name);
+        Object* fetch_or_create(const string& name);
 
-        // TODO: we should move this to Object, which should probs not be a POD
-        const Value* obj_field(const Object* obj, const string& name) const;
-        Value* obj_field(Object* obj, const string& name);
+        Value text(const string& value) const { return Value{types_.at("text").get(), value}; }
+        Value number(std::int32_t value) const { return Value{types_.at("number").get(), value}; }
+        Value property(const string& value) const;
+        Value list(const Type* contained) { return Value{list_type(contained), Value::Array()}; }
 
     private:
 
-        const Value* proto_field(const Object* obj, const string& name) const;
-
+        const Type* list_type(const Type* contained);
         const Type* prop_type_of(const string& value);
         const Type* obj_type_of(const Object* obj);
 

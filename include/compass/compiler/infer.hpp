@@ -8,8 +8,7 @@
 //===--------------------------------------------------------------------------------------------===
 #pragma once
 #include <compass/language/driver.hpp>
-#include <compass/runtime2/garbage.hpp>
-// #include <compass/compiler/types.hpp>
+#include <compass/compiler/type.hpp>
 #include <apfun/string.hpp>
 #include <apfun/maybe.hpp>
 #include <string>
@@ -49,7 +48,10 @@ namespace amyinorbit::compass {
 
         void dump() const {
             for(const auto& [id, obj]: world_) {
-                std::cout << "-" << id << ": " << *obj << "\n";
+                std::cout << "-" << id << ":\n";
+                for(const auto& [field, _]: obj->fields()) {
+                    std::cout << "  - " << field << "\n";
+                }
             }
         }
 
@@ -62,34 +64,10 @@ namespace amyinorbit::compass {
             return expr;
         }
 
-        Object* get_or_create(const string& name);
-
         Driver& driver_;
-        Garbage gc_;
+        // Garbage gc_;
         maybe<Ref> ref_;
-
-
-
-
-
-
-        Object* thingKind_ = nullptr;
-        Object* roomKind_ = nullptr;
-        Object* directionKind_ = nullptr;
-
-        map<string, Object*> world_;
-        map<string, Object*> prototypes_;
-        map<string, Object*> directions_;
-
-        // This is probably not the best way to represent properties:
-        //  1. it doesn't ensure that each property value has a globally unique name
-        //  2. it makes it extremely inefficient to recover a property from one of its values
-        //
-        //      using EnumValues std::vector<string>;
-        //      map<string, EnumValues> properties_;
-        //
-        // Instead, this feels like a better idea. Not it still requires keeping track of existing
-        // properties for referring to them in text.
+        type::TypeDB world_;
         map<string, string> values_; // property value -> property name
         set<string> properties_; // property names
     };
