@@ -10,7 +10,7 @@
 
 namespace amyinorbit::compass {
 
-    #define OPCODE(name, _, __) name,
+    #define OPCODE(name, value, _, __) name = value,
     enum class Bytecode {
     #include "bytecode.x.hpp"
     };

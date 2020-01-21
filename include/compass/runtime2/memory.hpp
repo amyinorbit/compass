@@ -29,7 +29,7 @@ namespace amyinorbit::compass {
         }
 
         template <typename T, std::enable_if_t<sizeof(T) <= 4>* = nullptr>
-        T read(size_type address) const {
+        const T& read(size_type address) const {
             const T* dest = reinterpret_cast<const T*>(data_ + address);
             return *dest;
         }
