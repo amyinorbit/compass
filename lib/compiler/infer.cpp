@@ -98,9 +98,12 @@ namespace amyinorbit::compass {
         if(!obj) return;
 
         auto prop = world_.property_of(value);
-        if(!prop) return;
-        if(error(ref_->field && ref_->field != prop, value + " is not a " + *prop)) return;
-
-        obj->field(*prop) = type::Value::Prop{value};
+        if(prop) {
+            if(error(ref_->field && ref_->field != prop, value + " is not a " + *prop)) return;
+            obj->field(*prop) = type::Value::Prop{value};
+        } else {
+            if(error(!ref_->field, "I cannot make an object into text")) return;
+            obj->field(*ref_->field) = value;
+        }
     }
 }
