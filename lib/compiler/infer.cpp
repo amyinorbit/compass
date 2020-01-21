@@ -28,7 +28,6 @@ namespace amyinorbit::compass {
         ref_ = Ref{what, field};
     }
 
-
     void InferEngine::new_kind(const string& prototype_name) {
         if(error(!ref_, "I am not sure what you are referring to")) return;
         if(error(ref_->field, "A property of something cannot be a new kind")) return;

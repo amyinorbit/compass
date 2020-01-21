@@ -109,8 +109,8 @@ namespace amyinorbit::compass::type {
     }
 
     bool Object::is_a(const Object* kind) const {
+        if(name_ == kind->name_) return true;
         if(!prototype_) return false;
-        if(prototype_->name_ == kind->name_) return true;
         return prototype_->is_a(kind);
     }
 
