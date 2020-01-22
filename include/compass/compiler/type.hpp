@@ -61,6 +61,8 @@ namespace amyinorbit::compass::type {
         bool set_kind(const Object* kind);
         bool is_a(const Object* kind) const;
 
+        set<string> field_names() const;
+
         bool conforms_to(const Contract& contract) const;
 
         bool has_field(const string& name) const;
@@ -68,12 +70,16 @@ namespace amyinorbit::compass::type {
 
         const auto& fields() const { return fields_; }
         Value& field(const string& name);
+        const Value& field(const string& name) const;
+        
         const string& name() const { return name_; }
         const Object* prototype() const { return prototype_; }
     private:
         const Type* field_type(const string& name) const;
         const Value* field_ptr(const string& name) const;
         void dump_fields(std::ostream& out) const;
+
+        void field_names(set<string>& out) const;
 
         const Object* prototype_;
         bool is_abstract_;

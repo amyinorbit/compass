@@ -103,6 +103,13 @@ namespace amyinorbit::compass::type {
         return fields_[name];
     }
 
+    const Value& Object::field(const string& name) const {
+        if(fields_.count(name)) return fields_.at(name);
+
+        if(!prototype_) abort();
+        return prototype_->field(name);
+    }
+
     const Value* Object::field_ptr(const string& name) const {
         if(fields_.count(name)) return &fields_.at(name);
         return prototype_ ? prototype_->field_ptr(name) : nullptr;
@@ -112,6 +119,21 @@ namespace amyinorbit::compass::type {
         if(name_ == kind->name_) return true;
         if(!prototype_) return false;
         return prototype_->is_a(kind);
+    }
+
+    set<string> Object::field_names() const {
+        set<string> all;
+        field_names(all);
+        return all;
+    }
+
+    void Object::field_names(set<string>& out) const {
+        if(prototype_) prototype_->field_names(out);
+
+        for(const auto& [k, _]: fields_) {
+            if(out.count(k)) continue;
+            out.insert(k);
+        }
     }
 
     bool Value::can_assign(const Value &other) const {
@@ -127,6 +149,7 @@ namespace amyinorbit::compass::type {
         case Type::object:
             return other.as<Ref>()->is_a(as<Ref>());
         }
+        return false;
     }
 
     TypeDB::TypeDB(Driver& driver) : driver_(driver) {
