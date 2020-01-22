@@ -11,6 +11,11 @@
 
 namespace amyinorbit::compass {
 
+    template <typename T, typename U>
+    T* as(U* ptr) {
+        return reinterpret_cast<T*>(ptr);
+    }
+
     Memory::Memory(size_type capacity) : capacity_(capacity), free_list_(16) {
         data_ = new u8[capacity];
         write<float>(0, 123.f);
@@ -70,7 +75,7 @@ namespace amyinorbit::compass {
             auto size = ref<size_type>(addr + block_size_offset);
 
             std::cout << "|-----------------\n";
-            std::cout << "| addr:" << std::hex << addr << std::dec << "\n";
+            std::cout << "| addr: " << std::hex << addr << std::dec << "\n";
             std::cout << "| size: " << size << "\n";
             std::cout << "| used: " << (is_free ? "no" : "yes") << "\n";
 
@@ -83,7 +88,7 @@ namespace amyinorbit::compass {
         assert(address < capacity_ && "invalid memory block address");
         address -= block_header_size;
         // std::cerr << "[memory]: deallocating block at " << address << "\n";
-        ref<bool>(address+block_free_offset) = true;
+        ref<bool>(address + block_free_offset) = true;
         merge();
     }
 

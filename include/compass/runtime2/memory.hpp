@@ -22,6 +22,24 @@ namespace amyinorbit::compass {
         Memory(Memory&& other);
         ~Memory();
 
+        void* ptr(size_type address) {
+            return reinterpret_cast<void*>(data_ + address);
+        }
+
+        const void* ptr(size_type address) const {
+            return reinterpret_cast<const void*>(data_ + address);
+        }
+
+        template <typename T, std::enable_if_t<sizeof(T) <= 4>* = nullptr>
+        T* ptr(size_type address) {
+            return reinterpret_cast<T*>(data_ + address);
+        }
+
+        template <typename T, std::enable_if_t<sizeof(T) <= 4>* = nullptr>
+        const T* ptr(size_type address) const {
+            return reinterpret_cast<const T*>(data_ + address);
+        }
+
         template <typename T, std::enable_if_t<sizeof(T) <= 4>* = nullptr>
         void write(size_type address, const T& value) {
             T* dest = reinterpret_cast<T*>(data_ + address);
@@ -52,13 +70,8 @@ namespace amyinorbit::compass {
         void split(size_type block, size_type size);
         void merge();
 
-        template <typename T> T& ref(size_type address) {
-            return *reinterpret_cast<T*>(data_ + address);
-        }
-
-        template <typename T> const T& ref(size_type address) const {
-            return *reinterpret_cast<const T*>(data_ + address);
-        }
+        template <typename T> T& ref(size_type address) { return *ptr<T>(address); }
+        template <typename T> const T& ref(size_type address) const { return *ptr<T>(address); }
 
         u8* data_ = nullptr;
         size_type capacity_ = 0;

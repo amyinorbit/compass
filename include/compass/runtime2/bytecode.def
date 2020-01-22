@@ -2,27 +2,30 @@ code        operands    stack       comments
 ====================================================================================================
 halt        0           0           halts the virtual machine
 
-cload       1           1           pushes a constant on the stack
-vload       1           1           pushes a global on the stack
-aload       0           -1          pops an array reference and index, and pushes the array item
+loadci      4           +4          pushes a constant on the stack from a direct value in the code
+loadcm      4           +4          pushes a constant on the stack from a value from the pool
+loadg       4           +4          pushes a global on the stack
+loadl       1           +4          pushes a local variable onto the stack
+loada       0           -4          pops an array reference and index, and pushes the array item
 
-vstore      1           -1          pops a value from the stack into a global
-astore      0           -3          pops a value into an array slot
+storeg      4           -4          pops a value from the stack into a global
+storel      1           -4          pops a value from the stack into a local
+storea      0           -12         pops a value into an array slot
 
-drop        0           -1          removes the top-of-stack.
-dup         0           +1          duplicates the item on TOS.
+drop        0           -4          removes the top-of-stack.
+dup         0           +4          duplicates the item on TOS.
 
-amake       1           +1          creates an array and pushes a reference to it
-adel        0           -1          deletes an array pointed to by the TOS
-cclone      0           +1          creates a copy of a constant pool object on TOS
-mclone      0           +1          creates a copy of a dynamic memory object on TOS
+amake       4           +4          creates an array and pushes a reference to it
+adel        0           -4          deletes an array pointed to by the TOS
+cclone      0           +4          creates a copy of a constant pool object on TOS
+mclone      0           +4          creates a copy of a dynamic memory object on TOS
 cmake       0           0           creates an instance of a constant pool prototype on TOS
 mmake       0           0           creates an instance of a dynamic memory prototype on TOS
-del         0           -1          frees the memory used by an object on TOS
+del         0           -4          frees the memory used by an object on TOS
 
-iowrite     0           -1          writes the top of stack to the IO device
-ioread      0           +1          reads a line of text from the IO device onto the stack
-iostyle     1           0           sets the IO device style
+iowrite     0           -4          writes the top of stack to the IO device
+ioread      0           +4          reads a line of text from the IO device onto the stack
+iostyle     2           0           sets the IO device style
 
 i2s         0           0           converts the TOS from integer to string
 i2f         0           0
@@ -31,12 +34,12 @@ f2i         0           0
 
 p2s         0           0           converts the TOS from property reference to string
 
-addi        0           -1          adds two integers
-subi        0           -1          subtracts an integer from another
-muli        0           -1          multiplies two integers
-divi        0           -1          divides an integer by another
+addi        0           -4          adds two integers
+subi        0           -4          subtracts an integer from another
+muli        0           -4          multiplies two integers
+divi        0           -4          divides an integer by another
 
-addf        0           -1          adds two floats
-subf        0           -1          subtracts an float from another
-mulf        0           -1          multiplies two floats
-divf        0           -1          divides an float by another
+addf        0           -4          adds two floats
+subf        0           -4          subtracts an float from another
+mulf        0           -4          multiplies two floats
+divf        0           -4          divides an float by another
