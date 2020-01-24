@@ -58,6 +58,7 @@ Value:
 
     u1          tag         0xA1
     u2          value_count number of property values
+    StringRef   name_       the name of the property
     StringRef[] values      list of values the property has
 
 
