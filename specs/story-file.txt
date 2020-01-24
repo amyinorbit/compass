@@ -1,12 +1,21 @@
-# Story File Structure
+# Compass 2.0 Story File Format
 
+# File Structure
 
-## Main Data Store
+    Header
+        u1[4]   signature   "CSF2"
+        u32     const_pool  constant pool offset
+
+    Constant pool
+        u16     length      number of constants
+        []      entries
+
+## Entry Format
 
 DataEntry:
     u1          tag         0xA-
     [...]       field data
-    
+
 Value:
     u1          tag         0xAA-0xAF
     u4          payload     binary data
@@ -15,12 +24,12 @@ Value:
 
     u1          tag         0xAA
     u4          bytes       2's complement signed integer, LE
-    
+
 ### Float
 
     u1          tag         0xAB
     u4          bytes       IEEE754 single-precision repr, LE
-    
+
 ### StringRef
 
     u1          tag         0xAC
@@ -32,7 +41,7 @@ Value:
     u1          tag         0xAD
     u2          reference   constant pool slot index
     u2          [reserved]
-    
+
 ### PropertyRef
 
     u1          tag         0xAE
@@ -44,7 +53,7 @@ Value:
     u1          tag         0xAF
     u2          reference   constant pool slot index
     u2          [reserved]
-    
+
 ### Property
 
     u1          tag         0xA1
@@ -63,7 +72,7 @@ Value:
 *note: Value[] only contains the fields that are proper to this instance, and fields that have
 different default value than the prototype. Implementations of the CVM are free to either create
 a copy of the all the object's fields from its prototype chain, or recurse-search on field access*
-    
+
 ### List
 
     u1          tag         0xA3
@@ -73,5 +82,5 @@ a copy of the all the object's fields from its prototype chain, or recurse-searc
 ### UTF8 String
 
     u1          tag         0xA4
-    u2          length      number of utf-8 bytes
+    u4          length      number of utf-8 bytes
     b1[]        data        utf-8, null-terminated text

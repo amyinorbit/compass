@@ -15,31 +15,47 @@
 
 namespace amyinorbit::compass {
 
-    struct IOException : public std::runtime_error {
-        using std::runtime_error::runtime_error;
-    };
-
     class BinaryWriter {
     public:
         BinaryWriter(std::ostream& stream) : stream_(stream) {
             stream_.imbue(std::locale::classic());
+            stream_.exceptions(std::ostream::failbit | std::ostream::badbit);
         }
 
-        template <typename T>
-        bool write(T value) {
-            return write(*reinterpret_cast<u32*>(&value));
+        template <typename T, std::enable_if_t<sizeof(T) == 4>* = nullptr>
+        void write(T value) {
+            write(*reinterpret_cast<u32*>(&value));
+        }
+
+        template <typename T, std::enable_if_t<sizeof(T) == 2>* = nullptr>
+        void write(T value) {
+            write(*reinterpret_cast<u16*>(&value));
+        }
+
+        template <typename T, std::enable_if_t<sizeof(T) == 1>* = nullptr>
+        void write(T value) {
+            write(*reinterpret_cast<u8*>(&value));
+        }
+
+        void write(const string& string) {
+            write((u32)string.size()+1);
+            write(string.data(), string.size());
         }
 
         bool write(const char* data, u32 count) {
             return stream_.write(data, count).fail();
         }
 
-        bool write(const string& string) {
-            if(!write((u32)string.size())) return false;
-            return write(string.data(), string.size());
+    private:
+
+        void write(u8 data) {
+            stream_.put(data);
         }
 
-    private:
+        void write(u16 data) {
+            stream_.put(data & 0xff);
+            stream_.put((data >> 8) & 0xff);
+        }
 
         bool write(u32 data) {
             stream_.put(data & 0xff);
@@ -54,34 +70,58 @@ namespace amyinorbit::compass {
 
     class BinaryReader {
     public:
-        BinaryReader(std::istream& stream) : stream_(stream) { }
-
-        template <typename T>
-        maybe<T> read() {
-            return read_raw() >> [](u32 data) {
-                return *reinterpret_cast<const T*>(&data);
-            };
+        BinaryReader(std::istream& stream) : stream_(stream) {
+            stream_.exceptions(std::istream::failbit | std::istream::badbit);
         }
 
-        maybe<string> read_string() {
-            return read_raw() >= [this](u32 size) -> maybe<string> {
-                string str;
-                str.reserve(size + 1);
+        template <typename T, std::enable_if_t<sizeof(T) == 4>* = nullptr>
+        T read() {
+            u32 data = read_32();
+            return *reinterpret_cast<const T*>(&data);
+        }
 
-                while(size--) {
-                    char c;
-                    if(!stream_.get(c)) return nothing();
-                    str += c;
-                }
-                return str;
-            };
+        template <typename T, std::enable_if_t<sizeof(T) == 2>* = nullptr>
+        T read() {
+            u16 data = read_16();
+            return *reinterpret_cast<const T*>(&data);
+        }
+
+        template <typename T, std::enable_if_t<sizeof(T) == 1>* = nullptr>
+        T read() {
+            u8 data = read_8();
+            return *reinterpret_cast<const T*>(&data);
+        }
+
+        string read_string() {
+            auto size = read<u32>();
+            string str;
+            str.reserve(size + 1);
+
+            while(size--) {
+                char c;
+                stream_.get(c);
+                str += c;
+            }
+            return str;;
         }
 
     private:
 
-        maybe<u32> read_raw() {
+        u8 read_8() {
+            u8 data;
+            stream_.read((char*)&data, 1);
+            return data;
+        }
+
+        u16 read_16() {
+            u8 data[2];
+            stream_.read(reinterpret_cast<char*>(data), 2);
+            return data[0] | (data[1] << 8);
+        }
+
+        u32 read_32() {
             u8 data[4];
-            if(!stream_.read(reinterpret_cast<char*>(data), 4)) return nothing();
+            stream_.read(reinterpret_cast<char*>(data), 4);
             return data[0] | (data[1] << 8) | (data[2] << 16) | (data[3] << 24);
         }
 
