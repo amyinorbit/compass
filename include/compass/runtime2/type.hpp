@@ -19,6 +19,7 @@ representation (well, we can, but it's clunky). Sema types to the rescue.
 
 namespace amyinorbit::compass {
 
+    enum class gc_parity { even, odd };
     struct Object;
 
     constexpr struct kind_t {} kind_tag;
@@ -26,12 +27,13 @@ namespace amyinorbit::compass {
     constexpr struct nil_t {} nil_tag;
 
 
-    enum class Type { nil = 0, number, text, property, object, list};
+    enum class Type { nil = 0, number, text, symbol, property, object, list};
 
     struct Value {
         using Ref = Object*;
         using Array = vector<Value>;
         struct Prop { string value; };
+        struct Symbol { u16 value; };
 
         Value() : data_(nil_tag) {}
         template <typename T> explicit Value(const T& val) : data_(val) {}
@@ -46,7 +48,7 @@ namespace amyinorbit::compass {
         template <typename T> T& as() { return std::get<T>(data_); }
 
     private:
-        std::variant<nil_t, std::int32_t, string, Prop, Ref, Array> data_;
+        std::variant<nil_t, i32, string, Symbol, Prop, Ref, Array> data_;
     };
 
     using Contract = map<string, Type>;
@@ -76,9 +78,9 @@ namespace amyinorbit::compass {
     private:
         friend class Collector;
 
-        struct {
-            Object* next;
-            bool is_marked;
+        mutable struct {
+            Object* next = nullptr;
+            bool stage = false;
         } gc;
 
         const Type* field_type(const string& name) const;

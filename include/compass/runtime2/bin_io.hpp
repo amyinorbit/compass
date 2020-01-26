@@ -46,6 +46,19 @@ namespace amyinorbit::compass {
             return stream_.write(data, count).fail();
         }
 
+        u64 size() const {
+            auto current = stream_.tellp();
+            stream_.seekp(0, std::ostream::end);
+            auto size = stream_.tellp();
+            stream_.seekp(current);
+            return size;
+        }
+
+
+        auto go(u64 position) {
+            stream_.seekp(position);
+        }
+
     private:
 
         void write(u8 data) {
@@ -105,8 +118,6 @@ namespace amyinorbit::compass {
             return str;;
         }
 
-    private:
-
         u8 read_8() {
             u8 data;
             stream_.read((char*)&data, 1);
@@ -124,6 +135,20 @@ namespace amyinorbit::compass {
             stream_.read(reinterpret_cast<char*>(data), 4);
             return data[0] | (data[1] << 8) | (data[2] << 16) | (data[3] << 24);
         }
+
+        u64 size() const {
+            auto current = stream_.tellg();
+            stream_.seekg(0, std::istream::end);
+            auto size = stream_.tellg();
+            stream_.seekg(current);
+            return size;
+        }
+
+        auto go(u64 position) {
+            stream_.seekg(position);
+        }
+
+    private:
 
         std::istream& stream_;
     };

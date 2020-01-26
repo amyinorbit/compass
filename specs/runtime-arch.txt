@@ -1,0 +1,44 @@
+# Compass 2020 (2.0) runtime
+
+This is the architecture description for Compass 2020's runtime
+
+
+## Objects
+
+Objects are the garbage collected type in Compass. All objects (constant or not) are allocated
+by the garbage collector on the heap.
+
+## Values
+
+A value holds one memory slot. It can represent a varieties of data:
+
+ - integer
+ - float
+ - property reference
+ - object reference
+ - array
+
+## Memory Regions
+
+There are multiple regions where data is stored:
+
+### Constants
+
+Data that isn't referenced by symbol in the story is stored in the constant pool. Constants are
+indexed by 16-bit references, starting at 0. References essentially represent the literals from the
+story file.
+
+### Heap
+
+The heap is a logical region rather than a physical list. The VM and the programmer don't reference
+it directly, but rather create objects through the garbage collector's API.
+
+### Globals
+
+Globals are a finite-size region of memory. Globals store data that isn't part of functions, but
+instead is accessible from any place in code execution. The compass game parser puts result data
+there.
+
+### Stack
+
+The operand stack stores temporary result values
