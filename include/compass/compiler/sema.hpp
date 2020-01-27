@@ -1,5 +1,5 @@
 //===--------------------------------------------------------------------------------------------===
-// type.hpp - Runtime-side type system representation
+// sema.hpp - Semantics of the compass 2.0 type system
 //
 // Created by Amy Parent <amy@amyparent.com>
 // Copyright (c) 2019 Amy Parent
@@ -8,16 +8,9 @@
 //===--------------------------------------------------------------------------------------------===
 #pragma once
 #include <compass/types.hpp>
-#include <apfun/maybe.hpp>
 #include <variant>
-#include <memory>
 
-/*
-If we want to be able to do proper type checking, we can't just rely on the runtime type
-representation (well, we can, but it's clunky). Sema types to the rescue.
-*/
-
-namespace amyinorbit::compass::rt {
+namespace amyinorbit::compass::sema {
 
     struct Object;
     struct Value;
@@ -27,9 +20,11 @@ namespace amyinorbit::compass::rt {
     using Ref = Object*;
     using Array = vector<Value>;
 
+    struct Property { string value; };
+
     struct Value {
 
-        enum Type { nil, integer, real, text, object, list };
+        enum Type { nil, integer, real, text, property, object, list };
 
         Value() : data_(nil_tag) {}
 
@@ -43,36 +38,42 @@ namespace amyinorbit::compass::rt {
         template <typename T> T& as() { return std::get<T>(data_); }
 
     private:
-        std::variant<nil_t, i32, float, string, Ref, Array> data_;
+        std::variant<nil_t, i32, float, string, Property, Ref, Array> data_;
     };
 
+    std::ostream& operator<<(std::ostream& out, const Value& v);
+
+    /*
+    This is not optimal at all. We basically have versions of Object, that represent the
+    same things in different layers of Compass. However, it avoids clunky mechanics at runtime
+    and can make things easier in Sema + code generation
+    */
     struct Object {
-        Object(const Object* prototype, string name);
+    public:
+        using FlatRepr = map<string, Value>;
 
-        bool is_a(const string& name) const;
+        Object(const Object* prototype, const string& name);
+
+        const string& name() const { return name_; }
+        const Object* prototype() const { return prototype_; }
+
+        bool set_prototype(const Object* prototype);
         bool is_a(const Object* kind) const;
-
-        const auto& fields() const { return fields_; }
 
         bool has_field(const string& name) const;
         Value& field(const string& name);
         const Value& field(const string& name) const;
+        FlatRepr flattened() const;
 
-        const string& name() const { return name_; }
-        const Object* prototype() const { return prototype_; }
+        void dump(std::ostream& out) const;
+
     private:
-        friend class Collector;
 
-        struct Field { string name; Value value; };
-
-        mutable struct {
-            Object* next = nullptr;
-            bool stage = false;
-        } gc;
+        void flatten(FlatRepr& flat) const;
+        const Value* field_ptr(const string& name) const;
 
         const Object* prototype_;
         string name_;
-        // vector<Field> fields_;
         map<string, Value> fields_;
     };
 }

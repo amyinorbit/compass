@@ -3,6 +3,7 @@
 #include <compass/language/lexer.hpp>
 #include <compass/compiler/compiler.hpp>
 #include <compass/compiler/parser.hpp>
+#include <compass/runtime2/collector.hpp>
 
 using namespace amyinorbit;
 using namespace amyinorbit::compass;

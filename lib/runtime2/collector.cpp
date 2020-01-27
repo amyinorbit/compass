@@ -10,12 +10,12 @@
 #include <memory>
 #include <apfun/view.hpp>
 
-namespace amyinorbit::compass {
+namespace amyinorbit::compass::rt {
     using namespace fp;
 
     Collector::Collector() {
-        before_collection = std::mem_fn(&Collector::default_before_collection);
-        after_collection = std::mem_fn(&Collector::default_after_collection);
+        // before_collection = std::mem_fn(&Collector::default_before_collection);
+        // after_collection = std::mem_fn(&Collector::default_after_collection);
     }
 
     void Collector::take(Object* obj) {
@@ -29,14 +29,14 @@ namespace amyinorbit::compass {
         roots_.pop_back();
     }
 
-    Object* Collector::new_object(string& name, const Object* prototype) {
-        auto obj = new Object(concrete_tag, prototype, name);
+    Object* Collector::new_object(const string& name, const Object* prototype) {
+        auto obj = new Object(prototype, name);
         take(obj);
         return obj;
     }
 
-    Object* Collector::new_kind(string& name, const Object* prototype) {
-        auto obj = new Object(concrete_tag, prototype, name);
+    Object* Collector::new_kind(const string& name, const Object* prototype) {
+        auto obj = new Object(prototype, name);
         take(obj);
         return obj;
     }
@@ -52,24 +52,24 @@ namespace amyinorbit::compass {
         allocated_ += 1;
         object->gc.stage = stage_;
 
-        for(const auto& f: object->field_names()) {
-            mark(object->field(f));
+        for(const auto& [_, v]: object->fields()) {
+            mark(v);
         }
     }
 
     void Collector::mark(const Value& value) {
 
         switch (value.type()) {
-            case Type::object:
-                mark(value.as<Value::Ref>());
+            case Value::object:
+                mark(value.as<Ref>());
                 break;
 
-            case Type::list:
-                value.as<Value::Array>() | view::tapped([this](const auto& v) { mark(v); });
+            case Value::list:
+                for(const auto& v: value.as<Array>())
+                    mark(v);
                 break;
 
-            default:
-                break;
+            default: break;
         }
     }
 
@@ -79,10 +79,11 @@ namespace amyinorbit::compass {
 
         // First step is marking things we know we can reach. Roots, and anything that the delegate
         // tells us about.
+        std::cout << "[gc]: garbage collection starting: " << allocated_ << " objects\n";
 
         allocated_ = 0;
         if(before_collection) before_collection(*this);
-        roots_ | view::tapped([this](const auto& v) { mark(v); });
+        for(const auto& v : roots_) mark(v);
 
         // Then we can nuke anything that isn't marked
         using Ref = Object*;
@@ -100,5 +101,9 @@ namespace amyinorbit::compass {
         // Finally we need to flip the stage marker.
         stage_ = !stage_;
         if(after_collection) after_collection(*this);
+        next_collection_ = allocated_ > default_collection_threshold
+            ? allocated_ * growth_factor
+            : default_collection_threshold;
+        std::cout << "[gc]: garbage collection done: " << allocated_ << " objects\n";
     }
 }

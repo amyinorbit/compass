@@ -27,7 +27,7 @@ namespace amyinorbit::compass::type {
     constexpr struct nil_t {} nil_tag;
 
 
-    enum class Type { nil = 0, number, text, property, object, list};
+    enum class Type { nil = 0, integer, text, property, object, list};
 
     struct Value {
         using Ref = Object*;
@@ -71,7 +71,7 @@ namespace amyinorbit::compass::type {
         const auto& fields() const { return fields_; }
         Value& field(const string& name);
         const Value& field(const string& name) const;
-        
+
         const string& name() const { return name_; }
         const Object* prototype() const { return prototype_; }
     private:

@@ -11,28 +11,29 @@
 #include <compass/runtime2/buffer.hpp>
 #include <utility>
 
-namespace amyinorbit::compass {
+namespace amyinorbit::compass::rt {
 
     class Collector {
     public:
-
         static constexpr u16 default_collection_threshold = 64;
-        static constexpr float collector_growth_factor = 1.75;
+        static constexpr float growth_factor = 1.75;
 
         using Delegate = std::function<void(Collector&)>;
 
         Collector();
 
-        Object* new_kind(string& name, const Object* prototype);
-        Object* new_object(string& name, const Object* prototype);
+        Object* new_kind(const string& name, const Object* prototype);
+        Object* new_object(const string& name, const Object* prototype);
         Object* clone(const Object* object);
-
 
         void mark(const Value& value);
         void mark(const Object* object);
 
-        Delegate before_collection;
-        Delegate after_collection;
+        void push_root(Object* obj) { roots_.push_back(obj); }
+        void pop_root() { roots_.pop_back(); }
+
+        Delegate before_collection{};
+        Delegate after_collection{};
 
     private:
 
