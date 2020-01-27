@@ -13,9 +13,10 @@ namespace amyinorbit::compass {
 
     InferEngine::InferEngine(Driver& driver) : driver_(driver) {
 
-        properties_.insert("size");
+        create_property("size");
         for(const auto& s: {"small", "large", "massive", "tiny"}) {
-            values_["size"] = s;
+            values_[s] = "size";
+            world_["size"] = Property{s};
         }
 
         auto base = create_kind(nullptr, "object");
@@ -106,7 +107,7 @@ namespace amyinorbit::compass {
 
         Object *container, *containee;
         if(!(containee = object(ref_->obj))) return;
-        if(!(container = object(ref_->obj))) return;
+        if(!(container = object(in_what))) return;
 
         if(error(!container->has_field("children"), in_what + " is not a container")) return;
 
@@ -156,10 +157,11 @@ namespace amyinorbit::compass {
     }
 
     maybe<string> InferEngine::property_of(const string& value) const {
+        std::cout << "searching for prop value " << value << "\n";
         if(!values_.count(value)) {
-            driver_.diagnostic(Diagnostic::error(value + " is not something I know about"));
             return nothing();
         }
+        std::cout << "found\n";
         return values_.at(value);
     }
 

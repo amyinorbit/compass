@@ -38,7 +38,10 @@ namespace amyinorbit::compass::sema {
     }
 
     Value& Object::field(const string& name) {
-        if(!fields_.count(name)) fields_[name] = nil_tag;
+        if(!fields_.count(name)) {
+            auto ptr = field_ptr(name);
+            fields_[name] = ptr ? *ptr : Value(nil_tag);
+        }
         return fields_.at(name);
     }
 
@@ -91,7 +94,32 @@ namespace amyinorbit::compass::sema {
         return out;
     }
 
-    void Object::dump(std::ostream& out) const {
+    void dump(std::ostream& out, const Value& v, int level = 0) {
+        switch(v.type()) {
+            case Value::nil: out << "<nil>"; break;
+            case Value::text: out << "'" << v.as<string>() << "'"; break;
+            case Value::integer: out << v.as<i32>(); break;
+            case Value::real: out << v.as<float>(); break;
+            case Value::property: out << "prop/" << v.as<Property>().value; break;
+            case Value::object:
+                if(!v.as<Object*>())
+                    out << "obj/nil";
+                else
+                    v.as<Object*>()->dump(out, level+1);
+                break;
+            case Value::list:
+                out << "[\n";
+                for(const auto& i: v.as<Array>()) {
+                    dump(out, i, level+2);
+                    out << ",";
+                }
+                out << "\n]";
+                break;
+        }
+    }
+
+    void Object::dump(std::ostream& out, int level) const {
+        for(int i = 0; i < level; ++i) out << "  ";
         out << name_;
         const Object* obj = prototype_;
         while(obj) {
@@ -100,7 +128,8 @@ namespace amyinorbit::compass::sema {
         }
         out << " {\n";
         for(const auto& [k, v]: flattened()) {
-            out << "  - " << k << ": " << v << "\n";
+            for(int i = 0; i < level+1; ++i) out << "  ";
+            out << "  " << k << ": " << v << "\n";
         }
         out << "}\n";
     }

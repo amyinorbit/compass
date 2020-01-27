@@ -65,7 +65,7 @@ namespace amyinorbit::compass::sema {
         const Value& field(const string& name) const;
         FlatRepr flattened() const;
 
-        void dump(std::ostream& out) const;
+        void dump(std::ostream& out, int level = 0) const;
 
     private:
 
