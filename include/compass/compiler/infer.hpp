@@ -8,11 +8,11 @@
 //===--------------------------------------------------------------------------------------------===
 #pragma once
 #include <compass/language/driver.hpp>
-#include <compass/compiler/type.hpp>
 #include <compass/compiler/sema.hpp>
 #include <apfun/string.hpp>
 #include <apfun/maybe.hpp>
 #include <string>
+#include <memory>
 
 namespace amyinorbit::compass {
 

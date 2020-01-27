@@ -7,6 +7,7 @@
 // =^•.•^=
 //===--------------------------------------------------------------------------------------------===
 #include <compass/runtime2/type.hpp>
+#include <cassert>
 
 namespace amyinorbit::compass::rt {
 

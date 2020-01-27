@@ -18,6 +18,26 @@ namespace amyinorbit::compass {
             values_["size"] = s;
         }
 
+        auto base = create_kind(nullptr, "object");
+        base->field("name") = "";
+        base->field("plural") = "";
+        base->field("description") = "";
+
+        auto direction = create_kind(nullptr, "direction");
+        direction->field("name") = "";
+        direction->field("opposite") = "";
+
+
+        auto room = create_kind(base, "room");
+        auto relation = create_kind(nullptr, "relation");
+        relation->field("direction") = nullptr;
+        relation->field("target") = nullptr;
+
+        auto thing = create_kind(base, "thing");
+
+        room->field("directions") = Array();
+        room->field("children") = Array();
+
         // container_["children"] = world_.list_type(world_.);
     }
 

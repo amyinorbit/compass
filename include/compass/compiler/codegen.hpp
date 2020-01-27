@@ -8,13 +8,13 @@
 //===--------------------------------------------------------------------------------------------===
 #pragma once
 #include <compass/types.hpp>
-#include <compass/compiler/type.hpp>
+#include <compass/compiler/sema.hpp>
 #include <compass/runtime2/bytecode.hpp>
 #include <compass/runtime2/bin_io.hpp>
 #include <iostream>
 
 namespace amyinorbit::compass {
-    using namespace type;
+    using namespace sema;
 
     struct ObjectData {
         u32 address;
@@ -31,8 +31,6 @@ namespace amyinorbit::compass {
         u32 address;
         u32 size;
     };
-
-    using namespace type;
 
     class CodeGen {
     public:

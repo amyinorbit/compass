@@ -38,6 +38,7 @@ namespace amyinorbit::compass::sema {
     }
 
     Value& Object::field(const string& name) {
+        if(!fields_.count(name)) fields_[name] = nil_tag;
         return fields_.at(name);
     }
 
