@@ -104,11 +104,9 @@ namespace amyinorbit::compass {
         if(error(!ref_, "I am not sure what you are referring to")) return;
         if(error(ref_->field, "A property of something cannot be a new kind of property")) return;
 
-        auto containee = object(ref_->obj);
-        if(!containee) return;
-
-        auto container = object(in_what);
-        if(!container) return;
+        Object *container, *containee;
+        if(!(containee = object(ref_->obj))) return;
+        if(!(container = object(ref_->obj))) return;
 
         if(error(!container->has_field("children"), in_what + " is not a container")) return;
 
@@ -169,16 +167,22 @@ namespace amyinorbit::compass {
         if(!ensure_not_exists(name)) return nullptr;
 
         objects_[name] = std::make_unique<Object>(proto, name);
-        world_[name] = objects_.at(name).get();
-        return objects_.at(name).get();
+        auto obj = objects_.at(name).get();
+        if(obj->has_field("name")) obj->field("name") = name;
+        if(obj->has_field("plural")) obj->field("plural") = name + "s";
+        world_[name] = obj;
+        return obj;
     }
 
     Object* InferEngine::create_kind(const Object* proto, const string& name) {
         if(!ensure_not_exists(name)) return nullptr;
 
         kinds_[name] = std::make_unique<Object>(proto, name);
-        world_[name] = kinds_.at(name).get();
-        return kinds_.at(name).get();
+        auto obj = kinds_.at(name).get();
+        if(obj->has_field("name")) obj->field("name") = name;
+        if(obj->has_field("plural")) obj->field("plural") = name + "s";
+        world_[name] = obj;
+        return obj;
     }
 
     void InferEngine::create_property(const string& name) {
