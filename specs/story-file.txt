@@ -4,7 +4,20 @@
 
     Header
         u1[4]   signature   "CSF2"
+        u32[4]  reserved    
         u32     const_pool  constant pool offset
+        u32     heap        heap data offset
+        u32     globals     globals offset
+
+    Heap
+
+        u16     length      number of entries
+        []      entries
+
+    Globals
+
+        u16     length      number of globals
+        []      entries
 
     Constant pool
         u16     length      number of constants
@@ -34,7 +47,7 @@ Value:
 
     u1          tag         0xAC
     u2          reference   constant pool slot index
-    u2          [reserved]  
+    u2          [reserved]
 
 ### ObjectRef
 
@@ -42,33 +55,28 @@ Value:
     u2          reference   constant pool slot index
     u2          [reserved]
 
-### PropertyRef
-
-    u1          tag         0xAE
-    u2          reference   constant pool slot index (property def)
-    u2          index       
-
 ### ListRef
 
-    u1          tag         0xAF
+    u1          tag         0xAE
     u2          reference   constant pool slot index
     u2          [reserved]
 
-### Property
 
-    u1          tag         0xA1
-    u2          value_count number of property values
-    StringRef   name_       the name of the property
-    StringRef[] values      list of values the property has
-
+### NilRef
+    u1          tag         0xAF
+    u4          [reserved]
 
 ### Object
 
-    u1          tag         0xA2
+    u1          tag         0xA0
     u2          prototype   reference to prototype object
     u2          name        reference to UTF8 string
     u2          field_count number of field in item
     Value[]     fields      values of the object's fields.
+
+### Field
+    StringRef   name
+    Value       value
 
 *note: Value[] only contains the fields that are proper to this instance, and fields that have
 different default value than the prototype. Implementations of the CVM are free to either create
@@ -76,12 +84,12 @@ a copy of the all the object's fields from its prototype chain, or recurse-searc
 
 ### List
 
-    u1          tag         0xA3
+    u1          tag         0xA1
     u2          value_count number of list entries
     Value[]     fields
 
 ### UTF8 String
 
-    u1          tag         0xA4
+    u1          tag         0xA2
     u4          length      number of utf-8 bytes
     b1[]        data        utf-8, null-terminated text

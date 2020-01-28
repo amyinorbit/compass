@@ -7,6 +7,7 @@
 // =^•.•^=
 //===--------------------------------------------------------------------------------------------===
 #include <compass/compiler/infer.hpp>
+#include <compass/compiler/codegen.hpp>
 
 namespace amyinorbit::compass {
     using namespace sema;
@@ -192,5 +193,14 @@ namespace amyinorbit::compass {
 
         properties_.insert(name);
         world_[name] = Property{""};
+    }
+
+    void InferEngine::write(std::ostream &out) {
+        CodeGen cg;
+        for(const auto& [k, obj]: objects_) {
+            cg.add_object(obj.get());
+        }
+
+        cg.write(out);
     }
 }

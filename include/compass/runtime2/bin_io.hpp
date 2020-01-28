@@ -15,6 +15,19 @@
 
 namespace amyinorbit::compass {
 
+    enum class Tag : u8 {
+        data_object = 0xa0,
+        data_list = 0xa1,
+        data_utf8 = 0xa2,
+
+        value_int = 0xaa,
+        value_float  = 0xab,
+        ref_string = 0xac,
+        ref_object = 0xad,
+        ref_list = 0xae,
+        ref_nil = 0xaf,
+    };
+
     class BinaryWriter {
     public:
         BinaryWriter(std::ostream& stream) : stream_(stream) {
@@ -24,17 +37,17 @@ namespace amyinorbit::compass {
 
         template <typename T, std::enable_if_t<sizeof(T) == 4>* = nullptr>
         void write(T value) {
-            write(*reinterpret_cast<u32*>(&value));
+            write_32(*reinterpret_cast<u32*>(&value));
         }
 
         template <typename T, std::enable_if_t<sizeof(T) == 2>* = nullptr>
         void write(T value) {
-            write(*reinterpret_cast<u16*>(&value));
+            write_16(*reinterpret_cast<u16*>(&value));
         }
 
         template <typename T, std::enable_if_t<sizeof(T) == 1>* = nullptr>
         void write(T value) {
-            write(*reinterpret_cast<u8*>(&value));
+            write_8(*reinterpret_cast<u8*>(&value));
         }
 
         void write(const string& string) {
@@ -54,23 +67,30 @@ namespace amyinorbit::compass {
             return size;
         }
 
+        void forward(u64 distance) {
+            stream_.seekp(distance, std::ostream::seekdir::cur);
+        }
 
-        auto go(u64 position) {
+        void backward(u64 distance) {
+            stream_.seekp(-distance, std::ostream::seekdir::cur);
+        }
+
+        void go(u64 position) {
             stream_.seekp(position);
         }
 
     private:
 
-        void write(u8 data) {
+        void write_8(u8 data) {
             stream_.put(data);
         }
 
-        void write(u16 data) {
+        void write_16(u16 data) {
             stream_.put(data & 0xff);
             stream_.put((data >> 8) & 0xff);
         }
 
-        bool write(u32 data) {
+        bool write_32(u32 data) {
             stream_.put(data & 0xff);
             stream_.put((data >> 8) & 0xff);
             stream_.put((data >> 16) & 0xff);
@@ -142,6 +162,14 @@ namespace amyinorbit::compass {
             auto size = stream_.tellg();
             stream_.seekg(current);
             return size;
+        }
+
+        void forward(u64 distance) {
+            stream_.seekg(distance, std::ostream::seekdir::cur);
+        }
+
+        void backward(u64 distance) {
+            stream_.seekg(-distance, std::ostream::seekdir::cur);
         }
 
         auto go(u64 position) {

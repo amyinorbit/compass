@@ -11,86 +11,139 @@
 #include <string>
 
 namespace amyinorbit::compass {
-    using namespace type;
 
-    u32 aligned(u32 address) {
-        return address + (address % 4);
+    u16 CodeGen::add_constant(const Value& c) {
+        constants_.push_back(c);
+        return (u16)constants_.size() - 1;
     }
 
-    u32 CodeGen::const_string(const string& str) {
-        if(strings_.count(str)) return strings_.at(str).address;
-
-        u32 address = strings_size;
-        StringData data{address, (u32)str.size() + 1};
-        strings_[str] = data;
-        strings_size += aligned(data.size) + 8;
-        return address;
+    u16 CodeGen::add_object(const Object* c) {
+        if(object_map_.count(c)) return object_map_.at(c);
+        u16 idx = objects_.size();
+        objects_.push_back(c);
+        object_map_[c] = idx;
+        return idx;
     }
 
-    u32 CodeGen::const_object(const Object* obj) {
-        if(objects_.count(obj)) return objects_.at(obj).address;
+    void CodeGen::write(std::ostream& out) {
+        Writer writer(out);
 
-        u32 address = objects_size;
-        ObjectData data{address, obj->field_names()};
+        writer.write("CSF2", 4);
 
-        objects_[obj] = data;
-        objects_size += 12 + 4 * (data.fields.size());
-        return address;
-    }
+        writer.write<u32>(0xffffffff);
+        writer.write<u32>(0xffffffff);
+        writer.write<u32>(0xffffffff);
+        writer.write<u32>(0xffffffff);
 
-    void CodeGen::write() {
+        writer.write<u32>(0xffffffff);
+        writer.write<u32>(0xffffffff);
+        writer.write<u32>(0xffffffff);
 
-    }
+        // Heap
+        writer.write<u16>(objects_.size());
+        for(const Object* obj: objects_) {
+            write_object(writer, obj);
+        }
 
-    void CodeGen::write_ptr(u8 tag, u32 value) {
-        u32 data = (value & ~0b11) | (tag & 0b11);
-        writer_.write<u32>(data);
-    }
+        // Globals
+        writer.write<u16>(0);
 
-    void CodeGen::write_value(const Value &value) {
-        switch(value.type()) {
-            case Type::nil:
-            write_ptr(object_tag, 0);
-            break;
-
-            case Type::number:
-            writer_.write<i32>(value.as<i32>());
-            break;
-
-            case Type::text:
-            write_ptr(string_tag, strings_offset() + const_string(value.as<string>()));
-            // u64 size = value.as<string>().size() + 1;
-            // writer_.write<u32>(size & 0xffffffff);
-            // writer_.write<u32>(size >> 32);
-            // writer_.write(value.as<string>().data(), size);
-            break;
-
-            case Type::object:
-            if(value.as<Value::Ref>()) {
-                u32 address = const_object(value.as<Value::Ref>());
-                write_ptr(object_tag, objects_offset() + address);
-            } else {
-                write_ptr(object_tag, 0);
-            }
-            break;
-
-            default:
-            break;
+        // Constant pool
+        writer.write<u16>(constants_.size());
+        for(const auto& val: constants_) {
+            write_constant(writer, val);
         }
     }
 
-    void CodeGen::write_object(const Object* obj) {
-        assert(objects_.count(obj) && "object was not added to the pool");
+    /*
+    ### Object
 
-        const auto& data = objects_.at(obj);
-        u32 name = const_string(obj->name());
+        u1          tag         0xA0
+        u2          prototype   reference to prototype object
+        u2          name        reference to UTF8 string
+        u2          field_count number of field in item
+        Value[]     fields      values of the object's fields.
+    */
+    void CodeGen::write_object(Writer& out, const Object* obj) {
+        out.write(Tag::data_object);
+        if(obj->prototype()) {
+            out.write<u16>(add_object(obj->prototype()));
+        } else {
+            out.write<u16>(0);
+        }
 
-        write_ptr(string_tag, strings_offset() + name);
-        writer_.write<u32>(data.fields.size());
+        out.write<u16>(add_constant(Value(obj->name())));
 
-        // TODO: We should really be keeping track of field indices here
-        for(const auto& k: data.fields) {
-            write_value(obj->field(k));
+        auto fields = obj->flattened();
+        out.write<u16>(fields.size());
+
+        for(const auto& [k, v]: fields) {
+            write_value(out, Value(k));
+            write_value(out, v);
+        }
+    }
+
+    void CodeGen::write_constant(Writer& out, const Value& val) {
+        switch(val.type()) {
+
+            case Value::text:
+                out.write(Tag::data_utf8);
+                out.write(val.as<string>());
+                break;
+
+            case Value::list:
+                out.write(Tag::data_list);
+                {
+                    const auto& list = val.as<Array>();
+                    out.write<u16>(list.size());
+                    for(const auto& v: list) {
+                        write_value(out, v);
+                    }
+                }
+                break;
+
+            default:
+                write_value(out, val);
+                break;
+        }
+    }
+
+    void CodeGen::write_value(Writer& out, const Value& val) {
+        switch(val.type()) {
+            case Value::nil:
+                out.write(Tag::ref_nil);
+                out.write<u32>(0);
+                break;
+
+            case Value::integer:
+                out.write(Tag::value_int);
+                out.write(val.as<i32>());
+                break;
+
+            case Value::real:
+                out.write(Tag::value_float);
+                out.write(val.as<float>());
+                break;
+
+            case Value::text:
+                out.write(Tag::ref_string);
+                out.write<u16>(add_constant(val));
+                break;
+
+            case Value::property:
+                out.write(Tag::ref_string);
+                out.write<u16>(add_constant(val));
+                break;
+
+            case Value::object:
+                out.write(Tag::ref_object);
+                out.write<u16>(add_object(val.as<Ref>()));
+                break;
+
+            case Value::list:
+                out.write(Tag::ref_list);
+                out.write<u16>(add_constant(val));
+                break;
         }
     }
 }

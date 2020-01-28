@@ -51,6 +51,8 @@ namespace amyinorbit::compass {
             }
         }
 
+        void write(std::ostream& out);
+
     private:
         maybe<sema::Value> anything(const string& name) const {
             if(!world_.count(name)) return nothing();

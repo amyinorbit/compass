@@ -1,5 +1,6 @@
 #include <iostream>
 #include <string>
+#include <fstream>
 #include <compass/language/lexer.hpp>
 #include <compass/compiler/compiler.hpp>
 #include <compass/compiler/parser.hpp>
@@ -26,6 +27,8 @@ int main(int argc, const char** argv) {
 
         if(!compiler.isFailed()) {
             infer.dump();
+            auto out = std::ofstream("/Users/amy/Desktop/test.bin", std::ostream::binary);
+            infer.write(out);
         }
         compiler.flush();
     }
