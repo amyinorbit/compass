@@ -4,7 +4,7 @@
 
     Header
         u1[4]   signature   "CSF2"
-        u32[4]  reserved    
+        u32[4]  reserved
         u32     const_pool  constant pool offset
         u32     heap        heap data offset
         u32     globals     globals offset
@@ -69,9 +69,9 @@ Value:
 ### Object
 
     u1          tag         0xA0
+    u2          field_count number of field in item
     u2          prototype   reference to prototype object
     u2          name        reference to UTF8 string
-    u2          field_count number of field in item
     Value[]     fields      values of the object's fields.
 
 ### Field

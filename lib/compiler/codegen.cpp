@@ -74,6 +74,9 @@ namespace amyinorbit::compass {
     */
     void CodeGen::write_object(Writer& out, const Object* obj) {
         out.write(Tag::data_object);
+        auto fields = obj->flattened();
+        out.write<u16>(fields.size());
+
         if(obj->prototype()) {
             out.write<u16>(add_object(obj->prototype()));
         } else {
@@ -81,9 +84,6 @@ namespace amyinorbit::compass {
         }
 
         out.write<u16>(add_constant(Value(obj->name())));
-
-        auto fields = obj->flattened();
-        out.write<u16>(fields.size());
 
         for(const auto& [k, v]: fields) {
             write_value(out, Value(k));
@@ -136,21 +136,25 @@ namespace amyinorbit::compass {
             case Value::text:
                 out.write(Tag::ref_string);
                 out.write<u16>(add_constant(val));
+                out.write<u16>(0);
                 break;
 
             case Value::property:
                 out.write(Tag::ref_string);
                 out.write<u16>(add_constant(val));
+                out.write<u16>(0);
                 break;
 
             case Value::object:
                 out.write(Tag::ref_object);
                 out.write<u16>(add_object(val.as<Ref>()));
+                out.write<u16>(0);
                 break;
 
             case Value::list:
                 out.write(Tag::ref_list);
                 out.write<u16>(add_constant(val));
+                out.write<u16>(0);
                 break;
         }
     }

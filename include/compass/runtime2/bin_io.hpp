@@ -68,15 +68,19 @@ namespace amyinorbit::compass {
         }
 
         void forward(u64 distance) {
-            stream_.seekp(distance, std::ostream::seekdir::cur);
+            stream_.seekp(distance, std::ios_base::cur);
         }
 
         void backward(u64 distance) {
-            stream_.seekp(-distance, std::ostream::seekdir::cur);
+            stream_.seekp(-distance, std::ios_base::cur);
         }
 
         void go(u64 position) {
-            stream_.seekp(position);
+            stream_.seekp(position, std::ios_base::beg);
+        }
+
+        u64 offset() {
+            return stream_.tellp();
         }
 
     private:
@@ -165,15 +169,19 @@ namespace amyinorbit::compass {
         }
 
         void forward(u64 distance) {
-            stream_.seekg(distance, std::ostream::seekdir::cur);
+            stream_.seekg(distance, std::ios_base::cur);
         }
 
         void backward(u64 distance) {
-            stream_.seekg(-distance, std::ostream::seekdir::cur);
+            stream_.seekg(-distance, std::ios_base::cur);
         }
 
         auto go(u64 position) {
-            stream_.seekg(position);
+            stream_.seekg(position, std::ios_base::beg);
+        }
+
+        u64 offset() {
+            return stream_.tellg();
         }
 
     private:

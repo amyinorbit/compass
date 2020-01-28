@@ -200,6 +200,9 @@ namespace amyinorbit::compass {
         for(const auto& [k, obj]: objects_) {
             cg.add_object(obj.get());
         }
+        for(const auto& [k, obj]: kinds_) {
+            cg.add_object(obj.get());
+        }
 
         cg.write(out);
     }

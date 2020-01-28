@@ -23,7 +23,7 @@ namespace amyinorbit::compass::rt {
         Collector();
 
         Object* new_object(Object* prototype, const string& name);
-        Object* new_object(u16 prototype_id, u16 name_id, Object::Fields&& fields);
+        Object* new_object(Object* prototype, const string& name, Object::Fields&& fields);
         Object* clone(const Object* object);
 
         void mark(const Value& value);
@@ -31,6 +31,9 @@ namespace amyinorbit::compass::rt {
 
         void push_root(Object* obj) { roots_.push_back(obj); }
         void pop_root() { roots_.pop_back(); }
+
+        void pause() { is_paused_ = true; }
+        void resume() { is_paused_ = false; }
 
         Delegate before_collection{};
         Delegate after_collection{};
@@ -52,6 +55,7 @@ namespace amyinorbit::compass::rt {
         Object* head_{nullptr};
         u16 allocated_{0};
         u16 next_collection_{64};
+        bool is_paused_{false};
 
         buffer<Object*> roots_{64};
 

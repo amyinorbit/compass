@@ -24,11 +24,10 @@ namespace amyinorbit::compass::rt {
         }
     }
 
-    Object::Object(u16 prototype_id, u16 name_id, Fields&& fields)
-        : prototype_(Value::Defer{Value::object, prototype_id})
-        , name_(Value::Defer{Value::text, name_id})
+    Object::Object(Object* prototype, string name, Fields&& fields)
+        : prototype_(prototype)
+        , name_(name)
         , fields_(std::move(fields)) {
-
     }
 
     bool Object::has_field(const string& name) const {
