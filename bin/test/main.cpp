@@ -5,6 +5,7 @@
 #include <compass/compiler/compiler.hpp>
 #include <compass/compiler/parser.hpp>
 #include <compass/runtime2/collector.hpp>
+#include <compass/runtime2/unpack.hpp>
 
 using namespace amyinorbit;
 using namespace amyinorbit::compass;
@@ -27,8 +28,18 @@ int main(int argc, const char** argv) {
 
         if(!compiler.isFailed()) {
             infer.dump();
-            auto out = std::ofstream("/Users/amy/Desktop/test.bin", std::ostream::binary);
-            infer.write(out);
+            {
+                auto out = std::ofstream("/Users/amy/Desktop/test.bin", std::ostream::binary);
+                infer.write(out);
+                std::cout << "written\n";
+            }
+
+            {
+                auto in = std::ifstream("/Users/amy/Desktop/test.bin", std::ostream::binary);
+                Loader(in).load();
+                std::cout << "read\n";
+            }
+
         }
         compiler.flush();
     }

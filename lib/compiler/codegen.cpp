@@ -77,7 +77,7 @@ namespace amyinorbit::compass {
         if(obj->prototype()) {
             out.write<u16>(add_object(obj->prototype()));
         } else {
-            out.write<u16>(0);
+            out.write<u16>(0xffff);
         }
 
         out.write<u16>(add_constant(Value(obj->name())));

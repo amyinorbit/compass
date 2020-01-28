@@ -31,11 +31,13 @@ namespace amyinorbit::compass::rt {
 
         enum Type { nil, integer, real, text, object, list };
 
+        struct Defer { Type tag; u16 value; };
+
         Value() : data_(nil_tag) {}
 
-        Type type() const { return static_cast<Type>(data_.index()); }
+        Type type() const;
 
-        template <typename T> explicit Value(const T& val) : data_(val) {}
+        template <typename T> Value(const T& val) : data_(val) {}
         template <typename T> Value& operator=(const T& val) { data_ = val; return *this; }
 
         template <typename T> bool is() const { return std::holds_alternative<T>(data_); }
@@ -43,11 +45,13 @@ namespace amyinorbit::compass::rt {
         template <typename T> T& as() { return std::get<T>(data_); }
 
     private:
-        std::variant<nil_t, i32, float, string, Ref, Array> data_;
+        std::variant<nil_t, i32, float, string, Ref, Array, Defer> data_;
     };
 
     struct Object {
-        Object(const Object* prototype, string name);
+        using Fields = map<string, Value>;
+        Object(Object* prototype, string name);
+        Object(u16 prototype_id, u16 name_id, Fields&& fields);
 
         bool is_a(const string& name) const;
         bool is_a(const Object* kind) const;
@@ -58,8 +62,8 @@ namespace amyinorbit::compass::rt {
         Value& field(const string& name);
         const Value& field(const string& name) const;
 
-        const string& name() const { return name_; }
-        const Object* prototype() const { return prototype_; }
+        const string& name() const { return name_.as<string>(); }
+        const Object* prototype() const { return prototype_.as<Object*>(); }
     private:
         friend class Collector;
 
@@ -70,9 +74,9 @@ namespace amyinorbit::compass::rt {
             bool stage = false;
         } gc;
 
-        const Object* prototype_;
-        string name_;
+        Value prototype_;
+        Value name_;
         // vector<Field> fields_;
-        map<string, Value> fields_;
+        Fields fields_;
     };
 }

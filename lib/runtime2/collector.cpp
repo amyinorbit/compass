@@ -29,14 +29,14 @@ namespace amyinorbit::compass::rt {
         roots_.pop_back();
     }
 
-    Object* Collector::new_object(const string& name, const Object* prototype) {
+    Object* Collector::new_object(Object* prototype, const string& name) {
         auto obj = new Object(prototype, name);
         take(obj);
         return obj;
     }
 
-    Object* Collector::new_kind(const string& name, const Object* prototype) {
-        auto obj = new Object(prototype, name);
+    Object* Collector::new_object(u16 prototype_id, u16 name_id, Object::Fields&& fields) {
+        auto obj = new Object(prototype_id, name_id, std::move(fields));
         take(obj);
         return obj;
     }
@@ -51,6 +51,9 @@ namespace amyinorbit::compass::rt {
         if(object->gc.stage == stage_) return;
         allocated_ += 1;
         object->gc.stage = stage_;
+
+        mark(object->prototype_);
+        mark(object->name_);
 
         for(const auto& [_, v]: object->fields()) {
             mark(v);

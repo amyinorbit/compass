@@ -45,10 +45,13 @@ namespace amyinorbit::compass {
         void declare_property(const string& property, const string& value);
 
         void dump() const {
+            std::cout << "world: ";
             for(const auto& [id, obj]: world_) {
-                std::cout << "@" << id << ": " << obj;
-                std::cout << "\n";
+                // std::cout << "@" << id << ": " << obj;
+                // std::cout << "\n";
+                std::cout << id << ", ";
             }
+            std::cout << "\n";
         }
 
         void write(std::ostream& out);
