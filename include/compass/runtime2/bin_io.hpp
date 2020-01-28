@@ -132,7 +132,8 @@ namespace amyinorbit::compass {
         string read_string() {
             auto size = read<u32>();
             string str;
-            str.reserve(size + 1);
+            str.reserve(size);
+            size -= 1;
 
             while(size--) {
                 char c;

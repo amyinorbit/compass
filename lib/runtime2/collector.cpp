@@ -35,7 +35,7 @@ namespace amyinorbit::compass::rt {
         return obj;
     }
 
-    Object* Collector::new_object(Object* prototype, const string& name, Object::Fields&& fields) {
+    Object* Collector::new_object(u16 prototype, u16 name, Object::Fields&& fields) {
         auto obj = new Object(prototype, name, std::move(fields));
         take(obj);
         return obj;

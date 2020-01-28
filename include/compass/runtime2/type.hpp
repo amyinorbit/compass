@@ -51,19 +51,19 @@ namespace amyinorbit::compass::rt {
     struct Object {
         using Fields = map<string, Value>;
         Object(Object* prototype, string name);
-        Object(Object* prototype, string name, Fields&& fields);
+        Object(u16 prototype, u16 name, Fields&& fields);
 
         bool is_a(const string& name) const;
         bool is_a(const Object* kind) const;
+
+        void link() { is_linked_ = true; }
+        bool is_linked() const { return is_linked_; }
 
         const auto& fields() const { return fields_; }
 
         bool has_field(const string& name) const;
         Value& field(const string& name);
         const Value& field(const string& name) const;
-
-        void set_prototype(Object* prototype) { prototype_ = prototype; }
-        void set_field(const string& name, const Value& value) { fields_[name] = value; }
 
         const string& name() const { return name_.as<string>(); }
         const Object* prototype() const { return prototype_.as<Object*>(); }
@@ -81,5 +81,6 @@ namespace amyinorbit::compass::rt {
         Value name_;
         // vector<Field> fields_;
         Fields fields_;
+        bool is_linked_ = true;
     };
 }

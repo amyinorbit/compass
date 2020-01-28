@@ -24,6 +24,8 @@ namespace amyinorbit::compass {
 
     private:
 
+        string name(const rt::Value& val) const;
+
         bool signature();
         void object();
         void constant();

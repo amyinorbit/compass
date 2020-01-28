@@ -18,16 +18,18 @@ namespace amyinorbit::compass::rt {
 
     Object::Object(Object* prototype, string name)
         : prototype_(prototype)
-        , name_(name) {
+        , name_(name)
+        , is_linked_(true) {
         if(prototype) {
             fields_ = prototype->fields_;
         }
     }
 
-    Object::Object(Object* prototype, string name, Fields&& fields)
-        : prototype_(prototype)
-        , name_(name)
-        , fields_(std::move(fields)) {
+    Object::Object(u16 prototype, u16 name, Fields&& fields)
+        : prototype_(Value::Defer{Value::object, prototype})
+        , name_(Value::Defer{Value::text, name})
+        , fields_(std::move(fields))
+        , is_linked_(false) {
     }
 
     bool Object::has_field(const string& name) const {

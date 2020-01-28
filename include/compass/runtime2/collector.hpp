@@ -23,7 +23,7 @@ namespace amyinorbit::compass::rt {
         Collector();
 
         Object* new_object(Object* prototype, const string& name);
-        Object* new_object(Object* prototype, const string& name, Object::Fields&& fields);
+        Object* new_object(u16 prototype, u16 name, Object::Fields&& fields);
         Object* clone(const Object* object);
 
         void mark(const Value& value);

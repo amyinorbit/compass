@@ -74,16 +74,15 @@ namespace amyinorbit::compass {
     */
     void CodeGen::write_object(Writer& out, const Object* obj) {
         out.write(Tag::data_object);
-        auto fields = obj->flattened();
-        out.write<u16>(fields.size());
-
         if(obj->prototype()) {
             out.write<u16>(add_object(obj->prototype()));
         } else {
             out.write<u16>(0xffff);
         }
-
         out.write<u16>(add_constant(Value(obj->name())));
+
+        auto fields = obj->flattened();
+        out.write<u16>(fields.size());
 
         for(const auto& [k, v]: fields) {
             write_value(out, Value(k));
