@@ -40,19 +40,27 @@ namespace amyinorbit::compass {
         writer.write<u32>(0xffffffff);
 
         // Heap
+        u32 heap_offset = writer.size();
         writer.write<u16>(objects_.size());
         for(const Object* obj: objects_) {
             write_object(writer, obj);
         }
 
         // Globals
+        u32 globals_offset = writer.size();
         writer.write<u16>(0);
 
         // Constant pool
+        u32 constants_offset = writer.size();
         writer.write<u16>(constants_.size());
         for(const auto& val: constants_) {
             write_constant(writer, val);
         }
+
+        writer.go(4 + 4 * sizeof(u32));
+        writer.write<u32>(heap_offset);
+        writer.write<u32>(globals_offset);
+        writer.write<u32>(constants_offset);
     }
 
     /*
