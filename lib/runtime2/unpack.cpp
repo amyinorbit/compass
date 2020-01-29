@@ -7,13 +7,13 @@
 // =^•.•^=
 //===--------------------------------------------------------------------------------------------===
 #include <compass/runtime2/unpack.hpp>
+#include <apfun/view.hpp>
 #include <cassert>
 
 namespace amyinorbit::compass {
     using namespace rt;
 
     void Loader::load() {
-        collector_.pause();
         if(!signature()) return;
         reader_.forward(4 * sizeof(u32));
 
@@ -42,6 +42,8 @@ namespace amyinorbit::compass {
         for(u16 i = 0; i < heap_count; ++i) {
             object();
         }
+        collector_.pause();
+        link();
         collector_.resume();
     }
 
@@ -102,7 +104,7 @@ namespace amyinorbit::compass {
     }
 
     void Loader::object() {
-        std::cout << "loading object: ";
+        std::cout << "loading object\n";
         assert(reader_.read<Tag>() == Tag::data_object && "not an object");
 
         u16 prot_ref = reader_.read<u16>();
@@ -117,18 +119,16 @@ namespace amyinorbit::compass {
 
             fields[name(field_name)] = field_value;
         }
-        objects_.push_back(collector_.new_object(prot_ref, name_ref, std::move(fields)));
+        objects_.emplace_back(prot_ref, name_ref, std::move(fields));
     }
 
     bool Loader::signature() {
         const char signature[] = "CSF2";
-
         const char* c = signature;
         while(*c) {
             if(reader_.read<char>() != *c) return false;
             c += 1;
         }
-
         return true;
     }
 
@@ -142,23 +142,33 @@ namespace amyinorbit::compass {
     }
 
     void Loader::link() {
-
-    }
-
-    void Loader::link(const Object* obj) {
-        if(!obj) return;
-        if(obj->is_linked()) return;
-
-        obj->link();
-        link(obj->prototype());
-
-        for(auto& [k, v]: obj->fields()) {
-            link(v);
+        for(u16 i = 0; i < objects_.size(); ++i) {
+            link_object(i);
         }
     }
 
-    void Loader::link(Value& v) {
-        if(!v.is<Value::Defer>()) return;
+    Object* Loader::link_object(u16 idx) {
+        if(idx == 0xffff) return nullptr;
+        std::cout << "[obj/" << idx << ": req]\n";
+        assert(idx < objects_.size());
+        auto& data = objects_[idx];
+
+        if(!data.linked) {
+            std::cout << "[obj/" << idx << ": link]\n";
+            const Object* prototype = link_object(data.prototype);
+            const string& name = constant<string>(data.name);
+            data.linked = collector_.new_object(prototype, name);
+
+            for(const auto& [k, v]: data.fields) {
+                data.linked->field(k) = link_value(v);
+            }
+            std::cout << "[obj/" << idx << ": " << data.linked << "]\n";
+        }
+        return data.linked;
+    }
+
+    Value Loader::link_value(const Value& v) {
+        if(!v.is<Value::Defer>()) return v;
         auto ref = v.as<Value::Defer>();
 
         switch(ref.tag) {
@@ -170,13 +180,11 @@ namespace amyinorbit::compass {
 
             case Value::text:
             case Value::list:
-                v = constant(ref.value, ref.tag);
-                break;
+                return constant(ref.value, ref.tag);
 
             case Value::object:
-                v = constant(ref.value, ref.tag);
-                link(v.as<Object*>());
-                break;
+                return link_object(ref.value);
         }
+        return nil_tag;
     }
 }

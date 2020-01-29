@@ -29,13 +29,13 @@ int main(int argc, const char** argv) {
         if(!compiler.isFailed()) {
             infer.dump();
             {
-                auto out = std::ofstream("/Users/amy/Desktop/test.bin", std::ostream::binary);
+                auto out = std::ofstream("/home/amy/Desktop/test.bin", std::ostream::binary);
                 infer.write(out);
                 std::cout << "written\n";
             }
 
             {
-                auto in = std::ifstream("/Users/amy/Desktop/test.bin", std::ostream::binary);
+                auto in = std::ifstream("/home/amy/Desktop/test.bin", std::ostream::binary);
                 rt::Collector gc;
                 // try {
                     Loader(gc, in).load();

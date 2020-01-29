@@ -18,6 +18,7 @@ namespace amyinorbit::compass {
     }
 
     u16 CodeGen::add_object(const Object* c) {
+        if(!c) return 0xffff;
         if(object_map_.count(c)) return object_map_.at(c);
         u16 idx = objects_.size();
         objects_.push_back(c);

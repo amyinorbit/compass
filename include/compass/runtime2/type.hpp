@@ -50,8 +50,7 @@ namespace amyinorbit::compass::rt {
 
     struct Object {
         using Fields = map<string, Value>;
-        Object(Object* prototype, string name);
-        Object(u16 prototype, u16 name, Fields&& fields);
+        Object(const Object* prototype, string name);
 
         bool is_a(const string& name) const;
         bool is_a(const Object* kind) const;
@@ -65,8 +64,8 @@ namespace amyinorbit::compass::rt {
         Value& field(const string& name);
         const Value& field(const string& name) const;
 
-        const Value& name() const { return name_; }
-        const Value& prototype() const { return prototype_; }
+        const string& name() const { return name_; }
+        const Object* prototype() const { return prototype_; }
     private:
         friend class Collector;
 
@@ -77,8 +76,8 @@ namespace amyinorbit::compass::rt {
             bool stage = false;
         } gc;
 
-        Value prototype_;
-        Value name_;
+        const Object* prototype_;
+        string name_;
         // vector<Field> fields_;
         Fields fields_;
         mutable bool is_linked_ = true;

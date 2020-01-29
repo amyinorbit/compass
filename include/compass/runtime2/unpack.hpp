@@ -12,6 +12,7 @@
 #include <compass/runtime2/collector.hpp>
 #include <compass/runtime2/bin_io.hpp>
 #include <iostream>
+#include <cassert>
 
 namespace amyinorbit::compass {
 
@@ -23,19 +24,15 @@ namespace amyinorbit::compass {
         void load();
 
     private:
-
-
-        struct Field {
-            string name;
-            rt::Value value;
-        };
-
         struct Unlinked {
-            Object* linked = nullptr;
+            Unlinked(u16 prototype, u16 name, rt::Object::Fields&& fields)
+                : linked(nullptr), prototype(prototype), name(name), fields(std::move(fields)) {}
 
-            rt::Value prototype;
-            rt::Value name;
-            map<string, rt::Value> fields;
+            rt::Object* linked = nullptr;
+
+            u16 prototype;
+            u16 name;
+            rt::Object::Fields fields;
         };
 
         string name(const rt::Value& val) const;
@@ -49,12 +46,20 @@ namespace amyinorbit::compass {
         void list();
 
         void link();
-        void link(rt::Value& v);
-        void link(rt::Object* obj);
+        rt::Object* link_object(u16 idx);
+        rt::Value link_value(const rt::Value& v);
 
         const rt::Value& constant(u16 idx, rt::Value::Type type);
 
-        vector<rt::Object*> objects_;
+        template <typename T>
+        const T& constant(u16 idx) {
+            assert(idx < constants_.size());
+            const auto& v = constants_[idx];
+            assert(v.is<T>());
+            return v.as<T>();
+        }
+
+        vector<Unlinked> objects_;
         vector<rt::Value> constants_;
 
         rt::Collector& collector_;
