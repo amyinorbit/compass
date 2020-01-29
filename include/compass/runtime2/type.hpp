@@ -56,7 +56,7 @@ namespace amyinorbit::compass::rt {
         bool is_a(const string& name) const;
         bool is_a(const Object* kind) const;
 
-        void link() { is_linked_ = true; }
+        void link() const { is_linked_ = true; }
         bool is_linked() const { return is_linked_; }
 
         const auto& fields() const { return fields_; }
@@ -65,8 +65,8 @@ namespace amyinorbit::compass::rt {
         Value& field(const string& name);
         const Value& field(const string& name) const;
 
-        const string& name() const { return name_.as<string>(); }
-        const Object* prototype() const { return prototype_.as<Object*>(); }
+        const Value& name() const { return name_; }
+        const Value& prototype() const { return prototype_; }
     private:
         friend class Collector;
 
@@ -81,6 +81,6 @@ namespace amyinorbit::compass::rt {
         Value name_;
         // vector<Field> fields_;
         Fields fields_;
-        bool is_linked_ = true;
+        mutable bool is_linked_ = true;
     };
 }

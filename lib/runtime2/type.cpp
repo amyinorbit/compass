@@ -49,11 +49,11 @@ namespace amyinorbit::compass::rt {
     bool Object::is_a(const string& kind) const {
         assert(name_.is<string>());
         if(name_.as<string>() == kind) return true;
-        if(!prototype()) return false;
-        return prototype()->is_a(kind);
+        if(!prototype().as<Object*>()) return false;
+        return prototype().as<Object*>()->is_a(kind);
     }
 
     bool Object::is_a(const Object* kind) const {
-        return is_a(kind->name());
+        return is_a(kind->name().as<string>());
     }
 }

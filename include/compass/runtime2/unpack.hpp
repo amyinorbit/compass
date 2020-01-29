@@ -24,6 +24,20 @@ namespace amyinorbit::compass {
 
     private:
 
+
+        struct Field {
+            string name;
+            rt::Value value;
+        };
+
+        struct Unlinked {
+            Object* linked = nullptr;
+
+            rt::Value prototype;
+            rt::Value name;
+            map<string, rt::Value> fields;
+        };
+
         string name(const rt::Value& val) const;
 
         bool signature();
@@ -33,6 +47,12 @@ namespace amyinorbit::compass {
 
         void utf8();
         void list();
+
+        void link();
+        void link(rt::Value& v);
+        void link(rt::Object* obj);
+
+        const rt::Value& constant(u16 idx, rt::Value::Type type);
 
         vector<rt::Object*> objects_;
         vector<rt::Value> constants_;

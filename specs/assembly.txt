@@ -1,0 +1,21 @@
+@data
+
+"object" <nil> {
+    "name" = "object"
+    "plural" = "objects"
+    "description" = ""
+}
+
+"thing" <object> {
+    ""
+}
+
+@globals
+
+
+
+@exec
+
+.function 'go' target {
+    loadci 123
+}

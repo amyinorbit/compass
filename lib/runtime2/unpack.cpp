@@ -95,13 +95,14 @@ namespace amyinorbit::compass {
 
     string Loader::name(const Value& val) const {
         assert(val.type() == Value::text);
-        if(val.is<Value::Defer>())
+        if(val.is<Value::Defer>()) {
             return constants_[val.as<Value::Defer>().value].as<string>();
+        }
         return val.as<string>();
     }
 
     void Loader::object() {
-        std::cout << "loading object\n";
+        std::cout << "loading object: ";
         assert(reader_.read<Tag>() == Tag::data_object && "not an object");
 
         u16 prot_ref = reader_.read<u16>();
@@ -116,7 +117,6 @@ namespace amyinorbit::compass {
 
             fields[name(field_name)] = field_value;
         }
-
         objects_.push_back(collector_.new_object(prot_ref, name_ref, std::move(fields)));
     }
 
@@ -130,5 +130,53 @@ namespace amyinorbit::compass {
         }
 
         return true;
+    }
+
+
+    const Value& Loader::constant(u16 idx, Value::Type type) {
+        assert(idx < constants_.size());
+        const auto& v = constants_[idx];
+        assert(!v.is<Value::Defer>() && v.type() == type);
+
+        return v;
+    }
+
+    void Loader::link() {
+
+    }
+
+    void Loader::link(const Object* obj) {
+        if(!obj) return;
+        if(obj->is_linked()) return;
+
+        obj->link();
+        link(obj->prototype());
+
+        for(auto& [k, v]: obj->fields()) {
+            link(v);
+        }
+    }
+
+    void Loader::link(Value& v) {
+        if(!v.is<Value::Defer>()) return;
+        auto ref = v.as<Value::Defer>();
+
+        switch(ref.tag) {
+            case Value::nil:
+            case Value::integer:
+            case Value::real:
+                assert(false && "value types cannot be unlinked");
+                break;
+
+            case Value::text:
+            case Value::list:
+                v = constant(ref.value, ref.tag);
+                break;
+
+            case Value::object:
+                v = constant(ref.value, ref.tag);
+                link(v.as<Object*>());
+                break;
+        }
     }
 }
