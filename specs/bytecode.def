@@ -14,7 +14,7 @@ storea      0           -3          pops a value into an array slot
 drop        0           -1          removes the top-of-stack.
 dup         0           +1          duplicates the item on TOS.
 
-resv        2           n           reserves local variables by shifting the stack pointer
+resv        2           1           reserves local variables by shifting the stack pointer
 
 jmp         2           0           jumps by n addresses
 rjmp        2           0           jumps back by n addresses
@@ -23,10 +23,15 @@ rjmpz       2           0           jumps back n addresses if TOS == 0
 jmpnz       2           0           jumps forward n addresses if TOS != 0
 rjmpnz      2           0           jumps back n addresses if TOS != 0
 
+call        2           -1          calls a function with n arguments
+ret         0           0           returns from a function
+
 ioselect    2           0           selects an I/O device ID
 iowrite     0           -1          writes the top of stack to the IO device
 ioread      0           +1          reads a line of text from the IO device onto the stack
 iostyle     2           0           sets the IO device style
+
+parse       2           0           s
 
 i2s         0           0           converts the TOS from integer to string
 i2f         0           0

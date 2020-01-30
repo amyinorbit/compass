@@ -1,0 +1,20 @@
+comment         = ";" *ANY
+declaration     = function-decl / object-decl
+
+object-decl     = object-header *WSP "{" LF object-fields "}"
+object-header   = "@object" 1*WSP name *WSP object-ref
+
+object-fields   = *(object-field LF)
+object-field    = name *WSP "=" *WSP constant-value
+
+
+function-decl   = "@function" 1*WSP name "{" LF instructions "}"
+instructions    = *(instruction LF)
+instruction     = mnemonic [operand]
+mnemonic        = ; see mnemonic list
+operand         = constant-value
+
+constant-value  = object-ref / function-ref / array-literal / quoted-string / number / index
+object-ref      = "<" *WSP [ name ] *WSP ">"
+function-ref    = "%" name
+name            = DQUOTE 1*(CHAR / WSP / DIGIT) DQUOTE

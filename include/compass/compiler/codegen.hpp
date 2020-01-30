@@ -22,7 +22,6 @@ namespace amyinorbit::compass {
 
         u16 add_constant(const Value& c);
         u16 add_object(const Object* c);
-
         void write(std::ostream& out);
 
     private:
