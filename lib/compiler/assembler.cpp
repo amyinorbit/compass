@@ -7,8 +7,83 @@
 // =^•.•^=
 //===--------------------------------------------------------------------------------------------===
 #include <compass/compiler/assembler.hpp>
+#include <apfun/maybe.hpp>
 
 namespace amyinorbit::compass {
+
+    void Assembler::compile() {
+        next_token();
+
+        while(!is(Token::end)) {
+            if(match(Token::function_kw)) {
+                function();
+            }
+            else if(match(Token::object_kw)) {
+                object();
+            }
+            if(!match(Token::new_line)) break;
+        }
+
+        expect(Token::end, "expected end of file");
+    }
+
+    void Assembler::object() {
+        auto name = text();
+        maybe<string> prototype = nothing();
+        expect(Token::string_literal);
+
+        if(match(Token::angle_l)) {
+            prototype = text();
+            expect(Token::string_literal);
+            expect(Token::angle_r);
+        }
+
+        expect(Token::brace_l);
+
+        for(;;) {
+            if(is(Token::string_literal)) object_field();
+            if(!match(Token::new_line)) break;
+        }
+
+        expect(Token::brace_r);
+
+    }
+
+    void Assembler::object_field() {
+        auto name = text();
+        expect(Token::string_literal);
+        expect(Token::equals);
+        expect(Token::string_literal); // TODO: replace with literal()
+    }
+
+    void Assembler::function() {
+        auto name = text();
+        expect(Token::string_literal);
+        expect(Token::brace_l);
+
+        for(;;) {
+            if(is(Token::identifier)) eat(); // TODO: replace with label();
+            if(is(Token::instruction)) instruction();
+            if(!match(Token::new_line)) break;
+        }
+
+        expect(Token::brace_r);
+    }
+
+    void Assembler::instruction() {
+        auto mnem = text();
+        expect(Token::instruction, "invalid source (expected an instruction mnemonic)");
+        std::cout << "instr: " << mnem;
+        if(!is(Token::new_line) && !is(Token::end)) {
+            auto operand = text();
+            eat();
+            std::cout << " (" << operand << ")";
+        }
+        std::cout << "\n";
+    }
+
+
+    #include "mnemonics.gen.inc"
 
     bool Assembler::match(Token::Kind kind) {
         if(is(kind)) {
@@ -24,6 +99,7 @@ namespace amyinorbit::compass {
 
     const Assembler::Token& Assembler::lex_string(char delim) {
         start_ = current_;
+        next_char();
         while(current() != delim) {
             auto c = next_char();
             if(c == '\0') {
@@ -36,11 +112,29 @@ namespace amyinorbit::compass {
         return make_token(Token::string_literal, string(start_.utf8(), end.utf8()));
     }
 
-    const Assembler::Token& Assembler::lex_keyword(Token::Kind kind) {
+    const Assembler::Token& Assembler::lex_keyword() {
         while(current().is_identifier()) {
             next_char();
         }
-        return make_token(kind, string(start_.utf8(), current_.utf8()));
+        string str(start_.utf8(), current_.utf8());
+        if(str == "%obj") return make_token(Token::object_kw);
+        if(str == "%fn") return make_token(Token::function_kw);
+        std::cerr << "unknown keyword: " << str << "\n";
+        return token_;
+    }
+
+    const Assembler::Token& Assembler::lex_ident() {
+        while(current().is_identifier()) {
+            next_char();
+        }
+        string str(start_.utf8(), current_.utf8());
+        return make_token(keywords.count(str) ? Token::instruction : Token::identifier, str);
+    }
+
+    void Assembler::lex_comment() {
+        while(current().is_valid() && current().value != '\n') {
+            next_char();
+        }
     }
 
     const Assembler::Token& Assembler::next_token() {
@@ -57,9 +151,14 @@ namespace amyinorbit::compass {
                 case 0x0009:
                 case 0x000b:
                 case 0x000c:
-                case 0x000a:
                 case 0xfeff:
                     break;
+
+                case '\n':
+                    return make_token(Token::new_line);
+
+                case ':':
+                    return make_token(Token::colon);
 
                 case '<':
                     return make_token(Token::angle_l);
@@ -74,24 +173,21 @@ namespace amyinorbit::compass {
                 case ']':
                     return make_token(Token::bracket_r);
 
-
                 case '%':
-                    return lex_keyword(Token::directive);
-
-                case '.':
-                    return lex_keyword(Token::label);
+                    return lex_keyword();
 
                 case '"':
                 case '\'':
                     return lex_string(c.value);
 
                 case '!':
-                    // skip_comment();
+                case ';':
+                    lex_comment();
                     break;
 
                 default:
                     if(c.is_identifier_head()) {
-                        return lex_keyword(Token::keyword);
+                        return lex_ident();
                     }
                     std::cerr << "Invalid character: "<< c <<"\n";
                     abort();

@@ -18,17 +18,21 @@ namespace amyinorbit::compass {
             , current_(source.unicode_scalars().begin())
             , start_(source.unicode_scalars().begin()) {}
 
+        void compile();
     private:
 
         struct Token {
 
             enum Kind {
+                function_kw,
+                object_kw,
+
                 string_literal,
                 int_literal,
                 float_literal,
 
                 label,
-                keyword,
+                identifier,
                 directive,
                 instruction,
 
@@ -51,7 +55,7 @@ namespace amyinorbit::compass {
         };
 
         void object();
-        void objectField();
+        void object_field();
         void function();
         void instruction();
 
@@ -68,8 +72,11 @@ namespace amyinorbit::compass {
         // MARK: - Lexing Functions
 
         const Token& lex_string(char delim='"');
-        const Token& lex_keyword(Token::Kind kind);
+        const Token& lex_ident();
+        const Token& lex_keyword();
+        void lex_comment();
 
+        const string& text() const { return token_.data; }
         unicode::scalar current() const { return *current_; }
         unicode::scalar next_char() { return *(current_++); }
         const Token& next_token();

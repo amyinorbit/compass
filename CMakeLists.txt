@@ -26,9 +26,10 @@ add_definitions(-DCOMPASS_VERSION_STRING=\"${PROJECT_VERSION}\")
 configure_file(${VERSION_TPL} ${VERSION_OUT})
 
 find_package(Boost REQUIRED)
-find_package(apfun 2020.1.2 REQUIRED)
+# find_package(apfun 2020.1.2 REQUIRED)
 include_directories(${PROJECT_SOURCE_DIR}/include ${Boost_INCLUDE_DIRS})
 
+add_subdirectory(apfun)
 add_subdirectory(lib)
 add_subdirectory(bin)
 
