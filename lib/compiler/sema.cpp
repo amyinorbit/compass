@@ -10,6 +10,25 @@
 
 namespace amyinorbit::compass::sema {
 
+
+    bool operator==(const Value& left, const Value& right) {
+        if(left.type() != right.type()) return false;
+        switch (left.type()) {
+            case Value::nil: return false;
+            case Value::integer: return left.as<i32>() == right.as<i32>();
+            case Value::real: return left.as<float>() == right.as<float>();
+            case Value::text: return left.as<string>() == right.as<string>();
+            case Value::property: return left.as<Property>().value == right.as<Property>().value;
+            case Value::object: return left.as<Object*>() == right.as<Object*>();
+            case Value::list: return left.as<Array>() == right.as<Array>();
+        }
+        return false;
+    }
+
+    bool operator!=(const Value& left, const Value& right) {
+        return !(left == right);
+    }
+
     Object::Object(const Object* prototype, const string& name)
         : prototype_(prototype), name_(name) {
 

@@ -27,7 +27,6 @@ namespace amyinorbit::compass::sema {
         enum Type { nil, integer, real, text, property, object, list };
 
         Value() : data_(nil_tag) {}
-
         Type type() const { return static_cast<Type>(data_.index()); }
 
         template <typename T> explicit Value(const T& val) : data_(val) {}
@@ -41,10 +40,13 @@ namespace amyinorbit::compass::sema {
         std::variant<nil_t, i32, float, string, Property, Ref, Array> data_;
     };
 
+    bool operator==(const Value& left, const Value& right);
+    bool operator!=(const Value& left, const Value& right);
+
     std::ostream& operator<<(std::ostream& out, const Value& v);
 
     /*
-    This is not optimal at all. We basically have versions of Object, that represent the
+    This is not optimal at all. We basically have two versions of Object, that represent the
     same things in different layers of Compass. However, it avoids clunky mechanics at runtime
     and can make things easier in Sema + code generation
     */

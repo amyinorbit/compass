@@ -13,6 +13,8 @@
 namespace amyinorbit::compass {
 
     u16 CodeGen::add_constant(const Value& c) {
+        auto it = std::find(constants_.begin(), constants_.end(), c);
+        if(it != constants_.end()) return it - constants_.begin();
         constants_.push_back(c);
         return (u16)constants_.size() - 1;
     }

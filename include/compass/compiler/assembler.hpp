@@ -33,7 +33,6 @@ namespace amyinorbit::compass {
 
                 label,
                 identifier,
-                directive,
                 instruction,
 
                 colon,
