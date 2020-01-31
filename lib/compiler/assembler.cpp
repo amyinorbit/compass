@@ -8,7 +8,7 @@
 //===--------------------------------------------------------------------------------------------===
 #include <compass/compiler/assembler.hpp>
 #include <apfun/maybe.hpp>
-#include "mnemonics.gen.inc"
+#include "instr_data.inc"
 
 namespace amyinorbit::compass {
     using namespace sema;
@@ -77,7 +77,7 @@ namespace amyinorbit::compass {
         expect(Token::instruction, "invalid source (expected an instruction mnemonic)");
         std::cout << "instr: " << mnem;
         if(!is(Token::new_line) && !is(Token::end)) {
-            operand(keywords.at(mnem));
+            operand(instruction_data.at(mnem).op);
         }
         std::cout << "\n";
     }
@@ -176,7 +176,8 @@ namespace amyinorbit::compass {
             next_char();
         }
         string str(start_.utf8(), current_.utf8());
-        return make_token(keywords.count(str) ? Token::instruction : Token::identifier, str);
+        bool is_instruction = instruction_data.count(str) != 0;
+        return make_token(is_instruction ? Token::instruction : Token::identifier, str);
     }
 
     void Assembler::lex_comment() {
