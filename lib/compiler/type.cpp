@@ -6,7 +6,7 @@
 // Licensed under the MIT License
 // =^•.•^=
 //===--------------------------------------------------------------------------------------------===
-#include <compass/compiler/sema.hpp>
+#include <compass/compiler/type.hpp>
 
 namespace amyinorbit::compass::sema {
 

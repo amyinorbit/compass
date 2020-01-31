@@ -8,7 +8,7 @@
 //===--------------------------------------------------------------------------------------------===
 #pragma once
 #include <compass/types.hpp>
-#include <compass/compiler/sema.hpp>
+#include <compass/compiler/type.hpp>
 #include <compass/runtime2/bytecode.hpp>
 #include <compass/runtime2/bin_io.hpp>
 #include <iostream>

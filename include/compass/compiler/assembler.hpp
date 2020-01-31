@@ -9,7 +9,7 @@
 #pragma once
 #include <compass/types.hpp>
 #include <compass/bytecode.hpp>
-#include <compass/compiler/sema.hpp>
+#include <compass/compiler/type.hpp>
 
 namespace amyinorbit::compass {
 

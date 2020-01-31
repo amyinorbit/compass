@@ -3,7 +3,7 @@ add_library(CompassCompiler STATIC
     compiler.cpp
     parser.cpp
     infer.cpp
-    sema.cpp
+    type.cpp
     codegen.cpp
 )
 target_link_libraries(CompassCompiler PUBLIC apfun::apfun CompassLanguage CompassRT2)
