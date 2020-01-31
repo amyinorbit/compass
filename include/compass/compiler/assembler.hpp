@@ -8,6 +8,8 @@
 //===--------------------------------------------------------------------------------------------===
 #pragma once
 #include <compass/types.hpp>
+#include <compass/bytecode.hpp>
+#include <compass/compiler/sema.hpp>
 
 namespace amyinorbit::compass {
 
@@ -46,7 +48,8 @@ namespace amyinorbit::compass {
                 angle_l,
                 angle_r,
 
-                end
+                end,
+                invalid
             };
 
             Kind kind;
@@ -57,6 +60,10 @@ namespace amyinorbit::compass {
         void object_field();
         void function();
         void instruction();
+
+        void label();
+        sema::Value literal();
+        void operand(Opcode inst);
 
         bool is(Token::Kind kind) const { return token_.kind == kind; }
         void expect(Token::Kind kind, const string& message = "unexpected token");
@@ -70,6 +77,7 @@ namespace amyinorbit::compass {
 
         // MARK: - Lexing Functions
 
+        const Token& lex_number();
         const Token& lex_string(char delim='"');
         const Token& lex_ident();
         const Token& lex_keyword();

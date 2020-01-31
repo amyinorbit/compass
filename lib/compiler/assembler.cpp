@@ -11,6 +11,7 @@
 #include "mnemonics.gen.inc"
 
 namespace amyinorbit::compass {
+    using namespace sema;
 
     void Assembler::compile() {
         next_token();
@@ -54,7 +55,7 @@ namespace amyinorbit::compass {
         auto name = text();
         expect(Token::string_literal);
         expect(Token::equals);
-        expect(Token::string_literal); // TODO: replace with literal()
+        literal();
     }
 
     void Assembler::function() {
@@ -76,11 +77,38 @@ namespace amyinorbit::compass {
         expect(Token::instruction, "invalid source (expected an instruction mnemonic)");
         std::cout << "instr: " << mnem;
         if(!is(Token::new_line) && !is(Token::end)) {
-            auto operand = text();
-            eat();
-            std::cout << " (" << operand << ")";
+            operand(keywords.at(mnem));
         }
         std::cout << "\n";
+    }
+
+    void Assembler::label() {
+        auto name = text();
+        expect(Token::identifier, "labels must be a valid identifier");
+        expect(Token::colon);
+        // sema.label(name)
+    }
+
+    sema::Value Assembler::literal() {
+        auto op = text();
+        if(match(Token::int_literal)) {
+            return Value((i32)std::atoi(op.data()));
+        }
+        else if(match(Token::float_literal)) {
+            return Value((float)std::atof(op.data()));
+        }
+        else if(match(Token::string_literal)) {
+            return Value(op);
+        }
+        else {
+            error("invalid literal type");
+        }
+        return Value(nil_tag);
+    }
+
+    void Assembler::operand(Opcode inst) {
+        literal();
+        // else if(matc)
     }
 
     bool Assembler::match(Token::Kind kind) {
@@ -92,7 +120,33 @@ namespace amyinorbit::compass {
     }
 
     void Assembler::expect(Token::Kind kind, const string& message) {
-        if(!match(kind)) error(message);
+        if(!match(kind)) {
+            if(is(Token::invalid))
+                error(token_.data);
+            else
+                error(message);
+        }
+    }
+
+    static inline bool is_digit(unicode::scalar s) {
+        return s >= '0' && s <= '9';
+    }
+
+    const Assembler::Token& Assembler::lex_number() {
+        bool is_minus = false;
+        if(current() == '-') {
+            is_minus = true;
+            next_char();
+        }
+        while(is_digit(current())) next_char();
+
+        if(current() != '.')
+            return make_token(Token::int_literal, string(start_.utf8(), current_.utf8()));
+
+        if(!is_digit(current())) return make_token(Token::invalid);
+
+        while(is_digit(current())) next_char();
+        return make_token(Token::float_literal, string(start_.utf8(), current_.utf8()));
     }
 
     const Assembler::Token& Assembler::lex_string(char delim) {
@@ -100,10 +154,7 @@ namespace amyinorbit::compass {
         next_char();
         while(current() != delim) {
             auto c = next_char();
-            if(c == '\0') {
-                std::cerr << "quoted string not finished\n";
-                abort();
-            }
+            if(c == '\0') return make_token(Token::invalid, "quoted string not finished");
         }
         auto end = current_;
         next_char();
@@ -117,8 +168,7 @@ namespace amyinorbit::compass {
         string str(start_.utf8(), current_.utf8());
         if(str == "%obj") return make_token(Token::object_kw);
         if(str == "%fn") return make_token(Token::function_kw);
-        std::cerr << "unknown keyword: " << str << "\n";
-        return token_;
+        return make_token(Token::invalid, "unknown keyword '" + str + "'");
     }
 
     const Assembler::Token& Assembler::lex_ident() {
@@ -157,6 +207,8 @@ namespace amyinorbit::compass {
 
                 case ':':
                     return make_token(Token::colon);
+                case '=':
+                    return make_token(Token::equals);
 
                 case '<':
                     return make_token(Token::angle_l);
@@ -187,8 +239,8 @@ namespace amyinorbit::compass {
                     if(c.is_identifier_head()) {
                         return lex_ident();
                     }
-                    std::cerr << "Invalid character: "<< c <<"\n";
-                    abort();
+                    std::cout << "invalid: " << c << "\n";
+                    return make_token(Token::invalid, "invalid character in source");
             }
         }
         return make_token(Token::end);
