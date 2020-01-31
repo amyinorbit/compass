@@ -8,6 +8,7 @@
 //===--------------------------------------------------------------------------------------------===
 #include <compass/compiler/assembler.hpp>
 #include <apfun/maybe.hpp>
+#include "mnemonics.gen.inc"
 
 namespace amyinorbit::compass {
 
@@ -81,9 +82,6 @@ namespace amyinorbit::compass {
         }
         std::cout << "\n";
     }
-
-
-    #include "mnemonics.gen.inc"
 
     bool Assembler::match(Token::Kind kind) {
         if(is(kind)) {
