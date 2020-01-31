@@ -9,6 +9,7 @@
 #pragma once
 #include <compass/language/driver.hpp>
 #include <compass/compiler/type.hpp>
+#include <compass/compiler/sema.hpp>
 #include <apfun/string.hpp>
 #include <apfun/maybe.hpp>
 #include <string>
@@ -16,14 +17,9 @@
 
 namespace amyinorbit::compass {
 
-    struct Link {
-        string direction;
-        string from, to;
-    };
-
     class InferEngine {
     public:
-        InferEngine(Driver& driver);
+        InferEngine(Driver& driver, sema::Sema&);
 
         struct Ref {
             string obj;
@@ -46,35 +42,14 @@ namespace amyinorbit::compass {
 
         void dump() const {
             std::cout << "world: ";
-            for(const auto& [id, obj]: world_) {
-                // std::cout << "@" << id << ": " << obj;
-                // std::cout << "\n";
+            for(const auto& [id, obj]: sema_.world()) {
                 std::cout << id << ", ";
             }
             std::cout << "\n";
         }
 
-        void write(std::ostream& out);
-
     private:
-        maybe<sema::Value> anything(const string& name) const {
-            if(!world_.count(name)) return nothing();
-            return world_.at(name);
-        }
 
-        bool exists(const string& name) const {
-            return world_.count(name) != 0;
-        }
-
-        sema::Object* object(const string& name);
-        sema::Object* kind(const string& name);
-        maybe<string> property_of(const string& value) const;
-
-        sema::Object* create_object(const sema::Object* proto, const string& name);
-        sema::Object* create_kind(const sema::Object* proto, const string& name);
-        void create_property(const string& name);
-
-        bool ensure_not_exists(const string& name);
 
         bool error(bool expr, const string& error) {
             if(expr) {
@@ -84,14 +59,7 @@ namespace amyinorbit::compass {
         }
 
         Driver& driver_;
+        sema::Sema& sema_;
         maybe<Ref> ref_;
-
-        set<string> properties_;
-        map<string, string> values_;
-        map<string, std::unique_ptr<sema::Object>> kinds_;
-        map<string, std::unique_ptr<sema::Object>> objects_;
-
-        map<string, sema::Value> world_;
-        vector<Link> links_;
     };
 }

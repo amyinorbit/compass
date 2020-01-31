@@ -14,7 +14,8 @@ int main(int argc, const char** argv) {
 
     std::string in;
     Compiler compiler;
-    InferEngine infer(compiler);
+    sema::Sema sema(compiler);
+    InferEngine infer(compiler, sema);
 
     for(;;) {
         std::cout << "input> ";
@@ -29,20 +30,20 @@ int main(int argc, const char** argv) {
         if(!compiler.isFailed()) {
             infer.dump();
             {
-                auto out = std::ofstream("/Users/amy/Desktop/test.bin", std::ostream::binary);
-                infer.write(out);
+                auto out = std::ofstream("/home/amy/Desktop/test.bin", std::ostream::binary);
+                sema.write(out);
                 std::cout << "written\n";
             }
 
             {
-                auto in = std::ifstream("/Users/amy/Desktop/test.bin", std::ostream::binary);
+                auto in = std::ifstream("/home/amy/Desktop/test.bin", std::ostream::binary);
                 rt::Collector gc;
-                // try {
+                try {
                     Loader(gc, in).load();
                     std::cout << "read\n";
-                // } catch(std::exception& e) {
-                //     std::cerr << "Error: " << e.what() << "\n";
-                // }
+                } catch(std::exception& e) {
+                    std::cerr << "Error: " << e.what() << "\n";
+                }
             }
 
         }

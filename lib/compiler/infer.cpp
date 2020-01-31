@@ -8,34 +8,35 @@
 //===--------------------------------------------------------------------------------------------===
 #include <compass/compiler/infer.hpp>
 #include <compass/compiler/codegen.hpp>
+#include <apfun/view.hpp>
 
 namespace amyinorbit::compass {
     using namespace sema;
 
-    InferEngine::InferEngine(Driver& driver) : driver_(driver) {
+    InferEngine::InferEngine(Driver& driver, sema::Sema& sema) : driver_(driver), sema_(sema) {
 
-        create_property("size");
+        sema_.create_property("size");
+        
         for(const auto& s: {"small", "large", "massive", "tiny"}) {
-            values_[s] = "size";
-            world_["size"] = Property{s};
+            sema_.create_value("size", s);
         }
 
-        auto base = create_kind(nullptr, "object");
+        auto base = sema_.create_kind(nullptr, "object");
         base->field("name") = "";
         base->field("plural") = "";
         base->field("description") = "";
 
-        auto direction = create_kind(nullptr, "direction");
+        auto direction = sema_.create_kind(nullptr, "direction");
         direction->field("name") = "";
         direction->field("opposite") = "";
 
 
-        auto room = create_kind(base, "room");
-        auto relation = create_kind(nullptr, "relation");
+        auto room = sema_.create_kind(base, "room");
+        auto relation = sema_.create_kind(nullptr, "relation");
         relation->field("direction") = nullptr;
         relation->field("target") = nullptr;
 
-        auto thing = create_kind(base, "thing");
+        auto thing = sema_.create_kind(base, "thing");
 
         room->field("directions") = Array();
         room->field("children") = Array();
@@ -54,19 +55,19 @@ namespace amyinorbit::compass {
     void InferEngine::new_kind(const string& prototype_name) {
         if(error(!ref_, "I am not sure what you are referring to")) return;
         if(error(ref_->field, "A property of something cannot be a new kind")) return;
-        auto prototype = kind(prototype_name);
+        auto prototype = sema_.kind(prototype_name);
         if(!prototype) return;
 
-        create_kind(prototype, ref_->obj);
+        sema_.create_kind(prototype, ref_->obj);
     }
 
     void InferEngine::new_property(const string& prototype) {
         if(error(!ref_, "I am not sure what you are referring to")) return;
         if(error(ref_->field, "A property of something cannot be a new kind of property")) return;
 
-        if(!exists(ref_->obj)) create_property(ref_->obj);
+        if(!sema_.exists(ref_->obj)) sema_.create_property(ref_->obj);
 
-        auto obj = object(prototype);
+        auto obj = sema_.object(prototype);
         if(!obj) return;
         obj->field(ref_->obj) = Property{"<not set>"};
     }
@@ -74,32 +75,31 @@ namespace amyinorbit::compass {
     void InferEngine::new_property() {
         if(error(!ref_, "I am not sure what you are referring to")) return;
         if(error(ref_->field, "A property of something cannot be a new kind of property")) return;
-        if(error(properties_.count(ref_->obj), "A property")) return;
-        properties_.insert(ref_->obj);
+        // if(error(sema_.pro, "A property")) return;
+        sema_.create_property(ref_->obj);
     }
 
     void InferEngine::set_kind(const string& kind_name) {
         if(error(!ref_, "I am not sure what you are referring to")) return;
         if(error(ref_->field, "A property of something cannot be a new kind of property")) return;
-        auto new_kind = kind(kind_name);
+        auto new_kind = sema_.kind(kind_name);
         if(!new_kind) return;
 
-        if(exists(ref_->obj)) {
-            auto obj = object(ref_->obj);
+        if(sema_.exists(ref_->obj)) {
+            auto obj = sema_.object(ref_->obj);
             if(error(!obj->set_prototype(new_kind), "I can't set the kind to " + kind_name)) return;
         } else {
-            create_object(new_kind, ref_->obj);
+            sema_.create_object(new_kind, ref_->obj);
         }
     }
 
     void InferEngine::declare_property(const string& property_name, const string& value) {
-        if(!exists(property_name)) {
-            create_property(property_name);
+        if(!sema_.exists(property_name)) {
+            sema_.create_property(property_name);
         }
 
-        if(!ensure_not_exists(value)) return;
-        values_[value] = property_name;
-        world_[value] = Property{value};
+        if(!sema_.ensure_not_exists(value)) return;
+        sema_.create_value(property_name, value);
     }
 
     void InferEngine::contained(const string& how, const string& in_what) {
@@ -107,8 +107,8 @@ namespace amyinorbit::compass {
         if(error(ref_->field, "A property of something cannot be a new kind of property")) return;
 
         Object *container, *containee;
-        if(!(containee = object(ref_->obj))) return;
-        if(!(container = object(in_what))) return;
+        if(!(containee = sema_.object(ref_->obj))) return;
+        if(!(container = sema_.object(in_what))) return;
 
         if(error(!container->has_field("children"), in_what + " is not a container")) return;
 
@@ -125,10 +125,10 @@ namespace amyinorbit::compass {
     void InferEngine::set_property(const string& value) {
         if(error(!ref_, "I am not sure what you are referring to")) return;
 
-        auto obj = object(ref_->obj);
+        auto obj = sema_.object(ref_->obj);
         if(!obj) return;
 
-        auto prop = property_of(value);
+        auto prop = sema_.property_of(value);
         if(prop) {
             if(error(ref_->field && ref_->field != prop, value + " is not a " + *prop)) return;
             obj->field(*prop) = Property{value};
@@ -136,74 +136,5 @@ namespace amyinorbit::compass {
             if(error(!ref_->field, "I cannot make an object into text")) return;
             obj->field(*ref_->field) = value;
         }
-    }
-
-
-    bool InferEngine::ensure_not_exists(const string& name) {
-        if(exists(name)) {
-            driver_.diagnostic(Diagnostic::error(name + " already refers to something"));
-            return false;
-        }
-        return true;
-    }
-
-    Object* InferEngine::object(const string& name) {
-        if(error(!objects_.count(name), "There are no objects called " + name)) return nullptr;
-        return objects_.at(name).get();
-    }
-
-    Object* InferEngine::kind(const string& name) {
-        if(error(!kinds_.count(name), "There are no objects called " + name)) return nullptr;
-        return kinds_.at(name).get();
-    }
-
-    maybe<string> InferEngine::property_of(const string& value) const {
-        std::cout << "searching for prop value " << value << "\n";
-        if(!values_.count(value)) {
-            return nothing();
-        }
-        std::cout << "found\n";
-        return values_.at(value);
-    }
-
-    Object* InferEngine::create_object(const Object* proto, const string& name) {
-        if(!ensure_not_exists(name)) return nullptr;
-
-        objects_[name] = std::make_unique<Object>(proto, name);
-        auto obj = objects_.at(name).get();
-        if(obj->has_field("name")) obj->field("name") = name;
-        if(obj->has_field("plural")) obj->field("plural") = name + "s";
-        world_[name] = obj;
-        return obj;
-    }
-
-    Object* InferEngine::create_kind(const Object* proto, const string& name) {
-        if(!ensure_not_exists(name)) return nullptr;
-
-        kinds_[name] = std::make_unique<Object>(proto, name);
-        auto obj = kinds_.at(name).get();
-        if(obj->has_field("name")) obj->field("name") = name;
-        if(obj->has_field("plural")) obj->field("plural") = name + "s";
-        world_[name] = obj;
-        return obj;
-    }
-
-    void InferEngine::create_property(const string& name) {
-        if(!ensure_not_exists(name)) return;
-
-        properties_.insert(name);
-        world_[name] = Property{""};
-    }
-
-    void InferEngine::write(std::ostream &out) {
-        CodeGen cg;
-        for(const auto& [k, obj]: objects_) {
-            cg.add_object(obj.get());
-        }
-        for(const auto& [k, obj]: kinds_) {
-            cg.add_object(obj.get());
-        }
-
-        cg.write(out);
     }
 }
