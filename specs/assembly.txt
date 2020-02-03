@@ -1,17 +1,43 @@
 
-@object "object" <nil> {
+$mode assembly
+
+%obj "object" <nil> {
     "name" = "object"
     "plural" = "objects"
     "description" = ""
 }
 
-@object "thing" <object> {
+%obj "thing" <object> {
     ""
 }
 
-@function 'go' target {
-    loadc 123
-    storeg %1
-    loadc "Hello, world!"
 
+
+%fn 'look at' {
+    resv 1              ; locals[0] = object
+    
+    tstobj              ; check that we have an object
+    jmpz fallback
+    
+printing:
+    loadl 0
+    loadf "description"
+    
+        
+    
+fallback:
+    loadc "Nothing to see here."
+    ret
 }
+
+%fn 'say' {
+    resv 1
+    tstobj
+}
+
+$mode plainlang
+
+when looking at a thing called [something]:
+    If [something] has a description, say the description.
+    Otherwise, say "Nothing to see here.".
+done.

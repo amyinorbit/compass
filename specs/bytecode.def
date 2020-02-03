@@ -6,6 +6,7 @@ loadc       2           +1          pushes a constant on the stack from a value 
 loadg       2           +1          pushes a global on the stack
 loadl       1           +1          pushes a local variable onto the stack
 loada       0           -1          pops an array reference and index, and pushes the array item
+loadf       1           0           pops an object reference and pushes a field
 
 storeg      4           -1          pops a value from the stack into a global
 storel      1           -1          pops a value from the stack into a local
