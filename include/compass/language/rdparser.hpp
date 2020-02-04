@@ -31,7 +31,7 @@ namespace amyinorbit::compass {
         template <typename T>
         bool match(const T& value) {
             if(!have(value)) return false;
-            lexer.nextToken();
+            lexer.next_token();
             return true;
         }
         bool match_being();
@@ -47,7 +47,7 @@ namespace amyinorbit::compass {
         string words_until(Grammar::Class stop);
 
         string eat();
-        string text() const { return lexer.currentToken().text; }
+        string text() const { return lexer.current_token().text; }
 
         Lexer lexer;
         Driver& driver;
@@ -61,10 +61,10 @@ namespace amyinorbit::compass {
     inline void RDParser::expect(const T& value, const string& message) {
         if(is_recovering) {
             while(!have(value) && !have(Token::End)) {
-                lexer.nextToken();
+                lexer.next_token();
             }
             if(have(Token::End)) return;
-            lexer.nextToken();
+            lexer.next_token();
             is_recovering = false;
         } else {
             if(!match(value)) {

@@ -24,8 +24,8 @@ namespace amyinorbit::compass {
         };
 
         virtual ~Grammar() {}
-        virtual Class classOf(const string& word) const = 0;
-        virtual bool meansBeing(const string& word) const = 0;
+        virtual Class class_of(const string& word) const = 0;
+        virtual bool means_being(const string& word) const = 0;
         virtual bool is(const string& word, Class wordClass) const = 0;
     };
 
@@ -35,8 +35,8 @@ namespace amyinorbit::compass {
         BasicEnglish() {}
         virtual ~BasicEnglish() {}
 
-        virtual Grammar::Class classOf(const string& word) const;
-        virtual bool meansBeing(const string& word) const;
+        virtual Grammar::Class class_of(const string& word) const;
+        virtual bool means_being(const string& word) const;
         virtual bool is(const string& word, Class wordClass) const;
 
     private:

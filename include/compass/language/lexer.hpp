@@ -42,8 +42,8 @@ namespace amyinorbit::compass {
         virtual ~Lexer() {}
 
         void reset();
-        virtual const Token& nextToken();
-        const Token& currentToken() const;
+        virtual const Token& next_token();
+        const Token& current_token() const;
     protected:
 
 
@@ -51,17 +51,17 @@ namespace amyinorbit::compass {
         unicode::scalar current() const;
         unicode::scalar nextChar();
 
-        const Token& makeToken(Token::Kind kind, const string& str = "");
+        const Token& make_token(Token::Kind kind, const string& str = "");
 
-        bool isIdentifier(unicode::scalar c);
-        void updateTokenStart();
+        bool is_identifier(unicode::scalar c);
+        // void updateTokenStart();
 
-        const Token& lexKeyword();
-        const Token& lexString();
-        const Token& lexWord();
-        const Token& lexNumber();
-        void eatLineComment();
-        void eatParenComment();
+        const Token& lex_keyword();
+        const Token& lex_string();
+        const Token& lex_word();
+        const Token& lex_number();
+        void eat_line_comment();
+        void eat_paren_comment();
 
         string source_ = "";
 

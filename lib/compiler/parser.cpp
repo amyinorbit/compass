@@ -13,7 +13,7 @@ namespace amyinorbit::compass {
 
     using namespace fp;
     void Parser::parse() {
-        lexer.nextToken();
+        lexer.next_token();
         while(!match(Token::Kind::End)) {
             if(match("when")) {
                 // TODO: match trigger

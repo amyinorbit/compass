@@ -24,11 +24,11 @@ namespace amyinorbit::compass {
         : lexer(data), driver(driver) {}
 
     bool RDParser::have_being() const {
-        return driver.grammar().meansBeing(text());
+        return driver.grammar().means_being(text());
     }
 
     bool RDParser::have(Token::Kind kind) const {
-        return lexer.currentToken().kind == kind;
+        return lexer.current_token().kind == kind;
     }
 
     bool RDParser::have(const string& word) const {
@@ -45,23 +45,23 @@ namespace amyinorbit::compass {
 
     bool RDParser::match_being() {
         if(!have_being()) return false;
-        lexer.nextToken();
+        lexer.next_token();
         return true;
     }
 
     bool RDParser::match_any(const set<string>& words) {
         if(!have_any(words)) return false;
-        lexer.nextToken();
+        lexer.next_token();
         return true;
     }
 
     void RDParser::expect_being(const string& message) {
         if(is_recovering) {
             while(!have_being() && !have(Token::End)) {
-                lexer.nextToken();
+                lexer.next_token();
             }
             if(have(Token::End)) return;
-            lexer.nextToken();
+            lexer.next_token();
             is_recovering = false;
         } else {
             if(!match_being()) {
@@ -74,10 +74,10 @@ namespace amyinorbit::compass {
     void RDParser::expect_any(const set<string>& words, const string& message) {
         if(is_recovering) {
             while(!have_any(words) && !have(Token::End)) {
-                lexer.nextToken();
+                lexer.next_token();
             }
             if(have(Token::End)) return;
-            lexer.nextToken();
+            lexer.next_token();
             is_recovering = false;
         } else {
             if(!match_any(words)) {
@@ -88,17 +88,17 @@ namespace amyinorbit::compass {
     }
 
     string RDParser::eat() {
-        string text = lexer.currentToken().text;
-        lexer.nextToken();
+        string text = lexer.current_token().text;
+        lexer.next_token();
         return text;
     }
 
     void RDParser::skip_until(Token::Kind kind) {
-        while(lexer.currentToken().kind != kind) {
-            if(lexer.currentToken().kind == Token::Kind::End) return;
-            lexer.nextToken();
+        while(lexer.current_token().kind != kind) {
+            if(lexer.current_token().kind == Token::Kind::End) return;
+            lexer.next_token();
         }
-        lexer.nextToken();
+        lexer.next_token();
     }
 
     string RDParser::words_until(const string& stop) {

@@ -41,7 +41,7 @@ namespace amyinorbit::compass {
         current_ = source_.unicode_scalars().begin();
     }
 
-    const Token& Lexer::currentToken() const {
+    const Token& Lexer::current_token() const {
         return currentToken_;
     }
 
@@ -53,26 +53,26 @@ namespace amyinorbit::compass {
         return *(current_++);
     }
 
-    bool Lexer::isIdentifier(unicode::scalar c) {
+    bool Lexer::is_identifier(unicode::scalar c) {
         return c.is_identifier()
             || c == '-'
             || c == '\'';
     }
 
-    void Lexer::updateTokenStart() {
-        start_ = current_;
-    }
+    // void Lexer::update_tokenStart() {
+    //     start_ = current_;
+    // }
 
-    const Token& Lexer::lexKeyword() {
-        while(isIdentifier(current())) {
+    const Token& Lexer::lex_keyword() {
+        while(is_identifier(current())) {
             nextChar();
         }
 
         const auto str = string(start_.utf8(), current_.utf8());
-        return makeToken(Token::Keyword, str);
+        return make_token(Token::Keyword, str);
     }
 
-    const Token& Lexer::lexString() {
+    const Token& Lexer::lex_string() {
 
         while(current() != '"') {
             auto c = nextChar();
@@ -84,44 +84,44 @@ namespace amyinorbit::compass {
         nextChar();
 
         const auto length = (current_.utf8() - start_.utf8())-2;
-        return makeToken(Token::QuotedString, string(start_.utf8() + 1, length));
+        return make_token(Token::QuotedString, string(start_.utf8() + 1, length));
     }
 
-    const Token& Lexer::lexWord() {
-        while(isIdentifier(current())) {
+    const Token& Lexer::lex_word() {
+        while(is_identifier(current())) {
             nextChar();
         }
-        return makeToken(Token::Word, string(start_.utf8(), current_.utf8()));
+        return make_token(Token::Word, string(start_.utf8(), current_.utf8()));
     }
 
-    const Token& Lexer::lexNumber() {
+    const Token& Lexer::lex_number() {
         while(current() >= '0' && current() < '9') {
             nextChar();
         }
-        return makeToken(Token::Word, string(start_.utf8(), current_.utf8()));
+        return make_token(Token::Word, string(start_.utf8(), current_.utf8()));
     }
 
-    const Token& Lexer::makeToken(Token::Kind kind, const string& str) {
+    const Token& Lexer::make_token(Token::Kind kind, const string& str) {
         currentToken_.kind = kind;
         currentToken_.text = str;
         // std::cout << "\t" << currentToken_.type() << "=" << str << "\n";
         return currentToken_;
     }
 
-    void Lexer::eatLineComment() {
+    void Lexer::eat_line_comment() {
         while(current().is_valid() && (current() != '\n' && current() != '\r')) {
             nextChar();
         }
     }
 
-    void Lexer::eatParenComment() {
+    void Lexer::eat_paren_comment() {
         while(current() != ')') nextChar();
         nextChar();
     }
 
-    const Token& Lexer::nextToken() {
+    const Token& Lexer::next_token() {
         if(current_ == source_.unicode_scalars().end()) {
-            return makeToken(Token::End);
+            return make_token(Token::End);
         }
 
         while(current().is_valid()) {
@@ -140,45 +140,45 @@ namespace amyinorbit::compass {
                     break;
 
                 // // line feed
-                //     return makeToken(Token::Newline);
+                //     return make_token(Token::Newline);
 
                 case '.':
-                    return makeToken(Token::Period);
+                    return make_token(Token::Period);
 
                 case ',':
-                    return makeToken(Token::Comma);
+                    return make_token(Token::Comma);
 
                 case '&':
-                    return makeToken(Token::Amp);
+                    return make_token(Token::Amp);
 
                 case '-':
-                    return makeToken(Token::Dash);
+                    return make_token(Token::Dash);
 
                 case '@':
-                    return lexKeyword();
+                    return lex_keyword();
 
                 case '"':
-                    return lexString();
+                    return lex_string();
 
                 case ':':
-                    return makeToken(Token::Colon);
+                    return make_token(Token::Colon);
 
                 case '#':
-                    eatLineComment();
+                    eat_line_comment();
                     break;
 
                 case '(':
-                    eatParenComment();
+                    eat_paren_comment();
                     break;
 
                 default:
                     if(c.is_identifier_head()) {
-                        return lexWord();
+                        return lex_word();
                     }
                     std::cerr << "Invalid character: "<< c <<"\n";
                     abort();
             }
         }
-        return makeToken(Token::End);
+        return make_token(Token::End);
     }
 }

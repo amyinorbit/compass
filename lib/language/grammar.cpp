@@ -40,8 +40,8 @@ namespace amyinorbit::compass {
     const set<string> BasicEnglish::conjunctions_ = {
         "for", "and", "nor", "but", "or", "yet", "so"
     };
-    
-    Grammar::Class BasicEnglish::classOf(const string& word) const {
+
+    Grammar::Class BasicEnglish::class_of(const string& word) const {
         const auto low = word;
         if(low == "the") return Grammar::Definite;
         if(low == "a" || low == "an") return Grammar::Indefinite;
@@ -54,7 +54,7 @@ namespace amyinorbit::compass {
         return Grammar::Neutral;
     }
 
-    bool BasicEnglish::meansBeing(const string& word) const {
+    bool BasicEnglish::means_being(const string& word) const {
         const auto low = word;
         return low == "is" || low == "are";
     }
