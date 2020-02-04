@@ -49,53 +49,42 @@ namespace amyinorbit::compass {
         return true;
     }
 
-    bool RDParser::match(Token::Kind kind) {
-        if(!have(kind)) return false;
-        lexer.nextToken();
-        return true;
-    }
-
-    bool RDParser::match(const string& word) {
-        if(!have(word)) return false;
-        lexer.nextToken();
-        return true;
-    }
-
     bool RDParser::match_any(const set<string>& words) {
         if(!have_any(words)) return false;
         lexer.nextToken();
         return true;
     }
 
-    bool RDParser::match(Grammar::Class wordClass) {
-        if(!have(wordClass)) return false;
-        lexer.nextToken();
-        return true;
-    }
-
     void RDParser::expect_being(const string& message) {
-        if(driver.isFailed()) skip_until(Token::End);
-        if(!match_being()) driver.diagnostic(Diagnostic::error(message));
-    }
-
-    void RDParser::expect(Token::Kind kind, const string& message) {
-        if(driver.isFailed()) skip_until(kind);
-        if(!match(kind)) driver.diagnostic(Diagnostic::error(message));
-    }
-
-    void RDParser::expect(const string& word, const string& message) {
-        if(driver.isFailed()) skip_until(Token::End);
-        if(!match(word)) driver.diagnostic(Diagnostic::error(message));
+        if(is_recovering) {
+            while(!have_being() && !have(Token::End)) {
+                lexer.nextToken();
+            }
+            if(have(Token::End)) return;
+            lexer.nextToken();
+            is_recovering = false;
+        } else {
+            if(!match_being()) {
+                driver.diagnostic(Diagnostic::error(message));
+                is_recovering = true;
+            }
+        }
     }
 
     void RDParser::expect_any(const set<string>& words, const string& message) {
-        if(driver.isFailed()) skip_until(Token::End);
-        if(!match_any(words)) driver.diagnostic(Diagnostic::error(message));
-    }
-
-    void RDParser::expect(Grammar::Class wordClass, const string& message) {
-        if(driver.isFailed()) skip_until(Token::End);
-        if(!match(wordClass)) driver.diagnostic(Diagnostic::error(message));
+        if(is_recovering) {
+            while(!have_any(words) && !have(Token::End)) {
+                lexer.nextToken();
+            }
+            if(have(Token::End)) return;
+            lexer.nextToken();
+            is_recovering = false;
+        } else {
+            if(!match_any(words)) {
+                driver.diagnostic(Diagnostic::error(message));
+                is_recovering = true;
+            }
+        }
     }
 
     string RDParser::eat() {

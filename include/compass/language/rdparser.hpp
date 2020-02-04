@@ -28,17 +28,19 @@ namespace amyinorbit::compass {
         bool have_any(const set<string>& words) const;
         bool have(Grammar::Class wordClass) const;
 
+        template <typename T>
+        bool match(const T& value) {
+            if(!have(value)) return false;
+            lexer.nextToken();
+            return true;
+        }
         bool match_being();
-        bool match(Token::Kind kind);
-        bool match(const string& word);
         bool match_any(const set<string>& words);
-        bool match(Grammar::Class wordClass);
 
+        template <typename T>
+        void expect(const T& value, const string& error = "invalid token");
         void expect_being(const string& error = "invalid token");
-        void expect(Token::Kind kind, const string& error = "invalid token");
-        void expect(const string& word, const string& error = "invalid token");
         void expect_any(const set<string>& words, const string& error = "invalid token");
-        void expect(Grammar::Class wordClass, const string& error = "invalid token");
 
         string words_until(const string& stop = "");
         string words_until_any(const set<string>& stop);
@@ -51,6 +53,24 @@ namespace amyinorbit::compass {
         Driver& driver;
 
     private:
+        bool is_recovering = false;
         void skip_until(Token::Kind kind);
     };
+
+    template <typename T>
+    inline void RDParser::expect(const T& value, const string& message) {
+        if(is_recovering) {
+            while(!have(value) && !have(Token::End)) {
+                lexer.nextToken();
+            }
+            if(have(Token::End)) return;
+            lexer.nextToken();
+            is_recovering = false;
+        } else {
+            if(!match(value)) {
+                driver.diagnostic(Diagnostic::error(message));
+                is_recovering = true;
+            }
+        }
+    }
 }
