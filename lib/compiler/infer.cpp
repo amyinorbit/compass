@@ -16,7 +16,7 @@ namespace amyinorbit::compass {
     InferEngine::InferEngine(Driver& driver, sema::Sema& sema) : driver_(driver), sema_(sema) {
 
         sema_.create_property("size");
-        
+
         for(const auto& s: {"small", "large", "massive", "tiny"}) {
             sema_.create_value("size", s);
         }
@@ -77,6 +77,17 @@ namespace amyinorbit::compass {
         if(error(ref_->field, "A property of something cannot be a new kind of property")) return;
         // if(error(sema_.pro, "A property")) return;
         sema_.create_property(ref_->obj);
+    }
+
+    void InferEngine::new_property_value(const string& property_name) {
+        if(error(!ref_, "I am not sure what you are referring to")) return;
+        if(error(ref_->field, "A property of something cannot be a new value of a property")) return;
+        if(!sema_.exists(property_name)) {
+            sema_.create_property(property_name);
+        }
+
+        if(!sema_.ensure_not_exists(ref_->obj)) return;
+        sema_.create_value(property_name, ref_->obj);
     }
 
     void InferEngine::set_kind(const string& kind_name) {

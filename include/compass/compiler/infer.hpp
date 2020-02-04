@@ -31,6 +31,7 @@ namespace amyinorbit::compass {
 
         void new_kind(const string& prototype);
         void new_property(const string& prototype);
+        void new_property_value(const string& property);
         void new_property();
         void set_kind(const string& kind);
 

@@ -11,11 +11,8 @@
 
 namespace amyinorbit::compass {
 
-    // #define DEBUG() (std::cout << __PRETTY_FUNCTION__ << "\n")
-#define DEBUG()
-
     using namespace fp;
-    void Parser::parse() { DEBUG();
+    void Parser::parse() {
         lexer.nextToken();
         while(!match(Token::Kind::End)) {
             if(match("when")) {
@@ -29,7 +26,7 @@ namespace amyinorbit::compass {
     }
 
     // ABNF = subject continuation
-    void Parser::assertion() { DEBUG();
+    void Parser::assertion() {
         subject();
         if(match_being()) {
             is_sentence();
@@ -43,13 +40,13 @@ namespace amyinorbit::compass {
     }
 
     // subject        = "there" / "it" / descriptor
-    void Parser::subject() { DEBUG();
+    void Parser::subject() {
         if(match(Grammar::Subjective) || match("there")) { return; }
         descriptor();
     }
 
     // descriptor     = ["the" / "a"] noun ["of" noun]
-    void Parser::descriptor() { DEBUG();
+    void Parser::descriptor() {
         match_any({"a", "an", "the"});
         string first = words_until_any({"of", "is", "have", "has"});
 
@@ -65,7 +62,7 @@ namespace amyinorbit::compass {
     }
 
     // is-sentence    = ("is" / "are") (kind / adjectives / locator / prop-def)
-    void Parser::is_sentence() { DEBUG();
+    void Parser::is_sentence() {
         if(match(Grammar::Indefinite)) {
             kind_or_property();
         } else {
@@ -75,7 +72,7 @@ namespace amyinorbit::compass {
 
     // TODO: we need to stop words_until() at directions, so we can have sentences of the type:
     //          "Jane Doe is a person in the living room"
-    void Parser::kind_or_property() { DEBUG();
+    void Parser::kind_or_property() {
         // While kinds are techincally vm-native objects, we are better off having a separate
         // method call and hard-coding them here, rather than have the inference engine do the
         // legwork of recognising words
@@ -85,10 +82,16 @@ namespace amyinorbit::compass {
             infer.new_kind(prototype);
             std::cout << "infer.new_kind(" << prototype << ")" << std::endl;
         } else if(match("property")) {
+            if(match("of")) {
+                string what = words_until();
+                infer.new_property(what);
+            } else {
+                infer.new_property();
+            }
+        } else if(match("value")) {
             expect("of");
-            string what = words_until();
-            infer.new_property(what);
-            std::cout << "infer.new_property(" << what << ")" << std::endl;
+            string property = words_until();
+            infer.new_property_value(property);
         } else {
             string what = words_until(Grammar::Preposition);
             infer.set_kind(what);
@@ -103,7 +106,7 @@ namespace amyinorbit::compass {
     }
 
 
-    void Parser::attributes() { DEBUG();
+    void Parser::attributes() {
         do {
             if(have(Grammar::Preposition)) {
                 string prep = eat();
@@ -125,7 +128,7 @@ namespace amyinorbit::compass {
     }
 
     // has-sentence   = ("has" / "have") property-name
-    void Parser::has_sentence() { DEBUG();
+    void Parser::has_sentence() {
         do {
             match_any({"a", "an", "the"});
             string prop = words_until("and");
@@ -135,7 +138,7 @@ namespace amyinorbit::compass {
     }
 
     // can-sentence   = "can" "be" participle
-    void Parser::can_sentence() { DEBUG();
+    void Parser::can_sentence() {
         do {
             match_any({"a", "an", "the"});
             string prop = words_until("and");

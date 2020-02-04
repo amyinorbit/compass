@@ -29,23 +29,6 @@ int main(int argc, const char** argv) {
 
         if(!compiler.isFailed()) {
             infer.dump();
-            {
-                auto out = std::ofstream("/home/amy/Desktop/test.bin", std::ostream::binary);
-                sema.write(out);
-                std::cout << "written\n";
-            }
-
-            {
-                auto in = std::ifstream("/home/amy/Desktop/test.bin", std::ostream::binary);
-                rt::Collector gc;
-                try {
-                    Loader(gc, in).load();
-                    std::cout << "read\n";
-                } catch(std::exception& e) {
-                    std::cerr << "Error: " << e.what() << "\n";
-                }
-            }
-
         }
         compiler.flush();
     }

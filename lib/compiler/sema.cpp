@@ -30,11 +30,9 @@ namespace amyinorbit::compass::sema {
     }
 
     maybe<string> Sema::property_of(const string& value) const {
-        std::cout << "searching for prop value " << value << "\n";
         if(!values_.count(value)) {
             return nothing();
         }
-        std::cout << "found\n";
         return values_.at(value);
     }
 
