@@ -26,6 +26,7 @@ namespace amyinorbit::compass {
             maybe<string> field = nothing();
         };
 
+        void select(const Ref& what) { ref_ = what; }
         void select(const string& what);
         void select(const string& what, const string& field);
 

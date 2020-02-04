@@ -52,12 +52,27 @@ namespace amyinorbit::compass {
 
     class Parser : public RDParser {
     public:
+        using Subject = vector<InferEngine::Ref>;
+
         Parser(const string& data, Driver& driver, InferEngine& infer)
             : RDParser(data, driver), infer(infer) {}
         virtual ~Parser() {}
 
         void parse();
     private:
+
+        template <typename F>
+        void each_subject(F&& f) {
+            if(!subjects_.size()) {
+                std::invoke(std::forward<F>(f));
+            } else {
+                for(const auto& s: subjects_) {
+                    std::cout << "select(" << s.obj << ")\n";
+                    infer.select(s);
+                    std::invoke(std::forward<F>(f));
+                }
+            }
+        }
 
         void assertion();
 
@@ -74,6 +89,7 @@ namespace amyinorbit::compass {
 
         string noun_until(const set<string>& stop);
 
+        Subject subjects_;
         InferEngine& infer;
     };
 }

@@ -41,7 +41,8 @@ namespace amyinorbit::compass {
 
     // subject        = "there" / "it" / descriptor
     void Parser::subject() {
-        if(match(Grammar::Subjective) || match("there")) { return; }
+        subjects_.clear();
+        if(match(Grammar::Subjective)) { return; }
         descriptor();
     }
 
@@ -53,15 +54,20 @@ namespace amyinorbit::compass {
         if(match("of")) {
             match_any({"a", "an", "the"});
             string second = words_until_any({"of", "is", "have", "has"});
-            infer.select(second, first);
+            subjects_.push_back({second, first});
         } else {
-            infer.select(first);
+            subjects_.push_back({first, nothing()});
+            while(match(Token::Comma) || match("and")) {
+                match_any({"a", "an", "the"});
+                string sub = words_until_any({"is", "have", "has", "and"});
+                subjects_.push_back({sub, nothing()});
+            }
         }
     }
 
     // is-sentence    = ("is" / "are") (kind / adjectives / locator / prop-def)
     void Parser::is_sentence() {
-        if(match(Grammar::Indefinite)) {
+        if(match(Grammar::Indefinite) || have("values") || have("kinds")) {
             kind_or_property();
         } else {
             attributes();
@@ -74,28 +80,28 @@ namespace amyinorbit::compass {
         // While kinds are techincally vm-native objects, we are better off having a separate
         // method call and hard-coding them here, rather than have the inference engine do the
         // legwork of recognising words
-        if(match("kind")) {
+        if(match("kind") || match("kinds")) {
             expect("of");
             string prototype = words_until();
-            infer.new_kind(prototype);
+            each_subject([&]{ infer.new_kind(prototype); });
         } else if(match("property")) {
             if(match("of")) {
                 string what = words_until();
-                infer.new_property(what);
+                each_subject([&]{ infer.new_property(what); });
             } else {
-                infer.new_property();
+                each_subject([&]{ infer.new_property(); });
             }
-        } else if(match("value")) {
+        } else if(match("value") || match("values")) {
             expect("of");
             string property = words_until();
-            infer.new_property_value(property);
+            each_subject([&]{ infer.new_property_value(property); });
         } else {
             string what = words_until(Grammar::Preposition);
-            infer.set_kind(what);
+            each_subject([&]{ infer.set_kind(what); });
             if(have(Grammar::Preposition)) {
                 string prep = eat();
                 string container = noun_until({});
-                infer.contained(prep, container);
+                each_subject([&]{ infer.contained(prep, container); });
             }
         }
     }
@@ -106,15 +112,14 @@ namespace amyinorbit::compass {
             if(have(Grammar::Preposition)) {
                 string prep = eat();
                 string container = noun_until({"and"});
-                infer.contained(prep, container);
+                each_subject([&]{ infer.contained(prep, container); });
             } else {
                 string attr = words_until_any({"of", "from", "and"});
                 if(match_any({"of", "from"})) {
                     string loc = words_until("and");
-                    infer.link_to(attr, loc);
-                    std::cout << "infer.link_to(" << attr << "," << loc << ")" << std::endl;
+                    each_subject([&]{ infer.link_to(attr, loc); });
                 } else {
-                    infer.set_property(attr);
+                    each_subject([&]{ infer.set_property(attr); });
                 }
             }
         } while(match("and") || match(Token::Kind::Comma));
