@@ -27,6 +27,8 @@ namespace amyinorbit::compass {
             Period,
             Amp,
             Colon,
+            LParen,
+            RParen,
             End,
         };
 

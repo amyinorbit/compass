@@ -81,9 +81,9 @@ namespace amyinorbit::compass {
         }
     }
 
-    void InferEngine::is_a(const string& what) {
-        if(error(!ref_, "I am not sure what you are referring to")) return;
-        if(error(ref_->field, "A property of something cannot be a new kind of property")) return;
+    bool InferEngine::is_a(const string& what) {
+        if(error(!ref_, "I am not sure what you are referring to")) return false;
+        if(error(ref_->field, "A property of something cannot be a new kind of property")) return false;
 
         auto type = sema_.type_of(what);
 
@@ -98,6 +98,7 @@ namespace amyinorbit::compass {
             error("There is no such thing as " + what);
             break;
         }
+        return type == Value::object;
     }
 
     void InferEngine::declare_property(const string& property_name, const string& value) {

@@ -110,6 +110,8 @@ namespace amyinorbit::compass {
         string what = words_until(Grammar::Preposition);
         if(count == plural) what = infer.singular(what);
         each_subject([&]{ infer.is_a(what); });
+        
+
         if(have(Grammar::Preposition)) {
             string prep = eat();
             string container = noun_until({});

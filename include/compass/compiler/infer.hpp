@@ -37,13 +37,15 @@ namespace amyinorbit::compass {
         void new_property();
         void set_kind(const string& kind);
 
-        void is_a(const string& what);
+        bool is_a(const string& what);
 
         void contained(const string& how, const string& in_what);
         void link_to(const string& direction, const string& place);
 
         void set_property(const string& prop);
         void declare_property(const string& property, const string& value);
+
+        auto type_of(const string& name) const { return sema_.type_of(name); }
 
         const string& singular(const string& plural) const {
             auto it = singular_it(plural);

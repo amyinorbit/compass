@@ -27,6 +27,8 @@ namespace amyinorbit::compass {
         "Period",
         "Amp",
         "Colon",
+        "LeftParen",
+        "RightParen",
         "End",
     };
 
@@ -142,6 +144,12 @@ namespace amyinorbit::compass {
                 // // line feed
                 //     return make_token(Token::Newline);
 
+                case '(':
+                    return make_token(Token::LParen);
+
+                case ')':
+                    return make_token(Token::RParen);
+
                 case '.':
                     return make_token(Token::Period);
 
@@ -165,10 +173,6 @@ namespace amyinorbit::compass {
 
                 case '#':
                     eat_line_comment();
-                    break;
-
-                case '(':
-                    eat_paren_comment();
                     break;
 
                 default:
