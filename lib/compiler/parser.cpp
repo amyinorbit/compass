@@ -29,15 +29,11 @@ namespace amyinorbit::compass {
     void Parser::assertion() {
         subject();
         if(is_plural()) {
-            if(match("are"))
-               are_sentence();
-            else
-                abort();
+            if(match("are")) are_sentence();
+            else error("unknown assertion verb");
         } else {
-            if(match("is"))
-               is_sentence();
-            else
-                abort();
+            if(match("is")) is_sentence();
+            else error("unknown assertion verb");
         }
     }
 
@@ -75,7 +71,7 @@ namespace amyinorbit::compass {
             } else if(match("property")) {
                 finish_new_property();
             } else {
-                finish_set_kind(singular);
+                finish_set_kind();
             }
         } else {
             attributes();
@@ -88,7 +84,7 @@ namespace amyinorbit::compass {
         else if(match("properties"))
             finish_new_property();
         else
-            finish_set_kind(plural);
+            finish_set_kind();
     }
 
     void Parser::finish_new_property() {
@@ -106,11 +102,11 @@ namespace amyinorbit::compass {
         each_subject([&]{ infer.new_kind(prototype); });
     }
 
-    void Parser::finish_set_kind(Count count) {
+    void Parser::finish_set_kind() {
         string what = words_until(Grammar::Preposition);
-        if(count == plural) what = infer.singular(what);
+        if(is_plural()) what = infer.singular(what);
         each_subject([&]{ infer.is_a(what); });
-        
+
 
         if(have(Grammar::Preposition)) {
             string prep = eat();

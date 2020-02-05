@@ -49,6 +49,10 @@ namespace amyinorbit::compass {
         string eat();
         string text() const { return lexer.current_token().text; }
 
+        void error(const string& error) {
+            driver.diagnostic(Diagnostic::error(error));
+        }
+
         Lexer lexer;
         Driver& driver;
 

@@ -102,6 +102,7 @@ namespace amyinorbit::compass {
     }
 
     string RDParser::words_until(const string& stop) {
+        if(have(Token::QuotedString)) return eat();
         auto str = text();
         expect(Token::Word);
         while(have(Token::Word) && !have_being() && !have(stop)) {
@@ -112,6 +113,7 @@ namespace amyinorbit::compass {
     }
 
     string RDParser::words_until_any(const set<string>& stop) {
+        if(have(Token::QuotedString)) return eat();
         auto str = text();
         expect(Token::Word);
         while(have(Token::Word) && !have_being() && !have_any(stop)) {
@@ -122,6 +124,7 @@ namespace amyinorbit::compass {
     }
 
     string RDParser::words_until(Grammar::Class stop) {
+        if(have(Token::QuotedString)) return eat();
         auto str = text();
         expect(Token::Word);
         while(have(Token::Word) && !have_being() && !have(stop)) {

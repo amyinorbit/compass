@@ -56,10 +56,10 @@ namespace amyinorbit::compass::sema {
         );
 
         bool ensure_not_exists(const string& name);
-
-        void write(std::ostream &out);
-
+        void write(std::ostream &out) const;
         const World& world() const { return world_; }
+
+        void print_index() const;
 
     private:
 
@@ -71,6 +71,9 @@ namespace amyinorbit::compass::sema {
             }
             return expr;
         }
+
+        Object* room_kind_ = nullptr;
+        Object* root_room_ = nullptr;
 
         Driver& driver_;
         set<string> properties_;

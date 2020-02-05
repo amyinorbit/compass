@@ -62,25 +62,19 @@ namespace amyinorbit::compass {
 
     private:
 
-        enum Count { singular, plural };
-
         template <typename F>
         void each_subject(F&& f) {
             if(!subjects_.size()) {
                 std::invoke(std::forward<F>(f));
             } else {
                 for(const auto& s: subjects_) {
-                    std::cout << "select(" << s.obj << ")\n";
                     infer.select(s);
                     std::invoke(std::forward<F>(f));
                 }
             }
         }
 
-        bool is_plural() const {
-            return subjects_.size() > 1;
-        }
-
+        bool is_plural() const { return subjects_.size() > 1; }
         void assertion();
 
         void subject();
@@ -92,7 +86,7 @@ namespace amyinorbit::compass {
         void attributes();
         void containment();
 
-        void finish_set_kind(Count count);
+        void finish_set_kind();
         void finish_new_property();
         void finish_new_kind();
 
