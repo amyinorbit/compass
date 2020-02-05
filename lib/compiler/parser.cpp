@@ -70,66 +70,52 @@ namespace amyinorbit::compass {
     // is-sentence    = ("is" / "are") (kind / adjectives / locator / prop-def)
     void Parser::is_sentence() {
         if(match(Grammar::Indefinite)) {
-            kind_or_property();
+            if(match("kind")) {
+                finish_new_kind();
+            } else if(match("property")) {
+                finish_new_property();
+            } else {
+                finish_set_kind(singular);
+            }
         } else {
             attributes();
         }
     }
 
     void Parser::are_sentence() {
-        if(match("kinds")) {
-            expect("of");
-            string prototype = words_until();
-            each_subject([&]{ infer.new_kind(prototype); });
-        }
-        else if(match("values")) {
-            expect("of");
-            string property = words_until();
-            each_subject([&]{ infer.new_property_value(property); });
-        }
-        else {
-            string what = words_until(Grammar::Preposition);
-            each_subject([&]{ infer.set_kind(infer.singular(what)); });
-            if(have(Grammar::Preposition)) {
-                string prep = eat();
-                string container = noun_until({});
-                each_subject([&]{ infer.contained(prep, container); });
-            }
-        }
+        if(match("kinds"))
+            finish_new_kind();
+        else if(match("properties"))
+            finish_new_property();
+        else
+            finish_set_kind(plural);
     }
 
-    // TODO: we need to stop words_until() at directions, so we can have sentences of the type:
-    //          "Jane Doe is a person in the living room"
-    void Parser::kind_or_property() {
-        // While kinds are techincally vm-native objects, we are better off having a separate
-        // method call and hard-coding them here, rather than have the inference engine do the
-        // legwork of recognising words
-        if(match("kind")) {
-            expect("of");
-            string prototype = words_until();
-            each_subject([&]{ infer.new_kind(prototype); });
-        } else if(match("property")) {
-            if(match("of")) {
-                string what = words_until();
-                each_subject([&]{ infer.new_property(what); });
-            } else {
-                each_subject([&]{ infer.new_property(); });
-            }
-        } else if(match("value")) {
-            expect("of");
-            string property = words_until();
-            each_subject([&]{ infer.new_property_value(property); });
+    void Parser::finish_new_property() {
+        if(match("of")) {
+            string what = words_until();
+            each_subject([&]{ infer.new_property(what); });
         } else {
-            string what = words_until(Grammar::Preposition);
-            each_subject([&]{ infer.set_kind(what); });
-            if(have(Grammar::Preposition)) {
-                string prep = eat();
-                string container = noun_until({});
-                each_subject([&]{ infer.contained(prep, container); });
-            }
+            each_subject([&]{ infer.new_property(); });
         }
     }
 
+    void Parser::finish_new_kind() {
+        expect("of");
+        string prototype = words_until();
+        each_subject([&]{ infer.new_kind(prototype); });
+    }
+
+    void Parser::finish_set_kind(Count count) {
+        string what = words_until(Grammar::Preposition);
+        if(count == plural) what = infer.singular(what);
+        each_subject([&]{ infer.is_a(what); });
+        if(have(Grammar::Preposition)) {
+            string prep = eat();
+            string container = noun_until({});
+            each_subject([&]{ infer.contained(prep, container); });
+        }
+    }
 
     void Parser::attributes() {
         do {

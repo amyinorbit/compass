@@ -59,7 +59,10 @@ namespace amyinorbit::compass {
         virtual ~Parser() {}
 
         void parse();
+
     private:
+
+        enum Count { singular, plural };
 
         template <typename F>
         void each_subject(F&& f) {
@@ -86,9 +89,12 @@ namespace amyinorbit::compass {
 
         void is_sentence();
         void are_sentence();
-        void kind_or_property();
         void attributes();
         void containment();
+
+        void finish_set_kind(Count count);
+        void finish_new_property();
+        void finish_new_kind();
 
         void has_sentence();
         void can_sentence();

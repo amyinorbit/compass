@@ -26,6 +26,12 @@ namespace amyinorbit::compass::sema {
 
         Sema(Driver& driver);
 
+
+        Value::Type type_of(const string& name) const {
+            if(!world_.count(name)) return Value::nil;
+            return world_.at(name).type();
+        }
+
         bool exists(const string& name) const {
             return world_.count(name) != 0;
         }

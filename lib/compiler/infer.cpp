@@ -52,6 +52,7 @@ namespace amyinorbit::compass {
         if(error(ref_->field, "A property of something cannot be a new kind of property")) return;
         // if(error(sema_.pro, "A property")) return;
         sema_.create_property(ref_->obj);
+        set_plural(ref_->obj, ref_->obj + "s");
     }
 
     void InferEngine::new_property_value(const string& property_name) {
@@ -80,9 +81,29 @@ namespace amyinorbit::compass {
         }
     }
 
+    void InferEngine::is_a(const string& what) {
+        if(error(!ref_, "I am not sure what you are referring to")) return;
+        if(error(ref_->field, "A property of something cannot be a new kind of property")) return;
+
+        auto type = sema_.type_of(what);
+
+        switch(type) {
+        case Value::object:
+            set_kind(what);
+            break;
+        case Value::property:
+            new_property_value(what);
+            break;
+        default:
+            error("There is no such thing as " + what);
+            break;
+        }
+    }
+
     void InferEngine::declare_property(const string& property_name, const string& value) {
         if(!sema_.exists(property_name)) {
             sema_.create_property(property_name);
+            set_plural(property_name, property_name + "s");
         }
 
         if(!sema_.ensure_not_exists(value)) return;

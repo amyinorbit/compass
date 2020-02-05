@@ -37,6 +37,8 @@ namespace amyinorbit::compass {
         void new_property();
         void set_kind(const string& kind);
 
+        void is_a(const string& what);
+
         void contained(const string& how, const string& in_what);
         void link_to(const string& direction, const string& place);
 
@@ -64,6 +66,10 @@ namespace amyinorbit::compass {
                 driver_.diagnostic(Diagnostic::error(error));
             }
             return expr;
+        }
+
+        void error(const string& error) {
+            driver_.diagnostic(Diagnostic::error(error));
         }
 
         vector<Two>::const_iterator plural_it(const string& singular) const {
