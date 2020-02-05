@@ -14,34 +14,9 @@ namespace amyinorbit::compass {
     using namespace sema;
 
     InferEngine::InferEngine(Driver& driver, sema::Sema& sema) : driver_(driver), sema_(sema) {
-
-        sema_.create_property("size");
-
-        for(const auto& s: {"small", "large", "massive", "tiny"}) {
-            sema_.create_value("size", s);
-        }
-
-        auto base = sema_.create_kind(nullptr, "object");
-        base->field("name") = "";
-        base->field("plural") = "";
-        base->field("description") = "";
-
-        auto direction = sema_.create_kind(nullptr, "direction");
-        direction->field("name") = "";
-        direction->field("opposite") = "";
-
-
-        auto room = sema_.create_kind(base, "room");
-        auto relation = sema_.create_kind(nullptr, "relation");
-        relation->field("direction") = nullptr;
-        relation->field("target") = nullptr;
-
-        auto thing = sema_.create_kind(base, "thing");
-
-        room->field("directions") = Array();
-        room->field("children") = Array();
-
-        // container_["children"] = world_.list_type(world_.);
+        set_plural("thing", "things");
+        set_plural("room", "rooms");
+        set_plural("object", "objects");
     }
 
     void InferEngine::select(const string& what) {
@@ -101,6 +76,7 @@ namespace amyinorbit::compass {
             if(error(!obj->set_prototype(new_kind), "I can't set the kind to " + kind_name)) return;
         } else {
             sema_.create_object(new_kind, ref_->obj);
+            set_plural(ref_->obj, ref_->obj + "s");
         }
     }
 
@@ -145,7 +121,17 @@ namespace amyinorbit::compass {
             obj->field(*prop) = Property{value};
         } else {
             if(error(!ref_->field, "I cannot make an object into text")) return;
+            if(*ref_->field == "plural") set_plural(ref_->obj, value);
             obj->field(*ref_->field) = value;
+        }
+    }
+
+    void InferEngine::set_plural(const string& singular, const string& plural) {
+        auto it = singular_it(singular);
+        if(it != plurals_.end()) {
+            it->second = plural;
+        } else {
+            plurals_.emplace_back(singular, plural);
         }
     }
 }

@@ -74,6 +74,10 @@ namespace amyinorbit::compass {
             }
         }
 
+        bool is_plural() const {
+            return subjects_.size() > 1;
+        }
+
         void assertion();
 
         void subject();
@@ -81,8 +85,10 @@ namespace amyinorbit::compass {
         void descriptor();
 
         void is_sentence();
+        void are_sentence();
         void kind_or_property();
         void attributes();
+        void containment();
 
         void has_sentence();
         void can_sentence();

@@ -28,14 +28,16 @@ namespace amyinorbit::compass {
     // ABNF = subject continuation
     void Parser::assertion() {
         subject();
-        if(match_being()) {
-            is_sentence();
-        } else if(match("can")) {
-            can_sentence();
-        } else if(match("has")) {
-            has_sentence();
+        if(is_plural()) {
+            if(match("are"))
+               are_sentence();
+            else
+                abort();
         } else {
-            // TODO: throw error()
+            if(match("is"))
+               is_sentence();
+            else
+                abort();
         }
     }
 
@@ -49,17 +51,17 @@ namespace amyinorbit::compass {
     // descriptor     = ["the" / "a"] noun ["of" noun]
     void Parser::descriptor() {
         match_any({"a", "an", "the"});
-        string first = words_until_any({"of", "is", "have", "has"});
+        string first = words_until_any({"of", "is", "has", "and"});
 
         if(match("of")) {
             match_any({"a", "an", "the"});
-            string second = words_until_any({"of", "is", "have", "has"});
+            string second = words_until_any({"of", "is", "are", "have", "has", "and"});
             subjects_.push_back({second, first});
         } else {
             subjects_.push_back({first, nothing()});
             while(match(Token::Comma) || match("and")) {
                 match_any({"a", "an", "the"});
-                string sub = words_until_any({"is", "have", "has", "and"});
+                string sub = words_until_any({"are", "have", "and"});
                 subjects_.push_back({sub, nothing()});
             }
         }
@@ -67,10 +69,32 @@ namespace amyinorbit::compass {
 
     // is-sentence    = ("is" / "are") (kind / adjectives / locator / prop-def)
     void Parser::is_sentence() {
-        if(match(Grammar::Indefinite) || have("values") || have("kinds")) {
+        if(match(Grammar::Indefinite)) {
             kind_or_property();
         } else {
             attributes();
+        }
+    }
+
+    void Parser::are_sentence() {
+        if(match("kinds")) {
+            expect("of");
+            string prototype = words_until();
+            each_subject([&]{ infer.new_kind(prototype); });
+        }
+        else if(match("values")) {
+            expect("of");
+            string property = words_until();
+            each_subject([&]{ infer.new_property_value(property); });
+        }
+        else {
+            string what = words_until(Grammar::Preposition);
+            each_subject([&]{ infer.set_kind(infer.singular(what)); });
+            if(have(Grammar::Preposition)) {
+                string prep = eat();
+                string container = noun_until({});
+                each_subject([&]{ infer.contained(prep, container); });
+            }
         }
     }
 
@@ -80,7 +104,7 @@ namespace amyinorbit::compass {
         // While kinds are techincally vm-native objects, we are better off having a separate
         // method call and hard-coding them here, rather than have the inference engine do the
         // legwork of recognising words
-        if(match("kind") || match("kinds")) {
+        if(match("kind")) {
             expect("of");
             string prototype = words_until();
             each_subject([&]{ infer.new_kind(prototype); });
@@ -91,7 +115,7 @@ namespace amyinorbit::compass {
             } else {
                 each_subject([&]{ infer.new_property(); });
             }
-        } else if(match("value") || match("values")) {
+        } else if(match("value")) {
             expect("of");
             string property = words_until();
             each_subject([&]{ infer.new_property_value(property); });

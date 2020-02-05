@@ -12,6 +12,7 @@
 #include <compass/compiler/sema.hpp>
 #include <apfun/string.hpp>
 #include <apfun/maybe.hpp>
+#include <algorithm>
 #include <string>
 #include <memory>
 
@@ -42,6 +43,11 @@ namespace amyinorbit::compass {
         void set_property(const string& prop);
         void declare_property(const string& property, const string& value);
 
+        const string& singular(const string& plural) const {
+            auto it = singular_it(plural);
+            return it != plurals_.end() ? it->first : plural;
+        }
+
         void dump() const {
             std::cout << "world: ";
             for(const auto& [id, obj]: sema_.world()) {
@@ -50,8 +56,8 @@ namespace amyinorbit::compass {
             std::cout << "\n";
         }
 
+        using Two = std::pair<string, string>;
     private:
-
 
         bool error(bool expr, const string& error) {
             if(expr) {
@@ -60,8 +66,36 @@ namespace amyinorbit::compass {
             return expr;
         }
 
+        vector<Two>::const_iterator plural_it(const string& singular) const {
+            return std::find_if(plurals_.begin(), plurals_.end(), [&](const auto& p) {
+                return p.first == singular;
+            });
+        }
+
+        vector<Two>::iterator plural_it(const string& singular) {
+            return std::find_if(plurals_.begin(), plurals_.end(), [&](const auto& p) {
+                return p.first == singular;
+            });
+        }
+
+        vector<Two>::const_iterator singular_it(const string& plural) const {
+            return std::find_if(plurals_.begin(), plurals_.end(), [&](const auto& p) {
+                return p.second == plural;
+            });
+        }
+
+        vector<Two>::iterator singular_it(const string& plural) {
+            return std::find_if(plurals_.begin(), plurals_.end(), [&](const auto& p) {
+                return p.second == plural;
+            });
+        }
+
+        void set_plural(const string& singular, const string& plural);
+
         Driver& driver_;
         sema::Sema& sema_;
-        maybe<Ref> ref_;
+
+        vector<Two> plurals_;
+        maybe<Ref> ref_ = nothing();
     };
 }
