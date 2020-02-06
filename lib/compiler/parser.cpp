@@ -14,14 +14,14 @@ namespace amyinorbit::compass {
     using namespace fp;
     void Parser::parse() {
         lexer.next_token();
-        while(!match(Token::Kind::End)) {
+        while(!match(Token::Kind::end)) {
             if(match("when")) {
                 // TODO: match trigger
             } else {
                 assertion();
             }
             // std::cout << "end of sentence: " << lexer.currentToken().type() << "\n";
-            expect(Token::Period, "sentences should end with a period");
+            expect(Token::period, "sentences should end with a period");
         }
     }
 
@@ -55,7 +55,7 @@ namespace amyinorbit::compass {
             subjects_.push_back({second, first});
         } else {
             subjects_.push_back({first, nothing()});
-            while(match(Token::Comma) || match("and")) {
+            while(match(Token::comma) || match("and")) {
                 match_any({"a", "an", "the"});
                 string sub = words_until_any({"are", "have", "and"});
                 subjects_.push_back({sub, nothing()});
@@ -130,7 +130,7 @@ namespace amyinorbit::compass {
                     each_subject([&]{ infer.set_property(attr); });
                 }
             }
-        } while(match("and") || match(Token::Kind::Comma));
+        } while(match("and") || match(Token::Kind::comma));
     }
 
     // has-sentence   = ("has" / "have") property-name
@@ -139,7 +139,7 @@ namespace amyinorbit::compass {
             match_any({"a", "an", "the"});
             string prop = words_until("and");
             std::cout << "infer.has_prop(" << prop << ")" << std::endl;
-        } while(match("and") || match(Token::Kind::Comma));
+        } while(match("and") || match(Token::Kind::comma));
     }
 
     // can-sentence   = "can" "be" participle
@@ -147,7 +147,7 @@ namespace amyinorbit::compass {
         do {
             match_any({"a", "an", "the"});
             string prop = words_until("and");
-        } while(match("and") || match(Token::Kind::Comma));
+        } while(match("and") || match(Token::Kind::comma));
     }
 
     string Parser::noun_until(const set<string>& stop) {

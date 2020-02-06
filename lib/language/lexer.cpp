@@ -71,7 +71,7 @@ namespace amyinorbit::compass {
         }
 
         const auto str = string(start_.utf8(), current_.utf8());
-        return make_token(Token::Keyword, str);
+        return make_token(Token::keyword, str);
     }
 
     const Token& Lexer::lex_string() {
@@ -86,21 +86,21 @@ namespace amyinorbit::compass {
         next_char();
 
         const auto length = (current_.utf8() - start_.utf8())-2;
-        return make_token(Token::QuotedString, string(start_.utf8() + 1, length));
+        return make_token(Token::quoted_string, string(start_.utf8() + 1, length));
     }
 
     const Token& Lexer::lex_word() {
         while(is_identifier(current())) {
             next_char();
         }
-        return make_token(Token::Word, string(start_.utf8(), current_.utf8()));
+        return make_token(Token::word, string(start_.utf8(), current_.utf8()));
     }
 
     const Token& Lexer::lex_number() {
         while(current() >= '0' && current() < '9') {
             next_char();
         }
-        return make_token(Token::Word, string(start_.utf8(), current_.utf8()));
+        return make_token(Token::word, string(start_.utf8(), current_.utf8()));
     }
 
     const Token& Lexer::make_token(Token::Kind kind, const string& str) {
@@ -123,7 +123,7 @@ namespace amyinorbit::compass {
 
     const Token& Lexer::next_token() {
         if(current_ == source_.unicode_scalars().end()) {
-            return make_token(Token::End);
+            return make_token(Token::end);
         }
 
         while(current().is_valid()) {
@@ -145,22 +145,22 @@ namespace amyinorbit::compass {
                 //     return make_token(Token::Newline);
 
                 case '(':
-                    return make_token(Token::LParen);
+                    return make_token(Token::l_paren);
 
                 case ')':
-                    return make_token(Token::RParen);
+                    return make_token(Token::r_paren);
 
                 case '.':
-                    return make_token(Token::Period);
+                    return make_token(Token::period);
 
                 case ',':
-                    return make_token(Token::Comma);
+                    return make_token(Token::comma);
 
                 case '&':
-                    return make_token(Token::Amp);
+                    return make_token(Token::amp);
 
                 case '-':
-                    return make_token(Token::Dash);
+                    return make_token(Token::dash);
 
                 case '@':
                     return lex_keyword();
@@ -169,7 +169,7 @@ namespace amyinorbit::compass {
                     return lex_string();
 
                 case ':':
-                    return make_token(Token::Colon);
+                    return make_token(Token::colon);
 
                 case '#':
                     eat_line_comment();
@@ -180,9 +180,9 @@ namespace amyinorbit::compass {
                         return lex_word();
                     }
                     std::cerr << "Invalid character: "<< c <<"\n";
-                    return make_token(Token::End);
+                    return make_token(Token::end);
             }
         }
-        return make_token(Token::End);
+        return make_token(Token::end);
     }
 }

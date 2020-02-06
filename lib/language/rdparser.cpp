@@ -57,10 +57,10 @@ namespace amyinorbit::compass {
 
     void RDParser::expect_being(const string& message) {
         if(is_recovering) {
-            while(!have_being() && !have(Token::End)) {
+            while(!have_being() && !have(Token::end)) {
                 lexer.next_token();
             }
-            if(have(Token::End)) return;
+            if(have(Token::end)) return;
             lexer.next_token();
             is_recovering = false;
         } else {
@@ -73,10 +73,10 @@ namespace amyinorbit::compass {
 
     void RDParser::expect_any(const set<string>& words, const string& message) {
         if(is_recovering) {
-            while(!have_any(words) && !have(Token::End)) {
+            while(!have_any(words) && !have(Token::end)) {
                 lexer.next_token();
             }
-            if(have(Token::End)) return;
+            if(have(Token::end)) return;
             lexer.next_token();
             is_recovering = false;
         } else {
@@ -95,17 +95,17 @@ namespace amyinorbit::compass {
 
     void RDParser::skip_until(Token::Kind kind) {
         while(lexer.current_token().kind != kind) {
-            if(lexer.current_token().kind == Token::Kind::End) return;
+            if(lexer.current_token().kind == Token::Kind::end) return;
             lexer.next_token();
         }
         lexer.next_token();
     }
 
     string RDParser::words_until(const string& stop) {
-        if(have(Token::QuotedString)) return eat();
+        if(have(Token::quoted_string)) return eat();
         auto str = text();
-        expect(Token::Word);
-        while(have(Token::Word) && !have_being() && !have(stop)) {
+        expect(Token::word);
+        while(have(Token::word) && !have_being() && !have(stop)) {
             str += " ";
             str += eat();
         }
@@ -113,10 +113,10 @@ namespace amyinorbit::compass {
     }
 
     string RDParser::words_until_any(const set<string>& stop) {
-        if(have(Token::QuotedString)) return eat();
+        if(have(Token::quoted_string)) return eat();
         auto str = text();
-        expect(Token::Word);
-        while(have(Token::Word) && !have_being() && !have_any(stop)) {
+        expect(Token::word);
+        while(have(Token::word) && !have_being() && !have_any(stop)) {
             str += " ";
             str += eat();
         }
@@ -124,10 +124,10 @@ namespace amyinorbit::compass {
     }
 
     string RDParser::words_until(Grammar::Class stop) {
-        if(have(Token::QuotedString)) return eat();
+        if(have(Token::quoted_string)) return eat();
         auto str = text();
-        expect(Token::Word);
-        while(have(Token::Word) && !have_being() && !have(stop)) {
+        expect(Token::word);
+        while(have(Token::word) && !have_being() && !have(stop)) {
             str += " ";
             str += eat();
         }

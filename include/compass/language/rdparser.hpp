@@ -64,10 +64,10 @@ namespace amyinorbit::compass {
     template <typename T>
     inline void RDParser::expect(const T& value, const string& message) {
         if(is_recovering) {
-            while(!have(value) && !have(Token::End)) {
+            while(!have(value) && !have(Token::end)) {
                 lexer.next_token();
             }
-            if(have(Token::End)) return;
+            if(have(Token::end)) return;
             lexer.next_token();
             is_recovering = false;
         } else {

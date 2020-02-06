@@ -18,18 +18,18 @@ namespace amyinorbit::compass {
 
     struct Token {
         enum Kind {
-            Keyword,
-            Integer,
-            Word,
-            QuotedString,
-            Dash,
-            Comma,
-            Period,
-            Amp,
-            Colon,
-            LParen,
-            RParen,
-            End,
+            keyword,
+            integer,
+            word,
+            quoted_string,
+            dash,
+            comma,
+            period,
+            amp,
+            colon,
+            l_paren,
+            r_paren,
+            end,
         };
 
         Kind kind;
