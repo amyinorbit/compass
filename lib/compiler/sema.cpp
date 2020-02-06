@@ -154,7 +154,7 @@ namespace amyinorbit::compass::sema {
         // std::cout << "\n";
         // tabs(depth);
 
-        std::cout << "\033[1;36;7m" << " " << obj->name();
+        std::cout << "\033[1;36;7m" << " " << obj->name() << "\033[0m" << "\033[36;7m";
 
         const Object* proto = obj->prototype();
         while(proto) {
@@ -164,11 +164,23 @@ namespace amyinorbit::compass::sema {
 
         std::cout << " " << "\033[0m" << "\n";
 
+        std::vector<Value> defer;
+
         for(const auto& [k, v]: obj->flattened()) {
+            if(v.is<Array>()) {
+                if(v.as<Array>().size()) {
+                    defer.push_back(v);
+                }
+                continue;
+            }
             tabs(depth);
-            std::cout << "> " << "\033[35m" << k << "\033[0m" << ": ";
+            std::cout << "| " << "\033[35m" << k << "\033[0m" << ": ";
             print_index_(v, depth+1);
             std::cout << "\n";
+        }
+
+        for(const auto& v: defer) {
+            print_index_(v, depth+2);
         }
     }
 
@@ -196,12 +208,16 @@ namespace amyinorbit::compass::sema {
             break;
 
         case Value::list:
-            std::cout << "\n";
-            for(const auto& v: val.as<Array>()) {
-                tabs(depth+1);
-                std::cout << "- ";
-                print_index_(v, depth+2);
+            if(val.as<Array>().size()) {
                 std::cout << "\n";
+                for(const auto& v: val.as<Array>()) {
+                    tabs(depth+1);
+                    std::cout << "- ";
+                    print_index_(v, depth+2);
+                    std::cout << "\n";
+                }
+            } else {
+                std::cout << "[]";
             }
             break;
 
