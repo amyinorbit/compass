@@ -157,12 +157,24 @@ namespace amyinorbit::compass::sema {
         }
     }
 
+#ifdef INDEX_COLORS
+#define START_FIELD ""
+#define END_FIELD ""
+#define START_BAR "\033[1;36;7m"
+#define END_BAR "\033[0m"
+#else
+#define START_FIELD ""
+#define END_FIELD ""
+#define START_BAR "["
+#define END_BAR "]"
+#endif
+
     void print_index_(const Value& val, int depth = 0);
     void print_index_(const Object* obj, int depth = 0) {
         // std::cout << "\n";
         // tabs(depth);
 
-        std::cout << "\033[1;36;7m" << " " << obj->name() << "\033[0m" << "\033[36;7m";
+        std::cout << START_BAR << " " << obj->name();
 
         const Object* proto = obj->prototype();
         while(proto) {
@@ -170,7 +182,7 @@ namespace amyinorbit::compass::sema {
             proto = proto->prototype();
         }
 
-        std::cout << " " << "\033[0m" << "\n";
+        std::cout << " " << END_BAR << "\n";
 
         std::vector<Value> defer;
 
@@ -182,7 +194,7 @@ namespace amyinorbit::compass::sema {
                 continue;
             }
             tabs(depth);
-            std::cout << "| " << "\033[35m" << k << "\033[0m" << ": ";
+            std::cout << "| " << START_FIELD << k << END_FIELD << ": ";
             print_index_(v, depth+1);
             std::cout << "\n";
         }
@@ -237,7 +249,7 @@ namespace amyinorbit::compass::sema {
     }
 
     void Sema::print_index() const {
-        std::cout << "\033[1;30;7m" << " compass 2.0: story index " << "\033[0m" << "\n\n";
+        std::cout << START_BAR << " compass 2.0: story index " << END_BAR << "\n\n";
         if(root_room_)
             print_index_(root_room_);
 

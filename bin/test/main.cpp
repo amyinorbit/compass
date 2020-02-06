@@ -21,15 +21,16 @@ int main(int argc, const char** argv) {
         std::cout << "input> ";
         if(!std::getline(std::cin, in)) break;
 
-        Parser ap(string(in.data(), in.size()), compiler, infer);
+        auto line = string(in.data(), in.size());
+        if(line == ":index") {
+            sema.print_index();
+            continue;
+        }
 
+        Parser ap(line, compiler, infer);
         ap.parse();
 
         compiler.diagnose(std::cout);
-
-        if(!compiler.is_failed()) {
-            infer.dump();
-        }
         compiler.flush();
     }
 

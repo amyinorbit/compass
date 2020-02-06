@@ -180,7 +180,7 @@ namespace amyinorbit::compass {
                         return lex_word();
                     }
                     std::cerr << "Invalid character: "<< c <<"\n";
-                    abort();
+                    return make_token(Token::End);
             }
         }
         return make_token(Token::End);
