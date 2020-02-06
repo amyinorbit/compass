@@ -51,7 +51,7 @@ namespace amyinorbit::compass {
 
     private:
         unicode::scalar current() const;
-        unicode::scalar nextChar();
+        unicode::scalar next_char();
 
         const Token& make_token(Token::Kind kind, const string& str = "");
 
@@ -69,6 +69,6 @@ namespace amyinorbit::compass {
 
         unicode::scalar_iterator current_;
         unicode::scalar_iterator start_;
-        Token currentToken_;
+        Token current_token_;
     };
 }

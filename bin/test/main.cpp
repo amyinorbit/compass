@@ -27,7 +27,7 @@ int main(int argc, const char** argv) {
 
         compiler.diagnose(std::cout);
 
-        if(!compiler.isFailed()) {
+        if(!compiler.is_failed()) {
             infer.dump();
         }
         compiler.flush();

@@ -34,7 +34,7 @@ namespace amyinorbit::compass::sema {
         relation->field("direction") = nullptr;
         relation->field("target") = nullptr;
 
-        auto thing = create_kind(base, "thing");
+        /*auto thing = */create_kind(base, "thing");
 
         room_kind_->field("directions") = Array();
         room_kind_->field("children") = Array();

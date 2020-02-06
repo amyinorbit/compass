@@ -19,7 +19,7 @@ namespace amyinorbit::compass {
 
         virtual const Grammar& grammar() const override { return grammar_; }
         virtual void diagnostic(const Diagnostic& diag) override;
-        virtual bool isFailed() const override { return errorCount_ > 0; }
+        virtual bool is_failed() const override { return errorCount_ > 0; }
 
         void diagnose(std::ostream& out) const;
         void flush() { diagnostics_.clear(); errorCount_ = 0; }

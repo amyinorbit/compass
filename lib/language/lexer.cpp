@@ -44,14 +44,14 @@ namespace amyinorbit::compass {
     }
 
     const Token& Lexer::current_token() const {
-        return currentToken_;
+        return current_token_;
     }
 
     unicode::scalar Lexer::current() const {
         return *current_;
     }
 
-    unicode::scalar Lexer::nextChar() {
+    unicode::scalar Lexer::next_char() {
         return *(current_++);
     }
 
@@ -67,7 +67,7 @@ namespace amyinorbit::compass {
 
     const Token& Lexer::lex_keyword() {
         while(is_identifier(current())) {
-            nextChar();
+            next_char();
         }
 
         const auto str = string(start_.utf8(), current_.utf8());
@@ -77,13 +77,13 @@ namespace amyinorbit::compass {
     const Token& Lexer::lex_string() {
 
         while(current() != '"') {
-            auto c = nextChar();
+            auto c = next_char();
             if(c == '\0') {
                 std::cerr << "quoted string not finished\n";
                 abort();
             }
         }
-        nextChar();
+        next_char();
 
         const auto length = (current_.utf8() - start_.utf8())-2;
         return make_token(Token::QuotedString, string(start_.utf8() + 1, length));
@@ -91,34 +91,34 @@ namespace amyinorbit::compass {
 
     const Token& Lexer::lex_word() {
         while(is_identifier(current())) {
-            nextChar();
+            next_char();
         }
         return make_token(Token::Word, string(start_.utf8(), current_.utf8()));
     }
 
     const Token& Lexer::lex_number() {
         while(current() >= '0' && current() < '9') {
-            nextChar();
+            next_char();
         }
         return make_token(Token::Word, string(start_.utf8(), current_.utf8()));
     }
 
     const Token& Lexer::make_token(Token::Kind kind, const string& str) {
-        currentToken_.kind = kind;
-        currentToken_.text = str;
+        current_token_.kind = kind;
+        current_token_.text = str;
         // std::cout << "\t" << currentToken_.type() << "=" << str << "\n";
-        return currentToken_;
+        return current_token_;
     }
 
     void Lexer::eat_line_comment() {
         while(current().is_valid() && (current() != '\n' && current() != '\r')) {
-            nextChar();
+            next_char();
         }
     }
 
     void Lexer::eat_paren_comment() {
-        while(current() != ')') nextChar();
-        nextChar();
+        while(current() != ')') next_char();
+        next_char();
     }
 
     const Token& Lexer::next_token() {
@@ -128,7 +128,7 @@ namespace amyinorbit::compass {
 
         while(current().is_valid()) {
             start_ = current_;
-            auto c = nextChar();
+            auto c = next_char();
 
             switch(c.value) {
                 //whitespace

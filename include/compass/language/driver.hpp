@@ -19,6 +19,6 @@ namespace amyinorbit::compass {
 
         virtual const Grammar& grammar() const = 0;
         virtual void diagnostic(const Diagnostic& diag) = 0;
-        virtual bool isFailed() const = 0;
+        virtual bool is_failed() const = 0;
     };
 }
