@@ -52,7 +52,7 @@ namespace amyinorbit::compass {
 
         void write(const string& string) {
             write((u32)string.size()+1);
-            write(string.data(), string.size());
+            write(string.data(), (u32)string.size());
         }
 
         bool write(const char* data, u32 count) {
