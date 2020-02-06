@@ -27,8 +27,7 @@ maybe<sema::Sema> compile(const string& source) {
     sema::Sema sema(compiler);
     InferEngine infer(compiler, sema);
 
-    Parser parser(source, compiler, infer);
-    parser.parse();
+    Parser(source, compiler, infer).parse();
 
     compiler.diagnose(std::cout);
     if(compiler.isFailed()) return nothing();

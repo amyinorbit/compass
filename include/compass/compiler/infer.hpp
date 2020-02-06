@@ -48,7 +48,7 @@ namespace amyinorbit::compass {
         auto type_of(const string& name) const { return sema_.type_of(name); }
 
         const string& singular(const string& plural) const {
-            auto it = singular_it(plural);
+            auto it = singular_it(plural.lowercased());
             return it != plurals_.end() ? it->first : plural;
         }
 

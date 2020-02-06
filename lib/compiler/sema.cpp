@@ -46,36 +46,40 @@ namespace amyinorbit::compass::sema {
         verb->field("infinitive") = "";
     }
 
-    bool Sema::ensure_not_exists(const string& name) {
-        if(exists(name)) {
-            driver_.diagnostic(Diagnostic::error(name + " already refers to something"));
+    bool Sema::ensure_not_exists(const string& id) {
+        if(exists(id)) {
+            driver_.diagnostic(Diagnostic::error(id + " already refers to something"));
             return false;
         }
         return true;
     }
 
     Object* Sema::object(const string& name) {
-        if(error(!objects_.count(name), "There are no objects called " + name)) return nullptr;
-        return objects_.at(name).get();
+        auto id = name.lowercased();
+        if(error(!objects_.count(id), "There are no objects called " + name)) return nullptr;
+        return objects_.at(id).get();
     }
 
     Object* Sema::kind(const string& name) {
-        if(error(!kinds_.count(name), "There are no objects called " + name)) return nullptr;
-        return kinds_.at(name).get();
+        auto id = name.lowercased();
+        if(error(!kinds_.count(id), "There are no objects called " + name)) return nullptr;
+        return kinds_.at(id).get();
     }
 
     maybe<string> Sema::property_of(const string& value) const {
-        if(!values_.count(value)) {
+        auto id = value.lowercased();
+        if(!values_.count(id)) {
             return nothing();
         }
-        return values_.at(value);
+        return values_.at(id);
     }
 
     Object* Sema::create_object(const Object* proto, const string& name) {
-        if(!ensure_not_exists(name)) return nullptr;
+        auto id = name.lowercased();
+        if(!ensure_not_exists(id)) return nullptr;
 
-        objects_[name] = std::make_unique<Object>(proto, name);
-        auto obj = objects_.at(name).get();
+        objects_[id] = std::make_unique<Object>(proto, id);
+        auto obj = objects_.at(id).get();
         if(obj->has_field("name")) obj->field("name") = name;
         if(obj->has_field("plural")) obj->field("plural") = name + "s";
         world_[name] = obj;
@@ -86,26 +90,30 @@ namespace amyinorbit::compass::sema {
     }
 
     Object* Sema::create_kind(const Object* proto, const string& name) {
-        if(!ensure_not_exists(name)) return nullptr;
+        auto id = name.lowercased();
+        if(!ensure_not_exists(id)) return nullptr;
 
-        kinds_[name] = std::make_unique<Object>(proto, name);
-        auto obj = kinds_.at(name).get();
+        kinds_[id] = std::make_unique<Object>(proto, id);
+        auto obj = kinds_.at(id).get();
         if(obj->has_field("name")) obj->field("name") = name;
         if(obj->has_field("plural")) obj->field("plural") = name + "s";
-        world_[name] = obj;
+        world_[id] = obj;
         return obj;
     }
 
     void Sema::create_property(const string& name) {
-        if(!ensure_not_exists(name)) return;
+        auto id = name.lowercased();
+        if(!ensure_not_exists(id)) return;
 
-        properties_.insert(name);
-        world_[name] = Property{""};
+        properties_.insert(id);
+        world_[id] = Property{""};
     }
 
     void Sema::create_value(const string& property, const string& value) {
-        values_[value] = property;
-        world_[value] = Property{value};
+        auto value_id = value.lowercased();
+        auto prop_id = property.lowercased();
+        values_[value_id] = prop_id;
+        world_[value_id] = Property{value_id};
     }
 
     Object* Sema::create_verb(const string &present) {
@@ -120,14 +128,14 @@ namespace amyinorbit::compass::sema {
     ) {
         Object* cl = object("verb");
         if(!cl) return nullptr;
-        Object* verb = create_object(cl, present);
+        Object* verb = create_object(cl, present.lowercased());
         if(!verb) return nullptr;
-        verb->field("present") = present;
-        verb->field("past") = past;
-        verb->field("participle") = participle;
-        verb->field("infinitive") = infinitive;
+        verb->field("present") = present.lowercased();
+        verb->field("past") = past.lowercased();
+        verb->field("participle") = participle.lowercased();
+        verb->field("infinitive") = infinitive.lowercased();
 
-        verbs_[present] = verb;
+        verbs_[present.lowercased()] = verb;
         return verb;
     }
 

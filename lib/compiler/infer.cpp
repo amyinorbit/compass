@@ -149,11 +149,14 @@ namespace amyinorbit::compass {
     }
 
     void InferEngine::set_plural(const string& singular, const string& plural) {
-        auto it = singular_it(singular);
+        auto low_singular = singular.lowercased();
+        auto low_plural = plural.lowercased();
+
+        auto it = singular_it(low_singular);
         if(it != plurals_.end()) {
-            it->second = plural;
+            it->second = low_plural;
         } else {
-            plurals_.emplace_back(singular, plural);
+            plurals_.emplace_back(low_singular, low_plural);
         }
     }
 }
