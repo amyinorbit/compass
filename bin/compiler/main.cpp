@@ -30,7 +30,7 @@ maybe<sema::Sema> compile(const string& source) {
     Parser(source, compiler, infer).parse();
 
     compiler.diagnose(std::cout);
-    if(compiler.isFailed()) return nothing();
+    if(compiler.is_failed()) return nothing();
 
     sema.print_index();
     return std::move(sema);
