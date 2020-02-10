@@ -8,6 +8,7 @@
 //===--------------------------------------------------------------------------------------------===
 #include <compass/compiler/infer.hpp>
 #include <compass/compiler/codegen.hpp>
+#include <boost/bimap/support/lambda.hpp>
 #include <apfun/view.hpp>
 
 namespace amyinorbit::compass {
@@ -149,16 +150,18 @@ namespace amyinorbit::compass {
     }
 
     void InferEngine::set_plural(const string& singular, const string& plural) {
+
+        using bm_type = bimap<string, string>;
+        using value_type = bm_type::value_type;
+
         auto low_singular = singular.lowercased();
         auto low_plural = plural.lowercased();
-
-        dictionary_.insert({low_singular, low_plural});
-
-//        auto it = singular_it(low_singular);
-//        if(it != plurals_.end()) {
-//            it->second = low_plural;
-//        } else {
-//            plurals_.emplace_back(low_singular, low_plural);
-//        }
+        
+        auto it = dictionary_.left.find(low_singular);
+        if(it != dictionary_.left.end()) {
+            dictionary_.left.replace_data(it, low_plural);
+        } else {
+            dictionary_.insert(value_type(low_singular, low_plural));
+        };
     }
 }
