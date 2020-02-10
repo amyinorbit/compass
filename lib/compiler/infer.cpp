@@ -152,11 +152,13 @@ namespace amyinorbit::compass {
         auto low_singular = singular.lowercased();
         auto low_plural = plural.lowercased();
 
-        auto it = singular_it(low_singular);
-        if(it != plurals_.end()) {
-            it->second = low_plural;
-        } else {
-            plurals_.emplace_back(low_singular, low_plural);
-        }
+        dictionary_.insert({low_singular, low_plural});
+
+//        auto it = singular_it(low_singular);
+//        if(it != plurals_.end()) {
+//            it->second = low_plural;
+//        } else {
+//            plurals_.emplace_back(low_singular, low_plural);
+//        }
     }
 }

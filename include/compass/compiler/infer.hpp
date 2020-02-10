@@ -10,6 +10,7 @@
 #include <compass/language/driver.hpp>
 #include <compass/compiler/type.hpp>
 #include <compass/compiler/sema.hpp>
+#include <boost/bimap.hpp>
 #include <apfun/string.hpp>
 #include <apfun/maybe.hpp>
 #include <algorithm>
@@ -17,6 +18,8 @@
 #include <memory>
 
 namespace amyinorbit::compass {
+
+    using boost::bimap;
 
     class InferEngine {
     public:
@@ -48,8 +51,8 @@ namespace amyinorbit::compass {
         auto type_of(const string& name) const { return sema_.type_of(name); }
 
         const string& singular(const string& plural) const {
-            auto it = singular_it(plural.lowercased());
-            return it != plurals_.end() ? it->first : plural;
+            auto low = plural.lowercased();
+            return dictionary_.right.count(low) ? dictionary_.right.at(low) : plural;
         }
 
         void dump() const {
@@ -74,34 +77,12 @@ namespace amyinorbit::compass {
             driver_.diagnostic(Diagnostic::error(error));
         }
 
-        vector<Two>::const_iterator plural_it(const string& singular) const {
-            return std::find_if(plurals_.begin(), plurals_.end(), [&](const auto& p) {
-                return p.first == singular;
-            });
-        }
-
-        vector<Two>::iterator plural_it(const string& singular) {
-            return std::find_if(plurals_.begin(), plurals_.end(), [&](const auto& p) {
-                return p.first == singular;
-            });
-        }
-
-        vector<Two>::const_iterator singular_it(const string& plural) const {
-            return std::find_if(plurals_.begin(), plurals_.end(), [&](const auto& p) {
-                return p.second == plural;
-            });
-        }
-
-        vector<Two>::iterator singular_it(const string& plural) {
-            return std::find_if(plurals_.begin(), plurals_.end(), [&](const auto& p) {
-                return p.second == plural;
-            });
-        }
-
         void set_plural(const string& singular, const string& plural);
 
         Driver& driver_;
         sema::Sema& sema_;
+
+        bimap<string, string> dictionary_;
 
         vector<Two> plurals_;
         maybe<Ref> ref_ = nothing();
