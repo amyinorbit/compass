@@ -10,7 +10,7 @@
 #include <compass/types.hpp>
 #include <variant>
 
-namespace amyinorbit::compass::sema {
+namespace amyinorbit::compass {
 
     struct Object;
     struct Value;

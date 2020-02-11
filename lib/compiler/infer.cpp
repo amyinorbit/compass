@@ -14,6 +14,36 @@
 namespace amyinorbit::compass {
     using namespace sema;
 
+    template <typename F>
+    struct map_helper_t {
+        map_helper_t(F&& f) : f(std::forward<F>(f)) {}
+        F&& f;
+    };
+
+    template <typename F>
+    struct fail_helper_t {
+        fail_helper_t(F&& f) : f(std::forward<F>(f)) {}
+        F&& f;
+    };
+
+    template <typename F>
+    constexpr map_helper_t<F> fmap(F&& f) { return map_helper_t<F>(std::forward<F>(f)); }
+
+    template <typename F>
+    constexpr fail_helper_t<F> fail(F&& f) { return fail_helper_t<F>(std::forward<F>(f)); }
+
+    template <typename T, typename F, std::invoke_result_t<F, T*>* = nullptr>
+    T* operator | (T* value, const map_helper_t<F>& m) {
+        if(value != nullptr) m.f(value);
+        return value;
+    }
+
+    template <typename T, typename F>
+    T* operator | (T* value, const fail_helper_t<F>& m) {
+        if(value == nullptr) m.f();
+        return value;
+    }
+
     InferEngine::InferEngine(Driver& driver, sema::Sema& sema) : driver_(driver), sema_(sema) {
         set_plural("thing", "things");
         set_plural("room", "rooms");
@@ -31,17 +61,21 @@ namespace amyinorbit::compass {
     void InferEngine::new_kind(const string& prototype_name) {
         if(error(!ref_, "I am not sure what you are referring to")) return;
         if(error(ref_->field, "A property of something cannot be a new kind")) return;
-        auto prototype = sema_.kind(prototype_name);
-        if(!prototype) return;
 
-        sema_.create_kind(prototype, ref_->obj);
+        world_.kind(prototype_name)
+            | fmap([&](Object* prototype) {
+               //sema_.create_kind(prototype, ref_->obj);
+            })
+            | fail([&] {
+                error("'" + prototype_name + "' is not a kind that I know of");
+            });
     }
 
     void InferEngine::new_property(const string& prototype) {
         if(error(!ref_, "I am not sure what you are referring to")) return;
         if(error(ref_->field, "A property of something cannot be a new kind of property")) return;
 
-        if(!sema_.exists(ref_->obj)) sema_.create_property(ref_->obj);
+        if(!world_.exists(ref_->obj)) sema_.create_property(ref_->obj);
 
         auto obj = sema_.object(prototype);
         if(!obj) return;
@@ -59,21 +93,21 @@ namespace amyinorbit::compass {
     void InferEngine::new_property_value(const string& property_name) {
         if(error(!ref_, "I am not sure what you are referring to")) return;
         if(error(ref_->field, "A property of something cannot be a new value of a property")) return;
-        if(!sema_.exists(property_name)) {
+        if(!world_.exists(property_name)) {
             sema_.create_property(property_name);
         }
 
-        if(!sema_.ensure_not_exists(ref_->obj)) return;
+        if(!ensure_not_exists(ref_->obj)) return;
         sema_.create_value(property_name, ref_->obj);
     }
 
     void InferEngine::set_kind(const string& kind_name) {
         if(error(!ref_, "I am not sure what you are referring to")) return;
         if(error(ref_->field, "A property of something cannot be a new kind of property")) return;
-        auto new_kind = sema_.kind(kind_name);
+        auto new_kind = world_.kind(kind_name);
         if(!new_kind) return;
 
-        if(sema_.exists(ref_->obj)) {
+        if(world_.exists(ref_->obj)) {
             auto obj = sema_.object(ref_->obj);
             if(error(!obj->set_prototype(new_kind), "I can't set the kind to " + kind_name)) return;
         } else {
@@ -86,7 +120,7 @@ namespace amyinorbit::compass {
         if(error(!ref_, "I am not sure what you are referring to")) return false;
         if(error(ref_->field, "A property of something cannot be a new kind of property")) return false;
 
-        auto type = sema_.type_of(what);
+        auto type = type_of(what);
 
         switch(type) {
         case Value::object:
@@ -103,12 +137,12 @@ namespace amyinorbit::compass {
     }
 
     void InferEngine::declare_property(const string& property_name, const string& value) {
-        if(!sema_.exists(property_name)) {
+        if(!exists(property_name)) {
             sema_.create_property(property_name);
             set_plural(property_name, property_name + "s");
         }
 
-        if(!sema_.ensure_not_exists(value)) return;
+        if(!ensure_not_exists(value)) return;
         sema_.create_value(property_name, value);
     }
 
@@ -117,8 +151,8 @@ namespace amyinorbit::compass {
         if(error(ref_->field, "A property of something cannot be a new kind of property")) return;
 
         Object *container, *containee;
-        if(!(containee = sema_.object(ref_->obj))) return;
-        if(!(container = sema_.object(in_what))) return;
+        if(!(containee = object(ref_->obj))) return;
+        if(!(container = object(in_what))) return;
 
         if(error(!container->has_field("children"), in_what + " is not a container")) return;
 
@@ -135,7 +169,7 @@ namespace amyinorbit::compass {
     void InferEngine::set_property(const string& value) {
         if(error(!ref_, "I am not sure what you are referring to")) return;
 
-        auto obj = sema_.object(ref_->obj);
+        auto obj = world_.object(ref_->obj);
         if(!obj) return;
 
         auto prop = sema_.property_of(value);
@@ -156,12 +190,12 @@ namespace amyinorbit::compass {
 
         auto low_singular = singular.lowercased();
         auto low_plural = plural.lowercased();
-        
-        auto it = dictionary_.left.find(low_singular);
-        if(it != dictionary_.left.end()) {
-            dictionary_.left.replace_data(it, low_plural);
+
+        auto it = plurals_.left.find(low_singular);
+        if(it != plurals_.left.end()) {
+            plurals_.left.replace_data(it, low_plural);
         } else {
-            dictionary_.insert(value_type(low_singular, low_plural));
+            plurals_.insert(value_type(low_singular, low_plural));
         };
     }
 }

@@ -8,7 +8,7 @@
 //===--------------------------------------------------------------------------------------------===
 #include <compass/compiler/type.hpp>
 
-namespace amyinorbit::compass::sema {
+namespace amyinorbit::compass {
 
 
     bool operator==(const Value& left, const Value& right) {

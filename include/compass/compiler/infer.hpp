@@ -10,6 +10,7 @@
 #include <compass/language/driver.hpp>
 #include <compass/compiler/type.hpp>
 #include <compass/compiler/sema.hpp>
+#include <compass/compiler/world.hpp>
 #include <boost/bimap.hpp>
 #include <apfun/string.hpp>
 #include <apfun/maybe.hpp>
@@ -48,43 +49,46 @@ namespace amyinorbit::compass {
         void set_property(const string& prop);
         void declare_property(const string& property, const string& value);
 
-        auto type_of(const string& name) const { return sema_.type_of(name); }
+        Value::Type type_of(const string& name) const;
 
         const string& singular(const string& plural) const {
             auto low = plural.lowercased();
-            return dictionary_.right.count(low) ? dictionary_.right.at(low) : plural;
+            return world_.plurals.right.count(low) ? world_.plurals.right.at(low) : plural;
         }
 
-        void dump() const {
-            std::cout << "world: ";
-            for(const auto& [id, obj]: sema_.world()) {
-                std::cout << id << ", ";
-            }
-            std::cout << "\n";
-        }
-
-        using Two = std::pair<string, string>;
     private:
 
-        bool error(bool expr, const string& error) {
-            if(expr) {
-                driver_.diagnostic(Diagnostic::error(error));
-            }
+        bool error(bool expr, const string& msg) {
+            if(expr) { error(msg); }
             return expr;
         }
 
-        void error(const string& error) {
+        void error(const string& error) const {
             driver_.diagnostic(Diagnostic::error(error));
         }
 
         void set_plural(const string& singular, const string& plural);
 
+        /// MAARK: - Data Access
+
+        bool ensure_exists(const string& name) const {
+            if(world_.exists(name)) return true;
+            error("There is nothing named '" + name + "'");
+            return false;
+        }
+
+        bool ensure_not_exists(const string& name) const {
+            if(!world_.exists(name)) return true;
+            error("There is already something else named '" + name + "'");
+            return false;
+        }
+
+        // MARK: - Data
+
         Driver& driver_;
+        World world_;
         sema::Sema& sema_;
 
-        bimap<string, string> dictionary_;
-
-        vector<Two> plurals_;
         maybe<Ref> ref_ = nothing();
     };
 }
